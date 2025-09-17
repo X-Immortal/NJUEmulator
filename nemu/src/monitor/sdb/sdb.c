@@ -144,7 +144,7 @@ static int cmd_info(char *args) {
   if (strcmp(arg, "r") == 0) {
     isa_reg_display();
   } else if (strcmp(arg, "w") == 0) {
-    printf("TODO\n");
+    TODO();
   } else {
     printf("Invalid argument '%s'\n", arg);
   }
