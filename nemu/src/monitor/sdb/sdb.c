@@ -144,7 +144,7 @@ static int cmd_info(char *args) {
   if (strcmp(arg, "r") == 0) {
     isa_reg_display();
   } else if (strcmp(arg, "w") == 0) {
-    // TODO();
+    TODO();
   } else {
     printf("Invalid argument '%s'\n", arg);
   }
@@ -152,6 +152,37 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
+  char *arg1 = strtok(args, " ");
+  char *arg2 = strtok(NULL, " ");
+  if (arg1 == NULL || arg2 == NULL) {
+    printf("Command 'x' requires two arguments\n");
+    return 0;
+  }
+
+  if (strtok(NULL, " ") != NULL) {
+    printf("Too many arguments provided\n");
+    return 0;
+  }
+
+  int num_4byte;
+  char *endptr1 = arg1;
+  num_4byte = (int) strtol(arg1, &endptr1, 10);
+  if (*endptr1 != '\0') {
+    printf("Invalid argument '%s'\n", arg1); 
+    return 0;
+  }
+
+  paddr_t start_addr;
+  char *endptr2 = arg2;
+  start_addr = (paddr_t) strtol(arg2, &endptr2, 16);
+  if (*endptr2 != '\0') {
+    printf("Invalid argument '%s'\n", arg2); 
+    return 0;
+  }
+
+  for (int i = 0; i < num_4byte; i++) {
+    printf("%x", start_addr);
+  }
   return 0;
 }
 
