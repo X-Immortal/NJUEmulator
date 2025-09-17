@@ -107,25 +107,47 @@ static int cmd_help(char *args) {
 static int cmd_si(char *args) {
   char *arg = strtok(args, " ");
   int num_steps;
+
   if (arg == NULL) {
     num_steps = 1;
   } else {
     char *endptr = arg;
     num_steps = (int) strtol(arg, &endptr, 10);
+
     if (*endptr != '\0') {
       printf("Invalid argument '%s'\n", arg); 
       return 0;
     } 
+
     if (strtok(NULL, " ") != NULL) {
       printf("Too many arguments provided\n");
       return 0;
     }
   }
+
   cpu_exec(num_steps);
   return 0;
 }
 
 static int cmd_info(char *args) {
+  char *arg = strtok(args, " ");
+  if (arg == NULL) {
+    printf("Command 'info' requires an argument\n");
+    return 0;
+  }
+  
+  if (strtok(NULL, " ") != NULL) {
+    printf("Too many arguments provided\n");
+    return 0;
+  }
+
+  if (strcmp(arg, "r") == 0) {
+    isa_reg_display();
+  } else if (strcmp(arg, "w") == 0) {
+    printf("TODO\n");
+  } else {
+    printf("Invalid argument '%s'\n", arg);
+  }
   return 0;
 }
 
