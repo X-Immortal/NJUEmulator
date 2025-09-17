@@ -183,7 +183,7 @@ static int cmd_x(char *args) {
 
   printf("0x%x: ", start_addr);
   for (int i = 0; i < num_4byte; i++) {
-    printf("0x%0x", paddr_read(start_addr + i * 4, 4));
+    printf("0x%08x", paddr_read(start_addr + i * 4, 4));
     if (i < num_4byte - 1) {
       printf("\t");
     }
