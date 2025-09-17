@@ -83,7 +83,7 @@ static struct {
 
 static int cmd_help(char *args) {
   /* extract the first argument */
-  char *arg = strtok(NULL, " ");
+  char *arg = strtok(args, " ");
   int i;
 
   if (arg == NULL) {
@@ -105,6 +105,23 @@ static int cmd_help(char *args) {
 }
 
 static int cmd_si(char *args) {
+  char *arg = strtok(args, " ");
+  int num_steps;
+  if (arg == NULL) {
+    num_steps = 1;
+  } else {
+    char **endptr = NULL;
+    num_steps = (int) strtol(arg, endptr, 10);
+    if (**endptr != '\0') {
+      printf("Invalid argument '%s'\n", arg); 
+      return 0;
+    } 
+    if (strtok(NULL, " ") != NULL) {
+      printf("Too many arguments provided\n");
+      return 0;
+    }
+    cpu_exec(num_steps);
+  }
   return 0;
 }
 
