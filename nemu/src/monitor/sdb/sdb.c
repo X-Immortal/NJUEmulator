@@ -120,8 +120,8 @@ static int cmd_si(char *args) {
       printf("Too many arguments provided\n");
       return 0;
     }
-    cpu_exec(num_steps);
   }
+  cpu_exec(num_steps);
   return 0;
 }
 
