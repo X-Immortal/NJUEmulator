@@ -110,9 +110,9 @@ static int cmd_si(char *args) {
   if (arg == NULL) {
     num_steps = 1;
   } else {
-    char **endptr = NULL;
-    num_steps = (int) strtol(arg, endptr, 10);
-    if (**endptr != '\0') {
+    char *endptr = arg;
+    num_steps = (int) strtol(arg, &endptr, 10);
+    if (*endptr != '\0') {
       printf("Invalid argument '%s'\n", arg); 
       return 0;
     } 
