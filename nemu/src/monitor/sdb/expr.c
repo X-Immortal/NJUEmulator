@@ -45,7 +45,7 @@ static struct rule {
   {"\\(", '('},         // left paranthesis
   {"\\)", ')'},         // right paranthesis
   {"0x[0-9]+", TK_HEX},
-  {"(0(?![0-9])|[1-9][0-9]*)", TK_DECIMAL},
+  {"[0-9]+", TK_DECIMAL},
   {"==", TK_EQ},        // equal
 };
 
