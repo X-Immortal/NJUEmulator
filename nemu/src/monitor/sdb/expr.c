@@ -135,8 +135,9 @@ static bool make_token(char *e) {
             if (nr_token < NR_TOKENS) {
               tokens[nr_token].type = rules[i].token_type;
               if (substr_len < NR_BUFFER) {
-                strncpy(tokens[i].str, substr_start, substr_len);
-                tokens[i].str[substr_len] = '\0';
+                strncpy(tokens[nr_token].str, substr_start, substr_len);
+                tokens[nr_token].str[substr_len] = '\0';
+                nr_token++;
               } else {
                 TODO();
               }
