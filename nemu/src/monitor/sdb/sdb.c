@@ -193,6 +193,18 @@ static int cmd_x(char *args) {
 }
 
 static int cmd_p(char *args) {
+  if (args == NULL) {
+    printf("Command 'p' requires argument <expression>\n");
+    return 0;
+  }
+
+  bool is_valid = true;
+  int result = expr(args, &is_valid);
+  if (!is_valid) {
+    printf("Invalid expression\n");
+  } else {
+    printf("%u\n", result);
+  }
   return 0;
 }
 

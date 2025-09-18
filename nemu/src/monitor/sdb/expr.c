@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include "sdb.h"
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -24,7 +25,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-
+  TK_DECIMAL,
 };
 
 static struct rule {
@@ -38,8 +39,27 @@ static struct rule {
 
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"-", '-'},           // subtract
+  {"\\*", '*'},         // multiply
+  {"/", '/'},           // divide
+  {"\\(", '('},         // left paranthesis
+  {"\\)", ')'},         // right paranthesis
+  {"\\d+", TK_DECIMAL},
   {"==", TK_EQ},        // equal
 };
+
+static int precedence_level(int token_type) {
+  switch (token_type) {
+    case '+':
+    case '-':
+      return 1;
+    case '*':
+    case '/':
+      return 2;
+    default:
+      return INT32_MAX;
+  }
+}
 
 #define NR_REGEX ARRLEN(rules)
 
@@ -67,8 +87,12 @@ typedef struct token {
   char str[32];
 } Token;
 
+#define NR_BUFFER 32
+
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
+
+#define NR_TOKENS ARRLEN(tokens)
 
 static bool make_token(char *e) {
   int position = 0;
@@ -95,7 +119,36 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+            if (nr_token < NR_TOKENS) {
+              tokens[nr_token++].type = rules[i].token_type;
+            } else {
+              TODO();
+            }
+            break;
+          case TK_DECIMAL:
+            if (nr_token < NR_TOKENS) {
+              tokens[nr_token].type = rules[i].token_type;
+              if (substr_len < NR_BUFFER) {
+                strncpy(tokens[i].str, substr_start, substr_len);
+                tokens[i].str[substr_len] = '\0';
+              } else {
+                TODO();
+              }
+            } else {
+              TODO();
+            }
+            break;
+          case TK_EQ:
+            TODO();
+            break;
+          default: 
+            break;
         }
 
         break;
@@ -111,6 +164,99 @@ static bool make_token(char *e) {
   return true;
 }
 
+static bool check_parantheses(int left, int right) {
+  if (tokens[left].type != '(' || tokens[right].type != ')') {
+    return false;
+  }
+
+  int num_left_paran = 0;
+  for (int i = left + 1; i < right; i++) {
+    if (tokens[i].type == '(') {
+      num_left_paran++;
+    } else if (tokens[i].type == ')') {
+      if (num_left_paran <= 0) {
+        return false;
+      } 
+      num_left_paran--;
+    } 
+  }
+  return num_left_paran == 0;
+}
+
+static int find_main_op(int left, int right) {
+    int op = left;
+    if (tokens[op].type == '+' || 
+        tokens[op].type == '-' ||
+        tokens[op].type == '*' ||
+        tokens[op].type == '/') {
+          return -1;
+        }
+    int num_left_paran = 0;
+    for (int i = left; i <= right; i++) {
+      switch (tokens[i].type) {
+        case '(':
+          num_left_paran++;
+          break;
+        case ')':
+          if (num_left_paran <= 0) {
+            return -1;
+          }
+          num_left_paran--;
+          break;
+        case '+': case '-': case '*': case '/':
+          if (num_left_paran > 0) {
+            continue;
+          }
+          op = precedence_level(tokens[i].type) < precedence_level(tokens[op].type) ? 
+                  i : op;
+          break;
+        default:
+          continue;
+      }
+    } 
+    return op;
+}
+
+static word_t eval(int left, int right, bool *success) {
+  if (left > right) {
+    *success = false;
+    return 0;
+  } else if (left == right) {
+    char *endptr = tokens[left].str;
+    word_t number = (word_t) strtoul(tokens[left].str, &endptr, 10);
+    if (*endptr != '\0') {
+      printf("Invalid number: '%s'\n", tokens[left].str);
+      *success = false;
+      return 0;
+    }
+    return number;
+  } else if (check_parantheses(left, right)) {
+    return eval(left + 1, right - 1, success);
+  } else {
+    int op = find_main_op(left, right);
+
+    if (op < 0) {
+      *success = false;
+      return 0;
+    }
+
+    int val1 = eval(left, op - 1, success);
+    int val2 = eval(op + 1, right, success);
+
+    switch (tokens[op].type) {
+      case '+':
+        return val1 + val2;
+      case '-':
+        return val1 - val2;
+      case '*':
+        return val1 * val2;
+      case '/':
+        return val1 / val2;
+      default:
+        assert(0);
+    }
+  }
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -119,7 +265,6 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
+  *success = true;
+  return eval(0, nr_token - 1, success);
 }
