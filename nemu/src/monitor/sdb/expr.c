@@ -303,6 +303,11 @@ static word_t eval(int left, int right, bool *success) {
     *success = false;
     return 0;
   } else if (left == right) {
+    if (tokens[left].type != TK_DECIMAL &&
+        tokens[left].type != TK_HEX) {
+          *success = false;
+          return 0;
+    }
     return parse_number(left, success);
   } else if (check_parantheses(left, right)) {
     return eval(left + 1, right - 1, success);
