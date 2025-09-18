@@ -285,6 +285,11 @@ static word_t calc_2(word_t val1, word_t val2, int op_type, bool *success) {
 static word_t calc_1(word_t val, int op_type, bool *success __attribute__((unused))) {
   switch (op_type) {
     case TK_DEREF:
+      if (!in_pmem(val)) {
+        printf("Invalid address\n");
+        *success = false;
+        return 0;
+      }
       return paddr_read(val, sizeof(word_t));
     case TK_MINUS:
       return -val;
