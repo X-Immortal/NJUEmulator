@@ -224,11 +224,11 @@ static int find_main_op(int left, int right) {
           continue;
       }
     } 
-    if (tokens[op].type != '+' ||
-        tokens[op].type != '-' ||
-        tokens[op].type != '*' ||
-        tokens[op].type != '/' ||
-        tokens[op].type != TK_DEREF ||
+    if (tokens[op].type != '+' &&
+        tokens[op].type != '-' &&
+        tokens[op].type != '*' &&
+        tokens[op].type != '/' &&
+        tokens[op].type != TK_DEREF &&
         tokens[op].type != TK_MINUS) {
           return -1;
     }
