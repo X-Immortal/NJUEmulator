@@ -44,7 +44,7 @@ static struct rule {
   {"/", '/'},           // divide
   {"\\(", '('},         // left paranthesis
   {"\\)", ')'},         // right paranthesis
-  {"\\d+", TK_DECIMAL},
+  {"[0-9]+", TK_DECIMAL},
   {"==", TK_EQ},        // equal
 };
 
