@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include "sdb.h"
+#include "memory/paddr.h"
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -25,7 +26,8 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  TK_DECIMAL, TK_HEX,
+  TK_DECIMAL, TK_HEX, TK_REG,
+  TK_MINUS, TK_DEREF,
 };
 
 static struct rule {
@@ -46,6 +48,7 @@ static struct rule {
   {"\\)", ')'},         // right paranthesis
   {"0x[0-9a-fA-F]+", TK_HEX},
   {"[0-9]+", TK_DECIMAL},
+  {"$[a-z0-9$]+", TK_REG},
   {"==", TK_EQ},        // equal
 };
 
@@ -57,6 +60,9 @@ static int precedence_level(int token_type) {
     case '*':
     case '/':
       return 2;
+    case TK_DEREF:
+    case TK_MINUS:
+      return 3;
     default:
       return INT32_MAX;
   }
@@ -193,7 +199,7 @@ static int find_main_op(int left, int right) {
         tokens[op].type == '*' ||
         tokens[op].type == '/') {
           return -1;
-        }
+    }
     int num_left_paran = 0;
     for (int i = left; i <= right; i++) {
       switch (tokens[i].type) {
@@ -207,6 +213,7 @@ static int find_main_op(int left, int right) {
           num_left_paran--;
           break;
         case '+': case '-': case '*': case '/':
+        case TK_DEREF:  case TK_MINUS:
           if (num_left_paran > 0) {
             continue;
           }
@@ -217,46 +224,40 @@ static int find_main_op(int left, int right) {
           continue;
       }
     } 
+    if (tokens[op].type != '+' ||
+        tokens[op].type != '-' ||
+        tokens[op].type != '*' ||
+        tokens[op].type != '/' ||
+        tokens[op].type != TK_DEREF ||
+        tokens[op].type != TK_MINUS) {
+          return -1;
+    }
     return op;
 }
 
-static word_t eval(int left, int right, bool *success) {
-  if (left > right) {
-    *success = false;
-    return 0;
-  } else if (left == right) {
-    char *endptr = tokens[left].str;
+static word_t parse_number(int idx, bool *success) {
+    char *endptr = tokens[idx].str;
     word_t number;
-    switch (tokens[left].type) {
+    switch (tokens[idx].type) {
       case TK_DECIMAL:
-        number = strtoul(tokens[left].str, &endptr, 10);
+        number = strtoul(tokens[idx].str, &endptr, 10);
         break;
       case TK_HEX:
-        number = strtoul(tokens[left].str, &endptr, 16);
+        number = strtoul(tokens[idx].str, &endptr, 16);
         break;
       default:
         assert(0);
     }
     if (*endptr != '\0') {
-      printf("Invalid number: '%s'\n", tokens[left].str);
+      printf("Invalid number: '%s'\n", tokens[idx].str);
       *success = false;
       return 0;
     }
     return number;
-  } else if (check_parantheses(left, right)) {
-    return eval(left + 1, right - 1, success);
-  } else {
-    int op = find_main_op(left, right);
+}
 
-    if (op < 0) {
-      *success = false;
-      return 0;
-    }
-
-    int val1 = eval(left, op - 1, success);
-    int val2 = eval(op + 1, right, success);
-
-    switch (tokens[op].type) {
+static word_t calc_2(word_t val1, word_t val2, int op_type, bool *success) {
+    switch (op_type) {
       case '+':
         return val1 + val2;
       case '-':
@@ -273,6 +274,43 @@ static word_t eval(int left, int right, bool *success) {
       default:
         assert(0);
     }
+}
+
+static word_t calc_1(word_t val, int op_type, bool *success __attribute__((unused))) {
+  switch (op_type) {
+    case TK_DEREF:
+      return paddr_read(val, sizeof(word_t));
+    case TK_MINUS:
+      return -val;
+    default:
+      assert(0);
+  }
+}
+
+static word_t eval(int left, int right, bool *success) {
+  if (left > right) {
+    *success = false;
+    return 0;
+  } else if (left == right) {
+    return parse_number(left, success);
+  } else if (check_parantheses(left, right)) {
+    return eval(left + 1, right - 1, success);
+  } else {
+    int op = find_main_op(left, right);
+
+    if (op < 0) {
+      *success = false;
+      return 0;
+    }
+
+    if (tokens[op].type == TK_DEREF || tokens[op].type == TK_MINUS) {
+      word_t val = eval(op + 1, right, success);
+      return calc_1(val, tokens[op].type, success);
+    } else {
+      word_t val1 = eval(left, op - 1, success);
+      word_t val2 = eval(op + 1, right, success);
+      return calc_2(val1, val2, tokens[op].type, success);
+    }
   }
 }
 
@@ -283,6 +321,18 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
+  for (int i = 0; i < nr_token; i++) {
+    if (i == 0 ||
+          tokens[i - 1].type != TK_DECIMAL ||
+          tokens[i - 1].type != TK_HEX) {
+      if (tokens[i].type == '-') {
+        tokens[i].type = TK_MINUS;
+      } else if (tokens[i].type == '*') {
+        tokens[i].type = TK_DEREF;
+      }
+    }
+  }
+
   *success = true;
   return eval(0, nr_token - 1, success);
 }
