@@ -213,11 +213,17 @@ static int find_main_op(int left, int right) {
           num_left_paran--;
           break;
         case '+': case '-': case '*': case '/':
-        case TK_DEREF:  case TK_MINUS:
           if (num_left_paran > 0) {
             continue;
           }
           op = precedence_level(tokens[i].type) <= precedence_level(tokens[op].type) ? 
+                  i : op;
+          break;
+        case TK_DEREF:  case TK_MINUS:
+          if (num_left_paran > 0) {
+            continue;
+          }
+          op = precedence_level(tokens[i].type) < precedence_level(tokens[op].type) ? 
                   i : op;
           break;
         default:
