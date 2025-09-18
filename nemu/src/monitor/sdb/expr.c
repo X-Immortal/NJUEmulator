@@ -264,6 +264,11 @@ static word_t eval(int left, int right, bool *success) {
       case '*':
         return val1 * val2;
       case '/':
+        if (val2 == 0) {
+          printf("Can not divided by 0\n");
+          *success = false;
+          return 0;
+        }
         return val1 / val2;
       default:
         assert(0);
