@@ -25,7 +25,7 @@ enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
-  TK_DECIMAL,
+  TK_DECIMAL, TK_HEX,
 };
 
 static struct rule {
@@ -44,7 +44,8 @@ static struct rule {
   {"/", '/'},           // divide
   {"\\(", '('},         // left paranthesis
   {"\\)", ')'},         // right paranthesis
-  {"[0-9]+", TK_DECIMAL},
+  {"0x[0-9]+", TK_HEX},
+  {"[1-9][0-9]*", TK_DECIMAL},
   {"==", TK_EQ},        // equal
 };
 
@@ -132,6 +133,7 @@ static bool make_token(char *e) {
             }
             break;
           case TK_DECIMAL:
+          case TK_HEX:
             if (nr_token < NR_TOKENS) {
               tokens[nr_token].type = rules[i].token_type;
               if (substr_len < NR_BUFFER) {
@@ -224,7 +226,17 @@ static word_t eval(int left, int right, bool *success) {
     return 0;
   } else if (left == right) {
     char *endptr = tokens[left].str;
-    word_t number = (word_t) strtoul(tokens[left].str, &endptr, 10);
+    word_t number;
+    switch (tokens[left].type) {
+      case TK_DECIMAL:
+        number = strtoul(tokens[left].str, &endptr, 10);
+        break;
+      case TK_HEX:
+        number = strtoul(tokens[left].str, &endptr, 16);
+        break;
+      default:
+        assert(0);
+    }
     if (*endptr != '\0') {
       printf("Invalid number: '%s'\n", tokens[left].str);
       *success = false;
