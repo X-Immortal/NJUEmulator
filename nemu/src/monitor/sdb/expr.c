@@ -339,7 +339,7 @@ word_t expr(char *e, bool *success) {
       if (tokens[i].type == '-') {
         tokens[i].type = TK_MINUS;
       } else if (tokens[i].type == '*') {
-        tokens[i].type = TK_DEREF;
+        // tokens[i].type = TK_DEREF;
       }
     }
   }
