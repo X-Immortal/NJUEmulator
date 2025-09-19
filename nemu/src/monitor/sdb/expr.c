@@ -306,7 +306,7 @@ static word_t eval(int left, int right, bool *success) {
     return 0;
   } else if (left == right) {
     if (tokens[left].type == TK_REG) {
-      return isa_reg_str2val(tokens[left].str, success);
+      return isa_reg_str2val(tokens[left].str + 1, success);
     }
     if (tokens[left].type == TK_DECIMAL ||
         tokens[left].type == TK_HEX) {
