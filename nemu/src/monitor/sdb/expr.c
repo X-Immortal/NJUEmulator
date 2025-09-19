@@ -202,7 +202,7 @@ static bool check_parantheses(int left, int right) {
 
 static int find_main_op(int left, int right) {
     int op = left;
-    if (!IS_UNARY_OP(tokens[op].type)) {
+    if (IS_BINARY_OP(tokens[op].type)) {
       return -1;
     }
     int num_left_paran = 0;
