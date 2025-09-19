@@ -153,15 +153,16 @@ static int cmd_info(char *args) {
 }
 
 static int cmd_x(char *args) {
+  char *args_end = args + strlen(args);
   char *arg1 = strtok(args, " ");
-  char *arg2 = strtok(NULL, " ");
-  if (arg1 == NULL || arg2 == NULL) {
+  if (arg1 == NULL) {
     printf("Command 'x' requires two arguments\n");
     return 0;
   }
 
-  if (strtok(NULL, " ") != NULL) {
-    printf("Too many arguments provided\n");
+  char *arg2 = arg1 + strlen(arg1) + 1;
+  if (arg2 > args_end) {
+    printf("Command 'x' requires two arguments\n");
     return 0;
   }
 
@@ -173,10 +174,9 @@ static int cmd_x(char *args) {
     return 0;
   }
 
-  paddr_t start_addr;
-  char *endptr2 = arg2;
-  start_addr = (paddr_t) strtol(arg2, &endptr2, 16);
-  if (*endptr2 != '\0') {
+  bool success;
+  paddr_t start_addr = expr(arg2, &success);
+  if (!success) {
     printf("Invalid argument '%s'\n", arg2); 
     return 0;
   }
