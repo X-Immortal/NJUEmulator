@@ -218,6 +218,7 @@ static int find_main_op(int left, int right) {
           num_left_paran--;
           break;
         case '+': case '-': case '*': case '/':
+        case TK_EQ: case TK_NE: case TK_AND:
           if (num_left_paran > 0) {
             continue;
           }
