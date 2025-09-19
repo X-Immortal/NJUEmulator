@@ -54,6 +54,18 @@ static struct rule {
   {"&&", TK_AND},
 };
 
+
+#define IS_UNARY_OP(type) \
+  ((type) == TK_MINUS || (type) == TK_DEREF)
+
+#define IS_BINARY_OP(type) \
+  ((type) == '+'      || (type) == '-'      ||\
+   (type) == '*'      || (type) == '/'      ||\
+   (type) == TK_EQ    || (type) == TK_NE    ||\
+   (type) == TK_AND)
+
+#define IS_OP(type) (IS_UNARY_OP(type) || IS_BINARY_OP(type))
+
 static int precedence_level(int token_type) {
   switch (token_type) {
     case TK_AND:
@@ -190,11 +202,8 @@ static bool check_parantheses(int left, int right) {
 
 static int find_main_op(int left, int right) {
     int op = left;
-    if (tokens[op].type == '+' || 
-        tokens[op].type == '-' ||
-        tokens[op].type == '*' ||
-        tokens[op].type == '/') {
-          return -1;
+    if (!IS_UNARY_OP(tokens[op].type)) {
+      return -1;
     }
     int num_left_paran = 0;
     for (int i = left; i <= right; i++) {
@@ -226,13 +235,8 @@ static int find_main_op(int left, int right) {
           continue;
       }
     } 
-    if (tokens[op].type != '+' &&
-        tokens[op].type != '-' &&
-        tokens[op].type != '*' &&
-        tokens[op].type != '/' &&
-        tokens[op].type != TK_DEREF &&
-        tokens[op].type != TK_MINUS) {
-          return -1;
+    if (!IS_OP(tokens[op].type)) {
+      return -1;
     }
     return op;
 }
@@ -324,7 +328,7 @@ static word_t eval(int left, int right, bool *success) {
       return 0;
     }
 
-    if (tokens[op].type == TK_DEREF || tokens[op].type == TK_MINUS) {
+    if (IS_UNARY_OP(tokens[op].type)) {
       word_t val = eval(op + 1, right, success);
       return calc_1(val, tokens[op].type, success);
     } else {
