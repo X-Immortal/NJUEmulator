@@ -23,7 +23,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, TK_NE, TK_AND,
 
   /* TODO: Add more token types */
   TK_DECIMAL, TK_HEX, TK_REG,
@@ -48,21 +48,24 @@ static struct rule {
   {"\\)", ')'},         // right paranthesis
   {"0x[0-9a-fA-F]+", TK_HEX},
   {"[0-9]+", TK_DECIMAL},
-  {"$[a-z0-9$]+", TK_REG},
+  {"\\$[a-z0-9\\$]+", TK_REG},
   {"==", TK_EQ},        // equal
+  {"!=", TK_NE},
+  {"&&", TK_AND},
 };
 
 static int precedence_level(int token_type) {
   switch (token_type) {
-    case '+':
-    case '-':
+    case TK_AND:
+      return 0;
+    case TK_EQ:     case TK_NE:
       return 1;
-    case '*':
-    case '/':
+    case '+':       case '-':
       return 2;
-    case TK_DEREF:
-    case TK_MINUS:
+    case '*':       case '/':
       return 3;
+    case TK_DEREF:  case TK_MINUS:
+      return 4;
     default:
       return INT32_MAX;
   }
@@ -126,20 +129,16 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          case '+':
-          case '-':
-          case '*':
-          case '/':
-          case '(':
-          case ')':
+          case '+':   case '-':   case '*':
+          case '/':   case '(':   case ')':
+          case TK_EQ: case TK_NE: case TK_AND:
             if (nr_token < NR_TOKENS) {
               tokens[nr_token++].type = rules[i].token_type;
             } else {
               TODO();
             }
             break;
-          case TK_DECIMAL:
-          case TK_HEX:
+          case TK_DECIMAL:  case TK_HEX:  case TK_REG:
             if (nr_token < NR_TOKENS) {
               tokens[nr_token].type = rules[i].token_type;
               if (substr_len < NR_BUFFER) {
@@ -152,9 +151,6 @@ static bool make_token(char *e) {
             } else {
               TODO();
             }
-            break;
-          case TK_EQ:
-            TODO();
             break;
           default: 
             break;
@@ -277,6 +273,12 @@ static word_t calc_2(word_t val1, word_t val2, int op_type, bool *success) {
           return 0;
         }
         return val1 / val2;
+      case TK_EQ:
+        return val1 == val2;
+      case TK_NE:
+        return val1 != val2;
+      case TK_AND:
+        return val1 && val2;
       default:
         assert(0);
     }
@@ -303,12 +305,15 @@ static word_t eval(int left, int right, bool *success) {
     *success = false;
     return 0;
   } else if (left == right) {
-    if (tokens[left].type != TK_DECIMAL &&
-        tokens[left].type != TK_HEX) {
-          *success = false;
-          return 0;
+    if (tokens[left].type == TK_REG) {
+      return isa_reg_str2val(tokens[left].str, success);
     }
-    return parse_number(left, success);
+    if (tokens[left].type == TK_DECIMAL ||
+        tokens[left].type == TK_HEX) {
+          return parse_number(left, success);
+    }
+    *success = false;
+    return 0;
   } else if (check_parantheses(left, right)) {
     return eval(left + 1, right - 1, success);
   } else {
