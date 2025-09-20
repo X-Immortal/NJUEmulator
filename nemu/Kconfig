@@ -215,3 +215,5 @@ config RT_CHECK
   default y
 
 endmenu
+
+source "src/monitor/sdb/Kconfig"

@@ -1,0 +1,7 @@
+menu "Watchpoint Check"
+
+config CONFIG_WATCHPOINT
+  bool "Open"
+  default y
+
+endmenu

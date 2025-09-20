@@ -50,9 +50,17 @@ static WP *new_wp(bool *success) {
   }
   WP *ret = free_;
   free_ = free_->next;
-  ret->next = head;
-  head = ret;
-  return ret;
+  ret->next = NULL;
+
+  if (head == NULL) {
+    return head = ret;
+  } 
+
+  WP *prev = head;
+  while (prev->next != NULL) {
+    prev = prev->next;
+  }
+  return prev->next = ret;
 }
 
 static bool free_wp(WP *wp) {
@@ -116,19 +124,30 @@ bool delete_wp(int no) {
   return free_wp(&wp_pool[no]);
 }
 
-void print(WP *head) {
-  if (head == NULL) {
-    return;
-  }
-  print(head->next);
-  printf("%-5d%s\n", head->NO, head->expr);
-}
-
 void print_wp() {
   if (head == NULL) {
     printf("No watchpoints now\n");
     return;
   }
   printf("num  expression\n");
-  print(head);
+  for (WP *cur = head; cur != NULL; cur = cur->next) {
+    printf("%-5d%s\n", head->NO, head->expr);
+  }
+}
+
+bool check_wp() {
+  if (head == NULL) {
+    return true;
+  }
+
+  word_t val;
+  bool success;
+  for (WP *cur = head; cur != NULL; cur = cur->next) {
+    val = eval_expr(cur->expr, &success);
+    if (val != cur->val) {
+      // printf("changed\nold value: %d\nnew value: %d\n");
+      return false;
+    }
+  }
+  return true;
 }
