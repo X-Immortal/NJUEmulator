@@ -170,21 +170,17 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
+        if (rules[i].token_type != TK_NOTYPE && nr_token >= NR_TOKENS) {
+          expand_tokens();
+        }
+
         switch (rules[i].token_type) {
           case '+':   case '-':   case '*':
           case '/':   case '(':   case ')':
           case TK_EQ: case TK_NE: case TK_AND:
-            if (nr_token < NR_TOKENS) {
-              tokens[nr_token++].type = rules[i].token_type;
-            } else {
-              TODO();
-            }
+            tokens[nr_token++].type = rules[i].token_type;
             break;
           case TK_DECIMAL:  case TK_HEX:  case TK_REG:
-            if (nr_token >= NR_TOKENS) {
-              expand_tokens();
-            }
-
             tokens[nr_token].type = rules[i].token_type;
             if (substr_len < NR_BUFFER) {
               strncpy(tokens[nr_token].str, substr_start, substr_len);
