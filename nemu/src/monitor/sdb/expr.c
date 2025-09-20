@@ -382,7 +382,7 @@ word_t eval_expr(char *e, bool *success) {
           (tokens[i - 1].type != TK_DECIMAL &&
           tokens[i - 1].type != TK_HEX && 
           tokens[i - 1].type != ')')) {
-      if (tokens[i].type == '-' && tokens[i - 1].type != '-') {
+      if (tokens[i].type == '-' && (i == 0 || tokens[i - 1].type != '-')) {
         tokens[i].type = TK_MINUS;
       } else if (tokens[i].type == '*') {
         tokens[i].type = TK_DEREF;
