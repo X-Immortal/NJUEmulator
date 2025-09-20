@@ -104,6 +104,7 @@ bool add_wp(char *expr) {
   memcpy(wp->expr, expr, expr_len * sizeof(*expr));
   wp->expr[expr_len] = '\0';
   wp->val = val;
+  printf("Watchpoint %d: %s", wp->NO, wp->expr);
   return true;
 }
 

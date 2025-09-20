@@ -217,9 +217,6 @@ static int cmd_w(char *args) {
   if (!add_wp(args)) {
     printf("Failed to add watchpoint\n");
   } 
-  // else {
-  //   printf("")
-  // }
   return 0;
 }
 
@@ -244,6 +241,8 @@ static int cmd_d(char *args) {
 
   if(!delete_wp(no)) {
     printf("Failed to delete watchpoint '%d'", no);
+  } else {
+    printf("Watchpoint %d deleted\n", no);
   }
   return 0;
 }
