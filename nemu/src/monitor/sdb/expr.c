@@ -120,12 +120,19 @@ static int nr_token __attribute__((used))  = 0;
 
 #define NR_TOKENS tokens_size
 
+static void free_tokens() {
+  if (tokens == NULL) {
+    return;
+  }
+  free(tokens);
+  tokens = NULL;
+}
+
 static void init_tokens() {
   nr_token = 0;
 
   if (tokens != NULL && tokens_size != DEFAULT_TOKENS_SIZE) {
-    free(tokens);
-    tokens = NULL;
+    free_tokens();
   }
   if (tokens == NULL) {
     tokens_size = DEFAULT_TOKENS_SIZE;
@@ -133,20 +140,12 @@ static void init_tokens() {
   }
 }
 
-void expand_tokens() {
+static void expand_tokens() {
   Token *new_arr = malloc(2 * NR_TOKENS * sizeof(*new_arr));
   memcpy(new_arr, tokens, NR_TOKENS * sizeof(*tokens));
   free(tokens);
   tokens = new_arr;
   tokens_size *= 2;
-}
-
-void free_tokens() {
-  if (tokens == NULL) {
-    return;
-  }
-  free(tokens);
-  tokens = NULL;
 }
 
 static bool make_token(char *e) {
@@ -378,11 +377,10 @@ word_t eval_expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   for (int i = 0; i < nr_token; i++) {
-    if (i == 0 ||
-          (tokens[i - 1].type != TK_DECIMAL &&
-          tokens[i - 1].type != TK_HEX && 
-          tokens[i - 1].type != ')')) {
-      if (tokens[i].type == '-' && (i == 0 || tokens[i - 1].type != '-')) {
+    if (i == 0 || 
+        IS_BINARY_OP(tokens[i - 1].type) || 
+        tokens[i - 1].type == '(' ) {
+      if (tokens[i].type == '-') {
         tokens[i].type = TK_MINUS;
       } else if (tokens[i].type == '*') {
         tokens[i].type = TK_DEREF;
