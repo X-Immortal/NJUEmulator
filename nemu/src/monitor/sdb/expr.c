@@ -109,19 +109,49 @@ typedef struct token {
   char str[32];
 } Token;
 
+#define DEFAULT_TOKENS_SIZE 32
+
+static int tokens_size = DEFAULT_TOKENS_SIZE;
+
 #define NR_BUFFER 32
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token *tokens __attribute__((used)) = NULL;
 static int nr_token __attribute__((used))  = 0;
 
-#define NR_TOKENS ARRLEN(tokens)
+#define NR_TOKENS tokens_size
+
+static void init_tokens() {
+  nr_token = 0;
+
+  if (tokens != NULL && tokens_size != DEFAULT_TOKENS_SIZE) {
+    free(tokens);
+    tokens = NULL;
+  }
+  if (tokens == NULL) {
+    tokens_size = DEFAULT_TOKENS_SIZE;
+    tokens = malloc(tokens_size * sizeof(*tokens));
+  }
+}
+
+void expand_tokens() {
+  Token *new_arr = malloc(2 * NR_TOKENS * sizeof(*new_arr));
+  memcpy(new_arr, tokens, NR_TOKENS * sizeof(*tokens));
+  free(tokens);
+  tokens = new_arr;
+}
+
+void free_tokens() {
+  if (tokens == NULL) {
+    return;
+  }
+  free(tokens);
+  tokens = NULL;
+}
 
 static bool make_token(char *e) {
   int position = 0;
   int i;
   regmatch_t pmatch;
-
-  nr_token = 0;
 
   while (e[position] != '\0') {
     /* Try all rules one by one. */
@@ -151,15 +181,15 @@ static bool make_token(char *e) {
             }
             break;
           case TK_DECIMAL:  case TK_HEX:  case TK_REG:
-            if (nr_token < NR_TOKENS) {
-              tokens[nr_token].type = rules[i].token_type;
-              if (substr_len < NR_BUFFER) {
-                strncpy(tokens[nr_token].str, substr_start, substr_len);
-                tokens[nr_token].str[substr_len] = '\0';
-                nr_token++;
-              } else {
-                TODO();
-              }
+            if (nr_token >= NR_TOKENS) {
+              expand_tokens();
+            }
+
+            tokens[nr_token].type = rules[i].token_type;
+            if (substr_len < NR_BUFFER) {
+              strncpy(tokens[nr_token].str, substr_start, substr_len);
+              tokens[nr_token].str[substr_len] = '\0';
+              nr_token++;
             } else {
               TODO();
             }
@@ -341,8 +371,11 @@ static word_t eval(int left, int right, bool *success) {
 }
 
 word_t eval_expr(char *e, bool *success) {
+  init_tokens();
+
   if (!make_token(e)) {
     *success = false;
+    free_tokens();
     return 0;
   }
 
@@ -361,5 +394,7 @@ word_t eval_expr(char *e, bool *success) {
   }
 
   *success = true;
-  return eval(0, nr_token - 1, success);
+  word_t ret = eval(0, nr_token - 1, success);
+  free_tokens();
+  return ret;
 }
