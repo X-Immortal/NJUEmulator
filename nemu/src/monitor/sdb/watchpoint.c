@@ -145,7 +145,9 @@ bool check_wp() {
   for (WP *cur = head; cur != NULL; cur = cur->next) {
     val = eval_expr(cur->expr, &success);
     if (val != cur->val) {
-      // printf("changed\nold value: %d\nnew value: %d\n");
+      printf("Watchpoint %d: %s\n\nOld value = %d\nnew value: %d\n", 
+        cur->NO, cur->expr, cur->val, val);
+      cur->val = val;
       return false;
     }
   }
