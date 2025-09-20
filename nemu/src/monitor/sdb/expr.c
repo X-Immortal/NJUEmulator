@@ -138,6 +138,7 @@ void expand_tokens() {
   memcpy(new_arr, tokens, NR_TOKENS * sizeof(*tokens));
   free(tokens);
   tokens = new_arr;
+  tokens_size *= 2;
 }
 
 void free_tokens() {
