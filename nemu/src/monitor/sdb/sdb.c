@@ -216,7 +216,10 @@ static int cmd_w(char *args) {
 
   if (!add_wp(args)) {
     printf("Failed to add watchpoint\n");
-  }
+  } 
+  // else {
+  //   printf("")
+  // }
   return 0;
 }
 
