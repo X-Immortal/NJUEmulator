@@ -145,7 +145,7 @@ static int cmd_info(char *args) {
   if (strcmp(arg, "r") == 0) {
     isa_reg_display();
   } else if (strcmp(arg, "w") == 0) {
-    TODO();
+    print_wp();
   } else {
     printf("Invalid argument '%s'\n", arg);
   }
@@ -175,7 +175,7 @@ static int cmd_x(char *args) {
   }
 
   bool success;
-  paddr_t start_addr = expr(arg2, &success);
+  paddr_t start_addr = eval_expr(arg2, &success);
   if (!success) {
     printf("Invalid argument '%s'\n", arg2); 
     return 0;
@@ -199,7 +199,7 @@ static int cmd_p(char *args) {
   }
 
   bool is_valid = true;
-  int result = expr(args, &is_valid);
+  int result = eval_expr(args, &is_valid);
   if (!is_valid) {
     printf("Invalid expression\n");
   } else {
@@ -209,10 +209,39 @@ static int cmd_p(char *args) {
 }
 
 static int cmd_w(char *args) {
+  if (args == NULL) {
+    printf("Command 'w' requires argument <expression>\n");
+    return 0;
+  }
+
+  if (!add_wp(args)) {
+    printf("Failed to add watchpoint\n");
+  }
   return 0;
 }
 
 static int cmd_d(char *args) {
+  char *arg = strtok(args, " ");
+  if (arg == NULL) {
+    printf("Command 'd' requires argument <number>\n");
+    return 0;
+  }
+
+  if (strtok(NULL, " ") != NULL) {
+    printf("Too many arguments provided\n");
+    return 0;
+  }
+  
+  char *endptr = arg;
+  int no = strtol(arg, &endptr, 10);
+  if (*endptr != '\0') {
+    printf("Invalid argument '%s'\n", arg);
+    return 0;
+  }
+
+  if(!delete_wp(no)) {
+    printf("Failed to delete watchpoint '%d'", no);
+  }
   return 0;
 }
 
