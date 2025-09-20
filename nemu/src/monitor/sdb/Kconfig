@@ -1,7 +1,12 @@
 menu "Watchpoint Check"
 
-config CONFIG_WATCHPOINT
+config CHECK_OPEN
   bool "Open"
   default y
 
 endmenu
+
+config WATHCPOINT
+  bool
+  default y if CHECK_OPEN
+  default n
