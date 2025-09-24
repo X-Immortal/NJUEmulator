@@ -378,7 +378,7 @@ word_t eval_expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   for (int i = 0; i < nr_token; i++) {
     if (i == 0 || 
-        IS_BINARY_OP(tokens[i - 1].type) || 
+        IS_OP(tokens[i - 1].type) || 
         tokens[i - 1].type == '(' ) {
       if (tokens[i].type == '-') {
         tokens[i].type = TK_MINUS;
