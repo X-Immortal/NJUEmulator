@@ -200,7 +200,7 @@ static int cmd_x(char *args) {
   printf("0x%x: ", start_addr);
   for (int i = 0; i < num_4byte; i++) {
     if (!in_pmem(start_addr + i * 4)) {
-      printf("Invalid address: %x\n", start_addr + i * 4);
+      printf("Invalid address: 0x%x\n", start_addr + i * 4);
       return 0;
     }
     printf("0x%08x",vaddr_read(start_addr + i * 4, 4));
