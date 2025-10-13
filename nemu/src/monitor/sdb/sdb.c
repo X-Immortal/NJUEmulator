@@ -175,7 +175,7 @@ static int cmd_x(char *args) {
   }
 
   bool success;
-  paddr_t start_addr = eval_expr(arg2, &success);
+  vaddr_t start_addr = eval_expr(arg2, &success);
   if (!success) {
     printf("Invalid argument '%s'\n", arg2); 
     return 0;
