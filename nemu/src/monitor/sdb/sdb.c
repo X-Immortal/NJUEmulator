@@ -179,7 +179,7 @@ static int cmd_x(char *args) {
   if (!success) {
     switch (start_addr) {
       case EXPR_EMPTY:
-        printf("Null expression\n");
+        printf("Command 'p' requires argument <expression>\n");
         break;
       case EXPR_ERROR:
         printf("Invalid expression\n");
@@ -212,7 +212,7 @@ static int cmd_p(char *args) {
   if (!is_valid) {
     switch (result) {
       case EXPR_EMPTY:
-        printf("Null expression\n");
+        printf("Command 'p' requires argument <expression>\n");
         break;
       case EXPR_ERROR:
         printf("Invalid expression\n");
