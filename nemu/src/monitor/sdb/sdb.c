@@ -179,7 +179,7 @@ static int cmd_x(char *args) {
   if (!success) {
     switch (start_addr) {
       case EXPR_EMPTY:
-        printf("Command 'p' requires argument <expression>\n");
+        printf("Command 'x' requires two arguments\n");
         break;
       case EXPR_ERROR:
         printf("Invalid expression\n");
