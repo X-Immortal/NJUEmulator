@@ -18,6 +18,7 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "sdb.h"
+#include "memory/paddr.h"
 #include "memory/vaddr.h"
 
 static int is_batch_mode = false;
@@ -198,6 +199,10 @@ static int cmd_x(char *args) {
 
   printf("0x%x: ", start_addr);
   for (int i = 0; i < num_4byte; i++) {
+    if (!in_pmem(start_addr + i * 4)) {
+      printf("Invalid address: %x\n", start_addr + i * 4);
+      return 0;
+    }
     printf("0x%08x",vaddr_read(start_addr + i * 4, 4));
     if (i < num_4byte - 1) {
       printf("  ");
