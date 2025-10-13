@@ -160,6 +160,11 @@ static int cmd_x(char *args) {
   char *args_end = args + strlen(args);
   char *arg1 = strtok(args, " ");
 
+  if (arg1 == NULL) {
+    printf("Command 'x' requires two arguments\n");
+    return 0;
+  }
+
   char *arg2 = arg1 + strlen(arg1) + 1;
   if (arg2 >= args_end) {
     printf("Command 'x' requires two arguments\n");
