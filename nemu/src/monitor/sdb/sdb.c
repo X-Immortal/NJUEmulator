@@ -157,6 +157,7 @@ static int cmd_x(char *args) {
     printf("Command 'x' requires two arguments\n");
     return 0;
   }
+
   char *args_end = args + strlen(args);
   char *arg1 = strtok(args, " ");
 
@@ -174,7 +175,7 @@ static int cmd_x(char *args) {
   int num_4byte;
   char *endptr1 = arg1;
   num_4byte = (int) strtol(arg1, &endptr1, 10);
-  if (*endptr1 != '\0') {
+  if (*endptr1 != '\0' || num_4byte <= 0) {
     printf("Invalid argument '%s'\n", arg1); 
     return 0;
   }
