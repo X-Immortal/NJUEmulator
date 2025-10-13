@@ -18,6 +18,9 @@
 
 #include <common.h>
 
+#define EXPR_EMPTY 0
+#define EXPR_ERROR -1
+
 word_t eval_expr(char *e, bool *success);
 
 bool add_wp(char *expr);

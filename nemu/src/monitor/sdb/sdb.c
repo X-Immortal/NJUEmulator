@@ -177,7 +177,16 @@ static int cmd_x(char *args) {
   bool success;
   vaddr_t start_addr = eval_expr(arg2, &success);
   if (!success) {
-    printf("Invalid argument '%s'\n", arg2); 
+    switch (start_addr) {
+      case EXPR_EMPTY:
+        printf("Null expression\n");
+        break;
+      case EXPR_ERROR:
+        printf("Invalid expression\n");
+        break;
+      default:
+        break;
+    }
     return 0;
   }
 
@@ -201,7 +210,16 @@ static int cmd_p(char *args) {
   bool is_valid = true;
   int result = eval_expr(args, &is_valid);
   if (!is_valid) {
-    printf("Invalid expression\n");
+    switch (result) {
+      case EXPR_EMPTY:
+        printf("Null expression\n");
+        break;
+      case EXPR_ERROR:
+        printf("Invalid expression\n");
+        break;
+      default:
+        break;
+    }
   } else {
     printf("%u\n", result);
   }

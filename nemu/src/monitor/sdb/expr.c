@@ -285,7 +285,7 @@ static word_t parse_number(int idx, bool *success) {
     if (*endptr != '\0') {
       printf("Invalid number: '%s'\n", tokens[idx].str);
       *success = false;
-      return 0;
+      return EXPR_ERROR;
     }
     return number;
 }
@@ -302,7 +302,7 @@ static word_t calc_2(word_t val1, word_t val2, int op_type, bool *success) {
         if (val2 == 0) {
           printf("Can not divided by 0\n");
           *success = false;
-          return 0;
+          return EXPR_ERROR;
         }
         return val1 / val2;
       case TK_EQ:
@@ -322,7 +322,7 @@ static word_t calc_1(word_t val, int op_type, bool *success __attribute__((unuse
       if (!in_pmem(val)) {
         printf("Invalid address\n");
         *success = false;
-        return 0;
+        return EXPR_ERROR;
       }
       return vaddr_read(val, sizeof(word_t));
     case TK_MINUS:
@@ -335,7 +335,7 @@ static word_t calc_1(word_t val, int op_type, bool *success __attribute__((unuse
 static word_t eval(int left, int right, bool *success) {
   if (left > right) {
     *success = false;
-    return 0;
+    return EXPR_ERROR;
   } else if (left == right) {
     if (tokens[left].type == TK_REG) {
       return isa_reg_str2val(tokens[left].str + 1, success);
@@ -345,7 +345,7 @@ static word_t eval(int left, int right, bool *success) {
           return parse_number(left, success);
     }
     *success = false;
-    return 0;
+    return EXPR_ERROR;
   } else if (check_parantheses(left, right)) {
     return eval(left + 1, right - 1, success);
   } else {
@@ -353,7 +353,7 @@ static word_t eval(int left, int right, bool *success) {
 
     if (op < 0) {
       *success = false;
-      return 0;
+      return EXPR_ERROR;
     }
 
     if (IS_UNARY_OP(tokens[op].type)) {
@@ -373,13 +373,12 @@ word_t eval_expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     free_tokens();
-    return 0;
+    return EXPR_ERROR;
   }
 
   if (nr_token == 0) {
-    printf("Null expression\n");
     *success = false;
-    return 0;
+    return EXPR_EMPTY;
   }
 
   /* TODO: Insert codes to evaluate the expression. */
