@@ -376,6 +376,12 @@ word_t eval_expr(char *e, bool *success) {
     return 0;
   }
 
+  if (nr_token == 0) {
+    printf("Null expression\n");
+    *success = false;
+    return 0;
+  }
+
   /* TODO: Insert codes to evaluate the expression. */
   for (int i = 0; i < nr_token; i++) {
     if (i == 0 || 
