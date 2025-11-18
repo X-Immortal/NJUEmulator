@@ -47,4 +47,7 @@ $(clean-tools):
 clean-tools: $(clean-tools)
 clean-all: clean distclean clean-tools
 
-.PHONY: run gdb run-env clean-tools clean-all $(clean-tools)
+count: 
+	find $(NEMU_HOME) -name "*.[ch]" | xargs grep -v "^\s*$$" | wc -l
+
+.PHONY: run gdb run-env clean-tools clean-all count $(clean-tools)
