@@ -40,6 +40,11 @@ config ENGINE_INTERPRETER
   bool "Interpreter"
   help
     Interpreter guest instructions one by one.
+
+config TARGET_AM
+  bool "Execute"
+  help
+    Execute guest instructions directly.
 endchoice
 
 config ENGINE
