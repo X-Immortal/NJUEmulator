@@ -33,7 +33,7 @@ run: insert-arg
 
 gdb: insert-arg
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA)\
-    CFLAGS=$(if $(filter batch, $(RUN_MODE)), -DCONFIG_TARGET_AM)\
+    $(if $(filter batch, $(RUN_MODE)), CFLAGS="-DCONFIG_TARGET_AM")\
     gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 .PHONY: insert-arg
