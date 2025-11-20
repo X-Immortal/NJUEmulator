@@ -27,13 +27,9 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA)\
-    $(if $(filter batch, $(RUN_MODE)), CFLAGS="-DCONFIG_TARGET_AM")\
-    run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
-	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA)\
-    $(if $(filter batch, $(RUN_MODE)), CFLAGS="-DCONFIG_TARGET_AM")\
-    gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) gdb ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 .PHONY: insert-arg
