@@ -40,6 +40,15 @@ ifeq ($(flavor SRCS), undefined)
   $(error Nothing to build)
 endif
 
+### Set default running mode
+RUN_MODE ?= batch
+VALID_RUN_MODES = batch interactive
+
+### Check: RUN_MODE must be batch or interactive
+ifeq ($(filter $(VALID_RUN_MODES), $(RUN_MODE)), )
+  $(error Expected $$RUN_MODE in {$(VALID_RUN_MODES), Got "$(RUN_MODE)"})
+endif
+
 ### Checks end here
 endif
 
