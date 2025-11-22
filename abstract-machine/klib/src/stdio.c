@@ -108,7 +108,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   int width = 0;
   switch (info->fill_type) {
     case NONE:          
-      memset(out, '0', zero);
+      // memset(out, '0', zero);
       out += zero > 0 ? zero : 0;
       if (!(info->precision == 0 && arg == 0)) {
         strcpy(out, temp + p);
