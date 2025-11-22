@@ -33,10 +33,9 @@ struct {
 
 __attribute__((unused))
 static const char *parse_format(const char *fmt, info_t *info) {
-  // putch(*fmt);
-  // info->parse = NULL;
-  // info->fill_type = NONE;
-  // info->width = info->precision = -1;
+  info->parse = NULL;
+  info->fill_type = NONE;
+  info->width = info->precision = -1;
 
   // if (*fmt == '-') {
   //   info->fill_type = LEFT_ALIGN;
@@ -81,14 +80,14 @@ static const char *parse_format(const char *fmt, info_t *info) {
   //   info->width = -1;
   // }
 
-  // for (int i = 0; i < LENGTH(placeholders); i++) {
-  //   int ph_len = strlen(placeholders[i].ph);
-  //   if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
-  //     info->parse = placeholders[i].parse;
-  //     fmt += ph_len;
-  //     break;
-  //   }
-  // }
+  for (int i = 0; i < LENGTH(placeholders); i++) {
+    int ph_len = strlen(placeholders[i].ph);
+    if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
+      info->parse = placeholders[i].parse;
+      fmt += ph_len;
+      break;
+    }
+  }
   return fmt;
 }
 
