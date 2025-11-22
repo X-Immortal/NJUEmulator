@@ -172,26 +172,27 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  info_t info;
+  info_t info = {parse_int, NONE, -1, -1};
   int count = 0;
+  info.parse(out, &info, ap);
 
-  while (*fmt != '\0') {
-    if (*fmt != '%') {
-      *out++ = *fmt++;
-      continue;
-    }
+  // while (*fmt != '\0') {
+  //   if (*fmt != '%') {
+  //     *out++ = *fmt++;
+  //     continue;
+  //   }
 
-    if (*(fmt + 1) == '%') {
-      *out++ = '%';
-      fmt += 2;
-      continue;
-    }
+  //   if (*(fmt + 1) == '%') {
+  //     *out++ = '%';
+  //     fmt += 2;
+  //     continue;
+  //   }
 
-    fmt++;
-    fmt = parse_format(fmt, &info);
-    out = info.parse(out, &info, ap);
-    count++;
-  }
+  //   fmt++;
+  //   fmt = parse_format(fmt, &info);
+  //   out = info.parse(out, &info, ap);
+  //   count++;
+  // }
   *out = '\0';
   return count;
 }
