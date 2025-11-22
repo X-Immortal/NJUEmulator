@@ -185,7 +185,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
     }
 
     fmt = parse_format(fmt, &info);
-    out = info.parse(out, &info, ap);
+    // out = info.parse(out, &info, ap);
     count++;
   }
   return count;
