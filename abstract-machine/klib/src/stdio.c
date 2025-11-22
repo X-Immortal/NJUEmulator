@@ -95,18 +95,19 @@ static const char *parse_format(const char *fmt, info_t *info) {
 
 __attribute__((unused))
 static char *parse_int(char *out, info_t *info, va_list args) {
-  int arg = va_arg(args, int);
-  int arg_temp = arg;
-  char temp[12] = "";
-  int p = 11;
-  while (arg_temp) {
-    temp[--p] = arg_temp % 10;
-    arg_temp /= 10;
-  }
-  if (arg < 0)  temp[--p] = '-';
-  int digit = 11 - p;
-  strcpy(out, temp + p);
-  out += digit;
+  *out++ = '1';
+  // int arg = va_arg(args, int);
+  // int arg_temp = arg;
+  // char temp[12] = "";
+  // int p = 11;
+  // while (arg_temp) {
+  //   temp[--p] = arg_temp % 10;
+  //   arg_temp /= 10;
+  // }
+  // if (arg < 0)  temp[--p] = '-';
+  // int digit = 11 - p;
+  // strcpy(out, temp + p);
+  // out += digit;
 
   // int zero = 0;
   // int width = 0;
@@ -176,7 +177,7 @@ int printf(const char *fmt, ...) {
 int vsprintf(char *out, const char *fmt, va_list ap) {
   info_t info = {parse_int, NONE, -1, -1};
   int count = 0;
-  info.parse(out, &info, ap);
+  out = info.parse(out, &info, ap);
 
   // while (*fmt != '\0') {
   //   if (*fmt != '%') {
