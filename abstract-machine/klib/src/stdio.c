@@ -105,59 +105,61 @@ static char *parse_int(char *out, info_t *info, va_list args) {
   }
   if (arg < 0)  temp[--p] = '-';
   int digit = 12 - p;
+  strcpy(out, temp + p);
+  out += digit;
 
-  int zero = 0;
-  int width = 0;
-  switch (info->fill_type) {
-    case NONE:          
-      strcpy(out, temp + p);
-      out += digit;
-      break;
-    case LEADING_ZERO:  
-      zero = info->precision - digit;
-      memset(out, '0', zero);
-      out += zero;
-      strcpy(out, temp + p);
-      out += digit;
-      break;
-    case LEFT_ALIGN:
-      zero = 0;
-      width = 0;
-      if (info->precision > digit) {
-        zero = info->precision - digit;
-        memset(out, '0', zero);
-        out += zero;
-        width += zero;
-      }
-      if (!(info->precision == 0 && arg == 0)) {
-        strcpy(out, temp + p);
-        out += digit;
-        width += digit;
-      }
-      memset(out, ' ', info->width - width);
-      out += info->width - width;
-      break;
-    case RIGHT_ALIGN:
-      zero = 0;
-      width = 0;
-      if (info->precision > digit) {
-        zero = info->precision - digit;
-        width += zero;
-      }
-      if (!(info->precision == 0 && arg == 0)) {
-        width += digit;
-      }
-      memset(out, ' ', info->width - width);
-      out += info->width - width;
-      memset(out, '0', zero);
-      out += zero;
-      if (width > 0){
-        strcpy(out, temp + p);
-        out += digit;
-      }  
-      break;
-    default:  break;
-  }
+  // int zero = 0;
+  // int width = 0;
+  // switch (info->fill_type) {
+  //   case NONE:          
+  //     strcpy(out, temp + p);
+  //     out += digit;
+  //     break;
+  //   case LEADING_ZERO:  
+  //     zero = info->precision - digit;
+  //     memset(out, '0', zero);
+  //     out += zero;
+  //     strcpy(out, temp + p);
+  //     out += digit;
+  //     break;
+  //   case LEFT_ALIGN:
+  //     zero = 0;
+  //     width = 0;
+  //     if (info->precision > digit) {
+  //       zero = info->precision - digit;
+  //       memset(out, '0', zero);
+  //       out += zero;
+  //       width += zero;
+  //     }
+  //     if (!(info->precision == 0 && arg == 0)) {
+  //       strcpy(out, temp + p);
+  //       out += digit;
+  //       width += digit;
+  //     }
+  //     memset(out, ' ', info->width - width);
+  //     out += info->width - width;
+  //     break;
+  //   case RIGHT_ALIGN:
+  //     zero = 0;
+  //     width = 0;
+  //     if (info->precision > digit) {
+  //       zero = info->precision - digit;
+  //       width += zero;
+  //     }
+  //     if (!(info->precision == 0 && arg == 0)) {
+  //       width += digit;
+  //     }
+  //     memset(out, ' ', info->width - width);
+  //     out += info->width - width;
+  //     memset(out, '0', zero);
+  //     out += zero;
+  //     if (width > 0){
+  //       strcpy(out, temp + p);
+  //       out += digit;
+  //     }  
+  //     break;
+  //   default:  break;
+  // }
 
   return out;
 }
