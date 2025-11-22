@@ -97,7 +97,7 @@ __attribute__((unused))
 static char *parse_int(char *out, info_t *info, va_list args) {
   int arg = va_arg(args, int);
   int arg_temp = arg;
-  char temp[12] = {0};
+  char temp[12] = "";
   int p = 11;
   while (arg_temp) {
     temp[--p] = arg_temp % 10;
