@@ -107,6 +107,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   int zero = info->precision - digit;
   zero = zero >= 0 ? zero : 0;
   int width = zero;
+  int space;
   switch (info->fill_type) {
     case NONE:          
       memset(out, '0', zero);
@@ -130,14 +131,18 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
         out += digit;
         width += digit;
       }
-      memset(out, ' ', info->width - width);
+      space = info->width - width;
+      space = space >= 0 ? space : 0;
+      memset(out, ' ', space);
       out += info->width - width;
       break;
     case RIGHT_ALIGN:
       if (!(info->precision == 0 && arg == 0)) {
         width += digit;
       }
-      memset(out, ' ', info->width - width);
+      space = info->width - width;
+      space = space >= 0 ? space : 0;
+      memset(out, ' ', space);
       out += info->width - width;
       memset(out, '0', zero);
       out += zero;
