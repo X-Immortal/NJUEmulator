@@ -108,6 +108,11 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   int width = 0;
   switch (info->fill_type) {
     case NONE:          
+      if (!(info->precision == 0 && arg == 0)) {
+        zero = info->precision - digit;
+        memset(out, '0', zero);
+        out += zero;
+      }
       strcpy(out, temp + p);
       out += digit;
       break;
