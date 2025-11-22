@@ -172,25 +172,25 @@ int printf(const char *fmt, ...) {
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
   // putch(*fmt);
-  // info_t info;
+  info_t info;
   int count = 0;
 
-  // while (*fmt != '\0') {
-  //   if (*fmt != '%') {
-  //     *out++ = *fmt++;
-  //     continue;
-  //   }
+  while (*fmt != '\0') {
+    if (*fmt != '%') {
+      *out++ = *fmt++;
+      continue;
+    }
 
-  //   if (*(fmt + 1) == '%') {
-  //     *out++ = '%';
-  //     fmt += 2;
-  //     continue;
-  //   }
+    if (*(fmt + 1) == '%') {
+      *out++ = '%';
+      fmt += 2;
+      continue;
+    }
 
-  //   fmt = parse_format(fmt, &info);
-  //   out = info.parse(out, &info, ap);
-  //   count++;
-  // }
+    fmt = parse_format(fmt, &info);
+    // out = info.parse(out, &info, ap);
+    count++;
+  }
   return count;
 }
 
