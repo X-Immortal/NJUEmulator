@@ -157,7 +157,38 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
 
 __attribute__((unused))
 static char *parse_str(char *out, info_t *info, va_list *args) {
-  return NULL;
+  char *arg = va_arg(*args, char *);
+  int len = strlen(arg);
+  if (info->precision != -1) {
+    len = len > info->precision ? info->precision : len;
+  }
+
+  int space;
+  switch (info->fill_type) {
+    case NONE:          
+      strncpy(out, arg, len);
+      out += len;
+      break;
+    case LEFT_ALIGN:
+      strncpy(out, arg, len);
+      out += len;
+      space = info->width - len;
+      space = space >= 0 ? space : 0;
+      memset(out, ' ', space);
+      out += space;
+      break;
+    case RIGHT_ALIGN:
+      space = info->width - len;
+      space = space >= 0 ? space : 0;
+      memset(out, ' ', space);
+      out += space;
+      strncpy(out, arg, len);
+      out += len;
+      break;
+    default:  break;
+  }
+
+  return out;
 }
 
 int printf(const char *fmt, ...) {
