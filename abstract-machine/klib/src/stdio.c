@@ -98,13 +98,13 @@ static char *parse_int(char *out, info_t *info, va_list args) {
   int arg = va_arg(args, int);
   int arg_temp = arg;
   char temp[12] = {0};
-  int p = 12;
+  int p = 11;
   while (arg_temp) {
     temp[--p] = arg_temp % 10;
     arg_temp /= 10;
   }
   if (arg < 0)  temp[--p] = '-';
-  int digit = 12 - p;
+  int digit = 11 - p;
   strcpy(out, temp + p);
   out += digit;
 
