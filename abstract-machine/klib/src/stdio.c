@@ -171,7 +171,7 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  putch(*fmt);
+  // putch(*fmt);
   // info_t info;
   int count = 0;
 
