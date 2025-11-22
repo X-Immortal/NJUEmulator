@@ -105,11 +105,12 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   int digit = 11 - p;
 
   int zero = info->precision - digit;
-  int width = 0;
+  zero = zero >= 0 ? zero : 0;
+  int width = zero;
   switch (info->fill_type) {
     case NONE:          
-      // memset(out, '0', zero);
-      out += zero > 0 ? zero : 0;
+      memset(out, '0', zero);
+      out += zero;
       if (!(info->precision == 0 && arg == 0)) {
         strcpy(out, temp + p);
         out += digit;
@@ -123,10 +124,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       break;
     case LEFT_ALIGN:
       memset(out, '0', zero);
-      if (zero > 0) {
-        out += zero;
-        width += zero;
-      }
+      out += zero;
       if (!(info->precision == 0 && arg == 0)) {
         strcpy(out, temp + p);
         out += digit;
@@ -136,9 +134,6 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       out += info->width - width;
       break;
     case RIGHT_ALIGN:
-      if (zero > 0) {
-        width += zero;
-      }
       if (!(info->precision == 0 && arg == 0)) {
         width += digit;
       }
