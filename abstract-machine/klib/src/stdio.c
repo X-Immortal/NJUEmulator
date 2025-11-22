@@ -80,14 +80,16 @@ static const char *parse_format(const char *fmt, info_t *info) {
   //   info->width = -1;
   // }
 
-  for (int i = 0; i < LENGTH(placeholders); i++) {
-    int ph_len = strlen(placeholders[i].ph);
-    if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
-      info->parse = placeholders[i].parse;
-      fmt += ph_len;
-      break;
-    }
-  }
+  // for (int i = 0; i < LENGTH(placeholders); i++) {
+  //   int ph_len = strlen(placeholders[i].ph);
+  //   if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
+  //     info->parse = placeholders[i].parse;
+  //     fmt += ph_len;
+  //     break;
+  //   }
+  // }
+  info->parse = parse_int;
+  fmt++;
   return fmt;
 }
 
