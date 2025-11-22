@@ -134,7 +134,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       space = info->width - width;
       space = space >= 0 ? space : 0;
       memset(out, ' ', space);
-      out += info->width - width;
+      out += space;
       break;
     case RIGHT_ALIGN:
       if (!(info->precision == 0 && arg == 0)) {
@@ -143,7 +143,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       space = info->width - width;
       space = space >= 0 ? space : 0;
       memset(out, ' ', space);
-      out += info->width - width;
+      out += space;
       memset(out, '0', zero);
       out += zero;
       if (width > 0){
