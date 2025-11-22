@@ -11,7 +11,7 @@ typedef enum {
 
 struct info_t;
 
-typedef char *(*parse_t)(char *out, struct info_t *info, va_list args);
+typedef char *(*parse_t)(char *out, struct info_t *info, va_list *args);
 
 typedef struct info_t {
   parse_t parse;
@@ -20,8 +20,8 @@ typedef struct info_t {
   int precision;
 } info_t;
 
-static char *parse_int(char *out, info_t *info, va_list args);
-static char *parse_str(char *out, info_t *info, va_list args);
+static char *parse_int(char *out, info_t *info, va_list *args);
+static char *parse_str(char *out, info_t *info, va_list *args);
 
 struct {
   const char *ph;
@@ -92,8 +92,8 @@ static const char *parse_format(const char *fmt, info_t *info) {
 }
 
 __attribute__((unused))
-static char *parse_int(char *out, info_t *info, va_list args) {
-  int arg = va_arg(args, int);
+static char *parse_int(char *out, info_t *info, va_list *args) {
+  int arg = va_arg(*args, int);
   int arg_temp = arg;
   char temp[12] = "";
   int p = 11;
@@ -161,7 +161,7 @@ static char *parse_int(char *out, info_t *info, va_list args) {
 }
 
 __attribute__((unused))
-static char *parse_str(char *out, info_t *info, va_list args) {
+static char *parse_str(char *out, info_t *info, va_list *args) {
   return NULL;
 }
 
@@ -187,7 +187,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    out = info.parse(out, &info, ap);
+    out = info.parse(out, &info, &ap);
     count++;
   }
   *out = '\0';
