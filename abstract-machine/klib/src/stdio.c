@@ -103,67 +103,61 @@ static char *parse_int(char *out, info_t *info, va_list args) {
     temp[--p] = arg_temp % 10 + '0';
     arg_temp /= 10;
   }
-  if (p == 10) {
-    *out++ = temp[10];
-  }
-  // if (strcmp(temp + p, "1") == 0)
-  // if (arg < 0)  temp[--p] = '-';
-  // int digit = 11 - p;
-  // strcpy(out, temp + p);
-  // out += digit;
+  if (arg < 0)  temp[--p] = '-';
+  int digit = 11 - p;
 
-  // int zero = 0;
-  // int width = 0;
-  // switch (info->fill_type) {
-  //   case NONE:          
-  //     strcpy(out, temp + p);
-  //     out += digit;
-  //     break;
-  //   case LEADING_ZERO:  
-  //     zero = info->precision - digit;
-  //     memset(out, '0', zero);
-  //     out += zero;
-  //     strcpy(out, temp + p);
-  //     out += digit;
-  //     break;
-  //   case LEFT_ALIGN:
-  //     zero = 0;
-  //     width = 0;
-  //     if (info->precision > digit) {
-  //       zero = info->precision - digit;
-  //       memset(out, '0', zero);
-  //       out += zero;
-  //       width += zero;
-  //     }
-  //     if (!(info->precision == 0 && arg == 0)) {
-  //       strcpy(out, temp + p);
-  //       out += digit;
-  //       width += digit;
-  //     }
-  //     memset(out, ' ', info->width - width);
-  //     out += info->width - width;
-  //     break;
-  //   case RIGHT_ALIGN:
-  //     zero = 0;
-  //     width = 0;
-  //     if (info->precision > digit) {
-  //       zero = info->precision - digit;
-  //       width += zero;
-  //     }
-  //     if (!(info->precision == 0 && arg == 0)) {
-  //       width += digit;
-  //     }
-  //     memset(out, ' ', info->width - width);
-  //     out += info->width - width;
-  //     memset(out, '0', zero);
-  //     out += zero;
-  //     if (width > 0){
-  //       strcpy(out, temp + p);
-  //       out += digit;
-  //     }  
-  //     break;
-  //   default:  break;
-  // }
+  int zero = 0;
+  int width = 0;
+  switch (info->fill_type) {
+    case NONE:          
+      strcpy(out, temp + p);
+      out += digit;
+      break;
+    case LEADING_ZERO:  
+      zero = info->precision - digit;
+      memset(out, '0', zero);
+      out += zero;
+      strcpy(out, temp + p);
+      out += digit;
+      break;
+    case LEFT_ALIGN:
+      zero = 0;
+      width = 0;
+      if (info->precision > digit) {
+        zero = info->precision - digit;
+        memset(out, '0', zero);
+        out += zero;
+        width += zero;
+      }
+      if (!(info->precision == 0 && arg == 0)) {
+        strcpy(out, temp + p);
+        out += digit;
+        width += digit;
+      }
+      memset(out, ' ', info->width - width);
+      out += info->width - width;
+      break;
+    case RIGHT_ALIGN:
+      zero = 0;
+      width = 0;
+      if (info->precision > digit) {
+        zero = info->precision - digit;
+        width += zero;
+      }
+      if (!(info->precision == 0 && arg == 0)) {
+        width += digit;
+      }
+      memset(out, ' ', info->width - width);
+      out += info->width - width;
+      memset(out, '0', zero);
+      out += zero;
+      if (width > 0){
+        strcpy(out, temp + p);
+        out += digit;
+      }  
+      break;
+    default:  break;
+  }
 
   return out;
 }
