@@ -65,19 +65,12 @@ static const char *parse_format(const char *fmt, info_t *info) {
   }
 
   if (*fmt == '.') {
-    if (info->fill_type == LEADING_ZERO) {
-      info->fill_type = RIGHT_ALIGN;
-    }
     fmt++;
     int precision = 0;
     while (*fmt >= '0' && *fmt <= '9') {
       precision = precision * 10 + *fmt++ - '0';
     }
     info->precision = precision;
-  }
-
-  if (info->fill_type == LEADING_ZERO) {
-    info->width = -1;
   }
 
   for (int i = 0; i < LENGTH(placeholders); i++) {
@@ -104,12 +97,10 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   if (arg < 0)  temp[--p] = '-';
   int digit = 11 - p;
 
-  int zero = info->precision - digit;
-  zero = zero >= 0 ? zero : 0;
-  int width = zero;
-  int space;
+  int zero, width, space;
   switch (info->fill_type) {
     case NONE:          
+      zero = info->precision > digit ? info->precision - digit : 0;
       memset(out, '0', zero);
       out += zero;
       if (!(info->precision == 0 && arg == 0)) {
@@ -118,12 +109,14 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       }
       break;
     case LEADING_ZERO:  
+      zero = info->width > digit ? info->width - digit : 0;
       memset(out, '0', zero);
       out += zero;
       strcpy(out, temp + p);
       out += digit;
       break;
     case LEFT_ALIGN:
+      width = zero = info->precision > digit ? info->precision - digit : 0;
       memset(out, '0', zero);
       out += zero;
       if (!(info->precision == 0 && arg == 0)) {
@@ -137,6 +130,7 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
       out += space;
       break;
     case RIGHT_ALIGN:
+      width = zero = info->precision > digit ? info->precision - digit : 0;
       if (!(info->precision == 0 && arg == 0)) {
         width += digit;
       }
