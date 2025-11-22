@@ -97,6 +97,10 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
   if (arg < 0)  temp[--p] = '-';
   int digit = 11 - p;
 
+  if (info->fill_type == LEADING_ZERO && info->precision >= 0) {
+    info->fill_type = RIGHT_ALIGN;
+  }
+
   int zero, width, space;
   switch (info->fill_type) {
     case NONE:          
