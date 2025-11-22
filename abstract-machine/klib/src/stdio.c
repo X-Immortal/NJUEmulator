@@ -37,48 +37,48 @@ static const char *parse_format(const char *fmt, info_t *info) {
   info->fill_type = NONE;
   info->width = info->precision = -1;
 
-  if (*fmt == '-') {
-    info->fill_type = LEFT_ALIGN;
-    fmt++;
-  }
+  // if (*fmt == '-') {
+  //   info->fill_type = LEFT_ALIGN;
+  //   fmt++;
+  // }
 
-  if (info->fill_type == NONE && *fmt == '0') {
-    fmt++;
-    info->fill_type = LEADING_ZERO;
-  }
+  // if (info->fill_type == NONE && *fmt == '0') {
+  //   fmt++;
+  //   info->fill_type = LEADING_ZERO;
+  // }
 
-  int width = 0;
-  while (*fmt >= '0' && *fmt <= '9') {
-    width = width * 10 + *fmt++ - '0';
-  }
-  if (width == 0) {
-    if (info->fill_type != NONE) {
-      info->fill_type = NONE;
-    }
-  } else {
-    if (info->fill_type == LEADING_ZERO) {
-      info->precision = width;
-    } else if (info->fill_type == NONE) {
-      info->fill_type = RIGHT_ALIGN;
-    }
-    info->width = width;
-  }
+  // int width = 0;
+  // while (*fmt >= '0' && *fmt <= '9') {
+  //   width = width * 10 + *fmt++ - '0';
+  // }
+  // if (width == 0) {
+  //   if (info->fill_type != NONE) {
+  //     info->fill_type = NONE;
+  //   }
+  // } else {
+  //   if (info->fill_type == LEADING_ZERO) {
+  //     info->precision = width;
+  //   } else if (info->fill_type == NONE) {
+  //     info->fill_type = RIGHT_ALIGN;
+  //   }
+  //   info->width = width;
+  // }
 
-  if (*fmt == '.') {
-    if (info->fill_type == LEADING_ZERO) {
-      info->fill_type = RIGHT_ALIGN;
-    }
-    fmt++;
-    int precision = 0;
-    while (*fmt >= '0' && *fmt <= '9') {
-      precision = precision * 10 + *fmt++ - '0';
-    }
-    info->precision = precision;
-  }
+  // if (*fmt == '.') {
+  //   if (info->fill_type == LEADING_ZERO) {
+  //     info->fill_type = RIGHT_ALIGN;
+  //   }
+  //   fmt++;
+  //   int precision = 0;
+  //   while (*fmt >= '0' && *fmt <= '9') {
+  //     precision = precision * 10 + *fmt++ - '0';
+  //   }
+  //   info->precision = precision;
+  // }
 
-  if (info->fill_type == LEADING_ZERO) {
-    info->width = -1;
-  }
+  // if (info->fill_type == LEADING_ZERO) {
+  //   info->width = -1;
+  // }
 
   for (int i = 0; i < LENGTH(placeholders); i++) {
     int ph_len = strlen(placeholders[i].ph);
