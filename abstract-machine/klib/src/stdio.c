@@ -31,7 +31,7 @@ struct {
   { "s" , parse_str },
 };
 
-
+__attribute__((unused))
 static const char *parse_format(const char *fmt, info_t *info) {
   info->parse = NULL;
   info->fill_type = NONE;
@@ -170,24 +170,25 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  info_t info;
-  int count = 0;
-  while (*fmt != '\0') {
-    if (*fmt != '%') {
-      *out++ = *fmt++;
-      continue;
-    }
+  info_t info = {parse_int, NONE, -1, -1};
+  int count = 1;
+  info.parse(out, &info, ap);
+  // while (*fmt != '\0') {
+  //   if (*fmt != '%') {
+  //     *out++ = *fmt++;
+  //     continue;
+  //   }
 
-    if (*(fmt + 1) == '%') {
-      *out++ = '%';
-      fmt += 2;
-      continue;
-    }
+  //   if (*(fmt + 1) == '%') {
+  //     *out++ = '%';
+  //     fmt += 2;
+  //     continue;
+  //   }
 
-    fmt = parse_format(fmt, &info);
-    // out = info.parse(out, &info, ap);
-    count++;
-  }
+  //   fmt = parse_format(fmt, &info);
+  //   out = info.parse(out, &info, ap);
+  //   count++;
+  // }
   return count;
 }
 
