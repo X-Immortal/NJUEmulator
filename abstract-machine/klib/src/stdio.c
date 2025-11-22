@@ -190,6 +190,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
     out = info.parse(out, &info, ap);
     count++;
   }
+  *out = '\0';
   return count;
 }
 
