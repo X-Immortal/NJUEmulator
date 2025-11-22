@@ -33,61 +33,62 @@ struct {
 
 __attribute__((unused))
 static const char *parse_format(const char *fmt, info_t *info) {
-  info->parse = NULL;
-  info->fill_type = NONE;
-  info->width = info->precision = -1;
+  putch(*fmt);
+  // info->parse = NULL;
+  // info->fill_type = NONE;
+  // info->width = info->precision = -1;
 
-  if (*fmt == '-') {
-    info->fill_type = LEFT_ALIGN;
-    fmt++;
-  }
+  // if (*fmt == '-') {
+  //   info->fill_type = LEFT_ALIGN;
+  //   fmt++;
+  // }
 
-  if (info->fill_type == NONE && *fmt == '0') {
-    fmt++;
-    info->fill_type = LEADING_ZERO;
-  }
+  // if (info->fill_type == NONE && *fmt == '0') {
+  //   fmt++;
+  //   info->fill_type = LEADING_ZERO;
+  // }
 
-  int width = 0;
-  while (*fmt >= '0' && *fmt <= '9') {
-    width = width * 10 + *fmt++ - '0';
-  }
-  if (width == 0) {
-    if (info->fill_type != NONE) {
-      info->fill_type = NONE;
-    }
-  } else {
-    if (info->fill_type == LEADING_ZERO) {
-      info->precision = width;
-    } else if (info->fill_type == NONE) {
-      info->fill_type = RIGHT_ALIGN;
-    }
-    info->width = width;
-  }
+  // int width = 0;
+  // while (*fmt >= '0' && *fmt <= '9') {
+  //   width = width * 10 + *fmt++ - '0';
+  // }
+  // if (width == 0) {
+  //   if (info->fill_type != NONE) {
+  //     info->fill_type = NONE;
+  //   }
+  // } else {
+  //   if (info->fill_type == LEADING_ZERO) {
+  //     info->precision = width;
+  //   } else if (info->fill_type == NONE) {
+  //     info->fill_type = RIGHT_ALIGN;
+  //   }
+  //   info->width = width;
+  // }
 
-  if (*fmt == '.') {
-    if (info->fill_type == LEADING_ZERO) {
-      info->fill_type = RIGHT_ALIGN;
-    }
-    fmt++;
-    int precision = 0;
-    while (*fmt >= '0' && *fmt <= '9') {
-      precision = precision * 10 + *fmt++ - '0';
-    }
-    info->precision = precision;
-  }
+  // if (*fmt == '.') {
+  //   if (info->fill_type == LEADING_ZERO) {
+  //     info->fill_type = RIGHT_ALIGN;
+  //   }
+  //   fmt++;
+  //   int precision = 0;
+  //   while (*fmt >= '0' && *fmt <= '9') {
+  //     precision = precision * 10 + *fmt++ - '0';
+  //   }
+  //   info->precision = precision;
+  // }
 
-  if (info->fill_type == LEADING_ZERO) {
-    info->width = -1;
-  }
+  // if (info->fill_type == LEADING_ZERO) {
+  //   info->width = -1;
+  // }
 
-  for (int i = 0; i < LENGTH(placeholders); i++) {
-    int ph_len = strlen(placeholders[i].ph);
-    if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
-      info->parse = placeholders[i].parse;
-      fmt += ph_len;
-      break;
-    }
-  }
+  // for (int i = 0; i < LENGTH(placeholders); i++) {
+  //   int ph_len = strlen(placeholders[i].ph);
+  //   if (strncmp(fmt, placeholders[i].ph, ph_len) == 0) {
+  //     info->parse = placeholders[i].parse;
+  //     fmt += ph_len;
+  //     break;
+  //   }
+  // }
   return fmt;
 }
 
@@ -170,25 +171,25 @@ int printf(const char *fmt, ...) {
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
-  info_t info = {parse_int, NONE, -1, -1};
-  int count = 1;
-  info.parse(out, &info, ap);
-  // while (*fmt != '\0') {
-  //   if (*fmt != '%') {
-  //     *out++ = *fmt++;
-  //     continue;
-  //   }
+  info_t info;
+  int count = 0;
 
-  //   if (*(fmt + 1) == '%') {
-  //     *out++ = '%';
-  //     fmt += 2;
-  //     continue;
-  //   }
+  while (*fmt != '\0') {
+    if (*fmt != '%') {
+      *out++ = *fmt++;
+      continue;
+    }
 
-  //   fmt = parse_format(fmt, &info);
-  //   out = info.parse(out, &info, ap);
-  //   count++;
-  // }
+    if (*(fmt + 1) == '%') {
+      *out++ = '%';
+      fmt += 2;
+      continue;
+    }
+
+    fmt = parse_format(fmt, &info);
+    out = info.parse(out, &info, ap);
+    count++;
+  }
   return count;
 }
 
