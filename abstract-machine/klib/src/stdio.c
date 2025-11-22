@@ -100,7 +100,7 @@ static char *parse_int(char *out, info_t *info, va_list args) {
   char temp[12] = "";
   int p = 11;
   while (arg_temp) {
-    temp[--p] = arg_temp % 10;
+    temp[--p] = arg_temp % 10 + '0';
     arg_temp /= 10;
   }
   if (p == 10) {
