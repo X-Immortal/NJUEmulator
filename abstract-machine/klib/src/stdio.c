@@ -96,16 +96,17 @@ static const char *parse_format(const char *fmt, info_t *info) {
 __attribute__((unused))
 static char *parse_int(char *out, info_t *info, va_list args) {
   int arg = va_arg(args, int);
-  if (arg == 1) {
-    *out++ = '1';
+  int arg_temp = arg;
+  char temp[12] = "";
+  int p = 11;
+  while (arg_temp) {
+    temp[--p] = arg_temp % 10;
+    arg_temp /= 10;
   }
-  // int arg_temp = arg;
-  // char temp[12] = "";
-  // int p = 11;
-  // while (arg_temp) {
-  //   temp[--p] = arg_temp % 10;
-  //   arg_temp /= 10;
-  // }
+  if (p == 10) {
+    *out++ = temp[10];
+  }
+  // if (strcmp(temp + p, "1") == 0)
   // if (arg < 0)  temp[--p] = '-';
   // int digit = 11 - p;
   // strcpy(out, temp + p);
