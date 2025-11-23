@@ -5,17 +5,25 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-#define DEFAULT_BUF_SIZE 4096
-
-// static size_t buf_size = DEFAULT_BUF_SIZE;
+#define BUF_SIZE 4096
 
 typedef enum {
   LEFT_ALIGN, RIGHT_ALIGN, LEADING_ZERO, NONE,
 } fill_t;
 
+typedef enum {
+  STDOUT, STR, 
+} os_type_t;
+
+typedef struct {
+  os_type_t type;
+  char *out;
+  char *end;
+} ostream_t;
+
 struct info_t;
 
-typedef char *(*parse_t)(char *out, char *end, struct info_t *info, va_list *args);
+typedef int (*parse_t)(ostream_t *out, struct info_t *info, va_list *args);
 
 typedef struct info_t {
   parse_t parse;
@@ -24,8 +32,8 @@ typedef struct info_t {
   int precision;
 } info_t;
 
-static char *parse_int(char *out, char *end, info_t *info, va_list *args);
-static char *parse_str(char *out, char *end, info_t *info, va_list *args);
+static int parse_int(ostream_t *out, info_t *info, va_list *args);
+static int parse_str(ostream_t *out, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
@@ -92,26 +100,55 @@ static const char *parse_format(const char *fmt, info_t *info) {
   return fmt;
 }
 
-static char *fill_space(char *out, char *end, int n) {
-  if (end != NULL && end - out < n) {
-    memset(out, ' ', end - out);
-    return out = end;
+static int fill_c(ostream_t *out, int c, int n) {
+  if (out->type == STDOUT) {
+    for (int i = 0; i < n; i++) {
+      putch(c);
+    }
+    return n;
   }
-  memset(out, ' ', n);
-  return out += n;
+  if (out->type == STR) {
+    if (out->end != NULL) {
+      if (out->out > out->end) return 0;
+      if (out->end - out->out + 1 < n) {
+        memset(out->out, c, out->end - out->out + 1);
+        out->out = out->end;
+        return out->end - out->out + 1;
+      }
+    }
+    memset(out->out, c, n);
+    out->out += n;
+    return n;
+  }
+  return -1;
 }
  
-static char *fill_data(char *out, char *end, const char *data, int n) {
-  if (end != NULL && end - out < n) {
-    strncpy(out, data, end - out);
-    return out = end;
+static int fill_data(ostream_t *out, const char *data, int n) {
+  if (out->type == STDOUT) {
+    char temp[n + 1];
+    strncpy(temp, data, n);
+    temp[n + 1] = '\0';
+    putstr(temp);
+    return n;
   }
-  strncpy(out, data, n + 1);
-  return out += n;
+  if (out->type == STR) {
+    if (out->end != NULL) {
+      if (out->out > out->end) return 0;
+      if (out->end - out->out + 1 < n) {
+        strncpy(out->out, data, out->end - out->out + 1);
+        out->out = out->end;
+        return out->out - out->end + 1;
+      }
+    }
+    strncpy(out->out, data, n);
+    out->out += n;
+    return n;
+  }
+  return -1;
 }
 
 __attribute__((unused))
-static char *parse_int(char *out, char *end, info_t *info, va_list *args) {
+static int parse_int(ostream_t *out, info_t *info, va_list *args) {
   int arg = va_arg(*args, int);
   int arg_temp = arg;
 
@@ -161,25 +198,26 @@ static char *parse_int(char *out, char *end, info_t *info, va_list *args) {
 
   int space = info->width - digit;
   space = space >= 0 ? space : 0;
+  int count = 0;
   switch (info->fill_type) {
     case RIGHT_ALIGN:
-      out = fill_space(out, end, space);
+      count += fill_c(out, ' ', space);
     case NONE:          
     case LEADING_ZERO:  
-      out = fill_data(out, end, temp + p, digit);
+      count += fill_data(out, temp + p, digit);
       break;
     case LEFT_ALIGN:
-      out = fill_data(out, end, temp + p, digit);
-      out = fill_space(out, end, space);
+      count += fill_data(out, temp + p, digit);
+      count += fill_c(out, ' ', space);
       break;
     default:  break;
   }
 
-  return out;
+  return count;
 }
 
 __attribute__((unused))
-static char *parse_str(char *out, char *end, info_t *info, va_list *args) {
+static int parse_str(ostream_t *out, info_t *info, va_list *args) {
   char *arg = va_arg(*args, char *);
   int len = strlen(arg);
   if (info->precision != -1) {
@@ -188,44 +226,70 @@ static char *parse_str(char *out, char *end, info_t *info, va_list *args) {
 
   int space = info->width - len;
   space = space >= 0 ? space : 0;
+  int count = 0;
   switch (info->fill_type) {
     case RIGHT_ALIGN:
-      out = fill_space(out, end, space);
+      count += fill_c(out, ' ', space);
     case NONE:          
-      out = fill_data(out, end, arg, len);
+      count += fill_data(out, arg, len);
       break;
     case LEFT_ALIGN:
-      out = fill_data(out, end, arg, len);
-      out = fill_space(out, end, space);
+      count += fill_data(out, arg, len);
+      count += fill_c(out, ' ', space);
       break;
     default:  break;
   }
 
-  return out;
+  return count;
 }
 
+// no buf version
 int printf(const char *fmt, ...) {
-  // char buf[buf_size];
+  panic("");
   // va_list args;
   // va_start(args, fmt);
-  
+
+  // info_t info;
+  // int count = 0;
+
+  // while (*fmt != '\0') {
+  //   if (*fmt != '%') {
+  //     putch(*fmt++);
+  //     count++;
+  //     continue;
+  //   }
+
+  //   if (*(fmt + 1) == '%') {
+  //     putch('%');
+  //     fmt += 2;
+  //     count++;
+  //     continue;
+  //   }
+
+  //   fmt++;
+  //   fmt = parse_format(fmt, &info);
+  //   char *new_out = info.parse(NULL, NULL, &info, &args);
+  //   count += new_out - out;
+  //   out = new_out;
+  // }
   // va_end(args);
-  panic("Not implemented");
+  // return count;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
   info_t info;
   int count = 0;
+  ostream_t os = {STR, out, NULL};
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
-      *out++ = *fmt++;
+      *os.out++ = *fmt++;
       count++;
       continue;
     }
 
     if (*(fmt + 1) == '%') {
-      *out++ = '%';
+      *os.out++ = '%';
       fmt += 2;
       count++;
       continue;
@@ -233,11 +297,9 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    char *end = info.parse(out, NULL, &info, &ap);
-    count += end - out;
-    out = end;
+    count += info.parse(&os, &info, &ap);
   }
-  *out = '\0';
+  *os.out = '\0';
   return count;
 }
 
@@ -250,11 +312,50 @@ int sprintf(char *out, const char *fmt, ...) {
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  panic("Not implemented");
+  va_list args;
+  va_start(args, fmt);
+  int ret = vsnprintf(out, n, fmt, args);
+  va_end(args);
+  return ret;
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
   panic("Not implemented");
+  // char buf[BUF_SIZE] = "";
+  // int p = 0;
+
+  // info_t info;
+  // int count = 0;
+
+  // char *end = out + n - 2;
+
+  // while (*fmt != '\0') {
+  //   if (out > end) {
+  //     out = buf;
+  //     end = buf + BUF_SIZE - 1;
+  //   }
+
+  //   if (*fmt != '%') {
+  //     *out++ = *fmt++;
+  //     count++;
+  //     continue;
+  //   }
+
+  //   if (*(fmt + 1) == '%') {
+  //     *out++ = '%';
+  //     fmt += 2;
+  //     count++;
+  //     continue;
+  //   }
+
+  //   fmt++;
+  //   fmt = parse_format(fmt, &info);
+  //   char *new_out = info.parse(out, end, &info, &ap);
+  //   count += new_out - out;
+  //   out = new_out;
+  // }
+  // *out = '\0';
+  // return count;
 }
 
 #endif
