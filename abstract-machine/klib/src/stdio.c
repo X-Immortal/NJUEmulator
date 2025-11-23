@@ -245,35 +245,35 @@ static int parse_str(ostream_t *out, info_t *info, va_list *args) {
 
 // no buf version
 int printf(const char *fmt, ...) {
-  panic("");
-  // va_list args;
-  // va_start(args, fmt);
+  va_list args;
+  va_start(args, fmt);
 
-  // info_t info;
-  // int count = 0;
+  info_t info;
+  int count = 0;
+  ostream_t os = {STDOUT, NULL, NULL};
 
-  // while (*fmt != '\0') {
-  //   if (*fmt != '%') {
-  //     putch(*fmt++);
-  //     count++;
-  //     continue;
-  //   }
+  while (*fmt != '\0') {
+    if (*fmt != '%') {
+      putch(*fmt++);
+      count++;
+      continue;
+    }
 
-  //   if (*(fmt + 1) == '%') {
-  //     putch('%');
-  //     fmt += 2;
-  //     count++;
-  //     continue;
-  //   }
+    if (*(fmt + 1) == '%') {
+      putch('%');
+      fmt += 2;
+      count++;
+      continue;
+    }
 
-  //   fmt++;
-  //   fmt = parse_format(fmt, &info);
-  //   char *new_out = info.parse(NULL, NULL, &info, &args);
-  //   count += new_out - out;
-  //   out = new_out;
-  // }
-  // va_end(args);
-  // return count;
+    fmt++;
+    fmt = parse_format(fmt, &info);
+    count += info.parse(&os, &info, &args);
+  }
+
+  va_end(args);
+
+  return count;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
