@@ -23,7 +23,7 @@ typedef struct info_t {
 static char *parse_int(char *out, info_t *info, va_list *args);
 static char *parse_str(char *out, info_t *info, va_list *args);
 
-struct {
+static struct {
   const char *ph;
   parse_t parse;
 } placeholders[] = {
