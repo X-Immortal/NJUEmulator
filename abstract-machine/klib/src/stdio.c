@@ -147,6 +147,9 @@ static int fill_data(ostream_t *out, const char *data, int n) {
   return -1;
 }
 
+const char *int_min_str = "-2147483648";
+const size_t int_min_str_len = 11;
+
 __attribute__((unused))
 static int parse_int(ostream_t *out, info_t *info, va_list *args) {
   int arg = va_arg(*args, int);
@@ -171,11 +174,16 @@ static int parse_int(ostream_t *out, info_t *info, va_list *args) {
   char temp[temp_len];
   int p = temp_len - 1;
   temp[p] = '\0';
-  while (arg_temp) {
-    temp[--p] = arg_temp % 10 + '0';
-    arg_temp /= 10;
+  if (arg == INT32_MIN) {
+    strcpy(temp + temp_len - 1 - int_min_str_len, int_min_str);
+    p -= int_min_str_len;
+  } else {
+    while (arg_temp) {
+      temp[--p] = arg_temp % 10 + '0';
+      arg_temp /= 10;
+    }
+    if (arg < 0)  temp[--p] = '-';
   }
-  if (arg < 0)  temp[--p] = '-';
   int digit = temp_len - 1 - p;
 
   int zero = 0;
