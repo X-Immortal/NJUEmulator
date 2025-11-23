@@ -5,13 +5,17 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+#define DEFAULT_BUF_SIZE 4096
+
+// static size_t buf_size = DEFAULT_BUF_SIZE;
+
 typedef enum {
   LEFT_ALIGN, RIGHT_ALIGN, LEADING_ZERO, NONE,
 } fill_t;
 
 struct info_t;
 
-typedef char *(*parse_t)(char *out, struct info_t *info, va_list *args);
+typedef char *(*parse_t)(char *out, char *end, struct info_t *info, va_list *args);
 
 typedef struct info_t {
   parse_t parse;
@@ -20,8 +24,8 @@ typedef struct info_t {
   int precision;
 } info_t;
 
-static char *parse_int(char *out, info_t *info, va_list *args);
-static char *parse_str(char *out, info_t *info, va_list *args);
+static char *parse_int(char *out, char *end, info_t *info, va_list *args);
+static char *parse_str(char *out, char *end, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
@@ -88,70 +92,85 @@ static const char *parse_format(const char *fmt, info_t *info) {
   return fmt;
 }
 
+static char *fill_space(char *out, char *end, int n) {
+  if (end != NULL && end - out < n) {
+    memset(out, ' ', end - out);
+    return out = end;
+  }
+  memset(out, ' ', n);
+  return out += n;
+}
+ 
+static char *fill_data(char *out, char *end, const char *data, int n) {
+  if (end != NULL && end - out < n) {
+    strncpy(out, data, end - out);
+    return out = end;
+  }
+  strncpy(out, data, n + 1);
+  return out += n;
+}
+
 __attribute__((unused))
-static char *parse_int(char *out, info_t *info, va_list *args) {
+static char *parse_int(char *out, char *end, info_t *info, va_list *args) {
   int arg = va_arg(*args, int);
   int arg_temp = arg;
-  char temp[12] = "";
-  int p = 11;
-  while (arg_temp) {
-    temp[--p] = arg_temp % 10 + '0';
-    arg_temp /= 10;
-  }
-  if (arg < 0)  temp[--p] = '-';
-  int digit = 11 - p;
 
   if (info->fill_type == LEADING_ZERO && info->precision >= 0) {
     info->fill_type = RIGHT_ALIGN;
   }
 
-  int zero, width, space;
+  int temp_len = 10; // int max has 10 digits
   switch (info->fill_type) {
-    case NONE:          
-      zero = info->precision > digit ? info->precision - digit : 0;
-      memset(out, '0', zero);
-      out += zero;
-      if (!(info->precision == 0 && arg == 0)) {
-        strcpy(out, temp + p);
-        out += digit;
+    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN:
+      temp_len = info->precision > temp_len ? info->precision : temp_len;
+      break;
+    case LEADING_ZERO:
+      temp_len = info->width > temp_len ? info->width : temp_len;
+      break;
+    default:  break;
+  }
+  temp_len += 2;  // one for '\0', one for '-'
+
+  char temp[temp_len];
+  int p = temp_len - 1;
+  temp[p] = '\0';
+  while (arg_temp) {
+    temp[--p] = arg_temp % 10 + '0';
+    arg_temp /= 10;
+  }
+  if (arg < 0)  temp[--p] = '-';
+  int digit = temp_len - 1 - p;
+
+  int zero = 0;
+  switch (info->fill_type) {
+    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN:
+      if (info->precision == 0 && arg == 0) {
+        zero = digit = 0;
+      } else {
+        zero = info->precision > digit ? info->precision - digit : 0;
       }
       break;
-    case LEADING_ZERO:  
+    case LEADING_ZERO:
       zero = info->width > digit ? info->width - digit : 0;
-      memset(out, '0', zero);
-      out += zero;
-      strcpy(out, temp + p);
-      out += digit;
+      break;
+    default:  break;
+  }
+  p -= zero;
+  digit += zero;
+  memset(temp + p, '0', zero);
+
+  int space = info->width - digit;
+  space = space >= 0 ? space : 0;
+  switch (info->fill_type) {
+    case RIGHT_ALIGN:
+      out = fill_space(out, end, space);
+    case NONE:          
+    case LEADING_ZERO:  
+      out = fill_data(out, end, temp + p, digit);
       break;
     case LEFT_ALIGN:
-      width = zero = info->precision > digit ? info->precision - digit : 0;
-      memset(out, '0', zero);
-      out += zero;
-      if (!(info->precision == 0 && arg == 0)) {
-        strcpy(out, temp + p);
-        out += digit;
-        width += digit;
-      }
-      space = info->width - width;
-      space = space >= 0 ? space : 0;
-      memset(out, ' ', space);
-      out += space;
-      break;
-    case RIGHT_ALIGN:
-      width = zero = info->precision > digit ? info->precision - digit : 0;
-      if (!(info->precision == 0 && arg == 0)) {
-        width += digit;
-      }
-      space = info->width - width;
-      space = space >= 0 ? space : 0;
-      memset(out, ' ', space);
-      out += space;
-      memset(out, '0', zero);
-      out += zero;
-      if (width > 0){
-        strcpy(out, temp + p);
-        out += digit;
-      }  
+      out = fill_data(out, end, temp + p, digit);
+      out = fill_space(out, end, space);
       break;
     default:  break;
   }
@@ -160,34 +179,24 @@ static char *parse_int(char *out, info_t *info, va_list *args) {
 }
 
 __attribute__((unused))
-static char *parse_str(char *out, info_t *info, va_list *args) {
+static char *parse_str(char *out, char *end, info_t *info, va_list *args) {
   char *arg = va_arg(*args, char *);
   int len = strlen(arg);
   if (info->precision != -1) {
     len = len > info->precision ? info->precision : len;
   }
 
-  int space;
+  int space = info->width - len;
+  space = space >= 0 ? space : 0;
   switch (info->fill_type) {
+    case RIGHT_ALIGN:
+      out = fill_space(out, end, space);
     case NONE:          
-      strncpy(out, arg, len);
-      out += len;
+      out = fill_data(out, end, arg, len);
       break;
     case LEFT_ALIGN:
-      strncpy(out, arg, len);
-      out += len;
-      space = info->width - len;
-      space = space >= 0 ? space : 0;
-      memset(out, ' ', space);
-      out += space;
-      break;
-    case RIGHT_ALIGN:
-      space = info->width - len;
-      space = space >= 0 ? space : 0;
-      memset(out, ' ', space);
-      out += space;
-      strncpy(out, arg, len);
-      out += len;
+      out = fill_data(out, end, arg, len);
+      out = fill_space(out, end, space);
       break;
     default:  break;
   }
@@ -196,6 +205,11 @@ static char *parse_str(char *out, info_t *info, va_list *args) {
 }
 
 int printf(const char *fmt, ...) {
+  // char buf[buf_size];
+  // va_list args;
+  // va_start(args, fmt);
+  
+  // va_end(args);
   panic("Not implemented");
 }
 
@@ -206,19 +220,22 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   while (*fmt != '\0') {
     if (*fmt != '%') {
       *out++ = *fmt++;
+      count++;
       continue;
     }
 
     if (*(fmt + 1) == '%') {
       *out++ = '%';
       fmt += 2;
+      count++;
       continue;
     }
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    out = info.parse(out, &info, &ap);
-    count++;
+    char *end = info.parse(out, NULL, &info, &ap);
+    count += end - out;
+    out = end;
   }
   *out = '\0';
   return count;
