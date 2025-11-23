@@ -182,6 +182,7 @@ static int parse_int(ostream_t *out, info_t *info, va_list *args) {
       temp[--p] = arg_temp % 10 + '0';
       arg_temp /= 10;
     }
+    if (arg == 0) temp[--p] = '0';
     if (arg < 0)  temp[--p] = '-';
   }
   int digit = temp_len - 1 - p;
