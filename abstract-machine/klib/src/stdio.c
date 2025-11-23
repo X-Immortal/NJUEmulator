@@ -254,7 +254,8 @@ int printf(const char *fmt, ...) {
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
-      putch(*fmt++);
+      putch(*fmt);
+      fmt++;
       count++;
       continue;
     }
