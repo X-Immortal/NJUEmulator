@@ -81,6 +81,10 @@ static const char *parse_format(const char *fmt, info_t *info) {
       break;
     }
   }
+
+  if (info->parse == NULL) {
+    panic("Not implemented");
+  }
   return fmt;
 }
 
