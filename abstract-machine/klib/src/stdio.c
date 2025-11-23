@@ -150,9 +150,6 @@ static int fill_data(ostream_t *out, const char *data, int n) {
 __attribute__((unused))
 static int parse_int(ostream_t *out, info_t *info, va_list *args) {
   int arg = va_arg(*args, int);
-  if (arg == INT32_MIN) {
-    panic("-2147483648");
-  }
   int arg_temp = arg < 0 ? -arg : arg;
 
   if (info->fill_type == LEADING_ZERO && info->precision >= 0) {
