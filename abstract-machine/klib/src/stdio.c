@@ -127,7 +127,7 @@ static int fill_data(ostream_t *out, const char *data, int n) {
   if (out->type == STDOUT) {
     char temp[n + 1];
     strncpy(temp, data, n);
-    temp[n + 1] = '\0';
+    temp[n] = '\0';
     putstr(temp);
     return n;
   }
@@ -254,8 +254,7 @@ int printf(const char *fmt, ...) {
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
-      putch(*fmt);
-      fmt++;
+      putch(*fmt++);
       count++;
       continue;
     }
