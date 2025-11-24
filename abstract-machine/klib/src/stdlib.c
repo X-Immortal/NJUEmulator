@@ -40,7 +40,8 @@ void *malloc(size_t size) {
   if (addr == NULL) addr = heap.start;
   size = ROUNDUP(size, 4);
   void *ret = addr;
-  addr += size;
+  unsigned char *p = addr;
+  addr = p += size;
   return ret;
 #endif
   return NULL;
