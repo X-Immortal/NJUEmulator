@@ -15,7 +15,7 @@ void __am_timer_init() {
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
   uint64_t time = read_time();
-  printf("now: %d+%d\n", (int)(time >> 32), (int)time);
+  // printf("now: %d+%d\n", (int)(time >> 32), (int)time);
   uptime->us = time - start_time;
 }
 
