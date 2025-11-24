@@ -1,5 +1,6 @@
 #include <am.h>
 #include <nemu.h>
+#include "stdio.h"
 
 static uint64_t start_time;
 
@@ -9,6 +10,7 @@ static uint64_t read_time() {
 
 void __am_timer_init() {
   start_time = read_time();
+  printf("%d\n", (int)start_time);
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
