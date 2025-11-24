@@ -35,6 +35,8 @@ typedef struct info_t {
 static int parse_int(ostream_t *out, info_t *info, va_list *args);
 static int parse_str(ostream_t *out, info_t *info, va_list *args);
 static int parse_uint(ostream_t *out, info_t *info, va_list *args);
+static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args);
+static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
@@ -43,6 +45,8 @@ static struct {
   { "d" , parse_int                   },
   { "s" , parse_str                   },
   { "u" , parse_uint                  }, 
+  { "x" , parse_hex_lower             },
+  { "X" , parse_hex_upper             },
 };
 
 __attribute__((unused))
@@ -276,6 +280,46 @@ static int parse_uint(ostream_t *out, info_t *info, va_list *args) {
   int space = info->width - digit;
   space = space >= 0 ? space : 0;
   return fill(out, info, buf + p, digit, space);
+}
+
+__attribute__((unused))
+static int parse_hex(ostream_t *out, info_t *info, va_list *args, bool upper) {
+  unsigned int arg = va_arg(*args, unsigned int);
+  unsigned int arg_temp = arg < 0 ? -arg : arg;
+
+  int buf_size = 8;
+  fix_type_and_count_size(info, buf_size);
+
+  char buf[buf_size];
+  int p = buf_size - 1;
+  buf[p] = '\0';
+  while (arg_temp) {
+    int n = arg_temp % 16;
+    if (n <= 9) {
+      buf[--p] = n + '0';
+    } else {
+      buf[--p] = n + upper ? 'A' : 'a';
+    }
+    arg_temp /= 16;
+  }
+  if (arg == 0) buf[--p] = '0';
+  int digit = buf_size - 1 - p;
+
+  add_zero(buf, p, info, digit);
+
+  int space = info->width - digit;
+  space = space >= 0 ? space : 0;
+  return fill(out, info, buf + p, digit, space);
+}
+
+__attribute__((unused))
+static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args) {
+  return parse_hex(out, info, args, false);
+}
+
+__attribute__((unused))
+static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args) {
+  return parse_hex(out, info, args, true);
 }
 
 // no buf version
