@@ -34,13 +34,15 @@ typedef struct info_t {
 
 static int parse_int(ostream_t *out, info_t *info, va_list *args);
 static int parse_str(ostream_t *out, info_t *info, va_list *args);
+static int parse_uint(ostream_t *out, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
   parse_t parse;
 } placeholders[] = {
-  { "d" , parse_int },
-  { "s" , parse_str },
+  { "d" , parse_int                   },
+  { "s" , parse_str                   },
+  { "u" , parse_uint                  }, 
 };
 
 __attribute__((unused))
@@ -147,82 +149,95 @@ static int fill_data(ostream_t *out, const char *data, int n) {
   return -1;
 }
 
-const char *int_min_str = "-2147483648";
-const size_t int_min_str_len = 11;
-
-__attribute__((unused))
-static int parse_int(ostream_t *out, info_t *info, va_list *args) {
-  int arg = va_arg(*args, int);
-  int arg_temp = arg < 0 ? -arg : arg;
-
-  if (info->fill_type == LEADING_ZERO && info->precision >= 0) {
-    info->fill_type = RIGHT_ALIGN;
-  }
-
-  int temp_len = 10; // int max has 10 digits
-  switch (info->fill_type) {
-    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN:
-      temp_len = info->precision > temp_len ? info->precision : temp_len;
-      break;
-    case LEADING_ZERO:
-      temp_len = info->width > temp_len ? info->width : temp_len;
-      break;
-    default:  break;
-  }
-  temp_len += 2;  // one for '\0', one for '-'
-
-  char temp[temp_len];
-  int p = temp_len - 1;
-  temp[p] = '\0';
-  if (arg == INT32_MIN) {
-    strcpy(temp + temp_len - 1 - int_min_str_len, int_min_str);
-    p -= int_min_str_len;
-  } else {
-    while (arg_temp) {
-      temp[--p] = arg_temp % 10 + '0';
-      arg_temp /= 10;
-    }
-    if (arg == 0) temp[--p] = '0';
-    if (arg < 0)  temp[--p] = '-';
-  }
-  int digit = temp_len - 1 - p;
-
-  int zero = 0;
-  switch (info->fill_type) {
-    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN:
-      if (info->precision == 0 && arg == 0) {
-        zero = digit = 0;
-      } else {
-        zero = info->precision > digit ? info->precision - digit : 0;
-      }
-      break;
-    case LEADING_ZERO:
-      zero = info->width > digit ? info->width - digit : 0;
-      break;
-    default:  break;
-  }
-  p -= zero;
-  digit += zero;
-  memset(temp + p, '0', zero);
-
-  int space = info->width - digit;
-  space = space >= 0 ? space : 0;
+static int fill(ostream_t *out, info_t *info, char *data, int n, int space) {
   int count = 0;
   switch (info->fill_type) {
     case RIGHT_ALIGN:
       count += fill_c(out, ' ', space);
     case NONE:          
-    case LEADING_ZERO:  
-      count += fill_data(out, temp + p, digit);
+      count += fill_data(out, data, n);
       break;
     case LEFT_ALIGN:
-      count += fill_data(out, temp + p, digit);
+      count += fill_data(out, data, n);
       count += fill_c(out, ' ', space);
       break;
     default:  break;
   }
 
   return count;
+}
+
+#define INT32_MIN_STR "-2147483648"
+#define INT32_MIN_STR_LEN 11
+
+#define add_zero(buf, p, info, digit) \
+do { \
+  int zero = 0; \
+  switch (info->fill_type) { \
+    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN: \
+      if (info->precision == 0 && arg == 0) { \
+        zero = digit = 0; \
+      } else { \
+        zero = info->precision > digit ? info->precision - digit : 0; \
+      } \
+      break; \
+    case LEADING_ZERO: \
+      zero = info->width > digit ? info->width - digit : 0; \
+      break; \
+    default:  break; \
+  } \
+  p -= zero; \
+  digit += zero; \
+  memset(buf + p, '0', zero); \
+} while (0)
+
+#define fix_type_and_count_size(info, buf_size) \
+do {\
+  if (info->fill_type == LEADING_ZERO && info->precision >= 0) { \
+    info->fill_type = RIGHT_ALIGN; \
+  } \
+\
+  switch (info->fill_type) { \
+    case NONE:  case LEFT_ALIGN:  case RIGHT_ALIGN: \
+      buf_size = info->precision > buf_size ? info->precision : buf_size; \
+      break; \
+    case LEADING_ZERO: \
+      buf_size = info->width > buf_size ? info->width : buf_size; \
+      break; \
+    default:  break; \
+  } \
+  buf_size += 2;  \
+} while (0)
+
+__attribute__((unused))
+static int parse_int(ostream_t *out, info_t *info, va_list *args) {
+  int arg = va_arg(*args, int);
+  int arg_temp = arg < 0 ? -arg : arg;
+
+  int buf_size = 10;
+  fix_type_and_count_size(info, buf_size);
+
+  char buf[buf_size];
+  int p = buf_size - 1;
+  buf[p] = '\0';
+  if (arg == INT32_MIN) {
+    strcpy(buf + buf_size - 1 - INT32_MIN_STR_LEN, INT32_MIN_STR);
+    p -= INT32_MIN_STR_LEN;
+  } else {
+    while (arg_temp) {
+      buf[--p] = arg_temp % 10 + '0';
+      arg_temp /= 10;
+    }
+    if (arg == 0) buf[--p] = '0';
+    if (arg < 0)  buf[--p] = '-';
+  }
+  int digit = buf_size - 1 - p;
+
+  add_zero(buf, p, info, digit);
+
+  int space = info->width - digit;
+  space = space >= 0 ? space : 0;
+  return fill(out, info, buf + p, digit, space);
 }
 
 __attribute__((unused))
@@ -235,21 +250,32 @@ static int parse_str(ostream_t *out, info_t *info, va_list *args) {
 
   int space = info->width - len;
   space = space >= 0 ? space : 0;
-  int count = 0;
-  switch (info->fill_type) {
-    case RIGHT_ALIGN:
-      count += fill_c(out, ' ', space);
-    case NONE:          
-      count += fill_data(out, arg, len);
-      break;
-    case LEFT_ALIGN:
-      count += fill_data(out, arg, len);
-      count += fill_c(out, ' ', space);
-      break;
-    default:  break;
-  }
+  return fill(out, info, arg, len, space);
+}
 
-  return count;
+__attribute__((unused))
+static int parse_uint(ostream_t *out, info_t *info, va_list *args) {
+  unsigned int arg = va_arg(*args, unsigned int);
+  unsigned int arg_temp = arg < 0 ? -arg : arg;
+
+  int buf_size = 10;
+  fix_type_and_count_size(info, buf_size);
+
+  char buf[buf_size];
+  int p = buf_size - 1;
+  buf[p] = '\0';
+  while (arg_temp) {
+    buf[--p] = arg_temp % 10 + '0';
+    arg_temp /= 10;
+  }
+  if (arg == 0) buf[--p] = '0';
+  int digit = buf_size - 1 - p;
+
+  add_zero(buf, p, info, digit);
+
+  int space = info->width - digit;
+  space = space >= 0 ? space : 0;
+  return fill(out, info, buf + p, digit, space);
 }
 
 // no buf version
