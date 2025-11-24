@@ -5,7 +5,7 @@
 static uint64_t start_time;
 
 static uint64_t read_time() {
-  return ((uint64_t) inl(RTC_ADDR)) | (((uint64_t) inl(RTC_ADDR + 4)) << 32);
+  return (((uint64_t) inl(RTC_ADDR + 4)) << 32) | ((uint64_t) inl(RTC_ADDR));
 }
 
 void __am_timer_init() {
