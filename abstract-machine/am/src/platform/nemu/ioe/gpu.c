@@ -30,10 +30,10 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
   uint32_t *pixels = ctl->pixels;
-  uint32_t vmem_base = FB_ADDR + ctl->y * width + ctl->x;
+  uint32_t vmem_base = FB_ADDR + (ctl->y * width + ctl->x) * sizeof(uint32_t);
   for (int i = 0; i < ctl->h; i++) {
     for (int j = 0; j < ctl->w; j++) {
-      outl(vmem_base + i * width + j, pixels[i * ctl->w + j]);
+      outl(vmem_base + (i * width + j) * sizeof(uint32_t), pixels[i * ctl->w + j]);
     }
   }
   if (ctl->sync) {
