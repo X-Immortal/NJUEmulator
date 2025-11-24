@@ -12,12 +12,12 @@ void __am_gpu_init() {
   height = inl(VGACTL_ADDR) & ((1 << 16) - 1);
   vmemsz = width * height * sizeof(uint32_t);
 
-  int i;
-  int w = width;  // TODO: get the correct width
-  int h = height;  // TODO: get the correct height
-  uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
-  for (i = 0; i < w * h; i ++) fb[i] = i;
-  outl(SYNC_ADDR, 1);
+  // int i;
+  // int w = width;  // TODO: get the correct width
+  // int h = height;  // TODO: get the correct height
+  // uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR;
+  // for (i = 0; i < w * h; i ++) fb[i] = i;
+  // outl(SYNC_ADDR, 1);
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
