@@ -37,6 +37,7 @@ static int parse_str(ostream_t *out, info_t *info, va_list *args);
 static int parse_uint(ostream_t *out, info_t *info, va_list *args);
 static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args);
 static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args);
+static int parse_char(ostream_t *out, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
@@ -47,6 +48,7 @@ static struct {
   { "u" , parse_uint                  }, 
   { "x" , parse_hex_lower             },
   { "X" , parse_hex_upper             },
+  { "c" , parse_char                  },
 };
 
 __attribute__((unused))
@@ -320,6 +322,29 @@ static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args) {
 __attribute__((unused))
 static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args) {
   return parse_hex(out, info, args, true);
+}
+
+__attribute__((unused))
+static int parse_char(ostream_t *out, info_t *info, va_list *args) {
+  char arg = va_arg(*args, int);
+
+  int count = 0;
+  int space = info->width - 1;
+  space = space < 0 ? 0 : space;
+  switch (info->fill_type) {
+    case RIGHT_ALIGN:
+      count += fill_c(out, ' ', space);
+    case NONE:
+      count += fill_c(out, arg, 1);
+      break;
+    case LEFT_ALIGN:
+      count += fill_c(out, arg, 1);
+      count += fill_c(out, ' ', space);
+      break;
+    default:  break;
+  }
+
+  return count;
 }
 
 // no buf version
