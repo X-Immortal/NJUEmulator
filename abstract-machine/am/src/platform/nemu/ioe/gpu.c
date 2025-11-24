@@ -13,17 +13,20 @@ void __am_gpu_init() {
 }
 
 void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
+  uint32_t width = inl(VGACTL_ADDR) >> 16;
+  uint32_t height = inl(VGACTL_ADDR) & ((1 << 16) - 1);
   *cfg = (AM_GPU_CONFIG_T) {
     .present = true, .has_accel = false,
-    .width = inl(VGACTL_ADDR) >> 16, .height = inl(VGACTL_ADDR) & ((1 << 16) - 1),
-    .vmemsz = 0
+    .width = width, .height = height,
+    .vmemsz = width * height * sizeof(uint32_t)
   };
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) {
+  
   if (ctl->sync) {
     outl(SYNC_ADDR, 1);
-  }
+  } 
 }
 
 void __am_gpu_status(AM_GPU_STATUS_T *status) {
