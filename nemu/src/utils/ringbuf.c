@@ -22,7 +22,7 @@ void rbuf_push(const char *log) {
 void rbuf_print() {
 	if (!full) {
 		for (int i = 0; i < ptr - 1; i++) {
-			printf("\t%s\n", ring_buf[i]);
+			printf("    %s\n", ring_buf[i]);
 		}
 		printf("--> %s\n", ring_buf[ptr - 1]);
 		return;
@@ -30,7 +30,7 @@ void rbuf_print() {
 
 	int cur = prev(ptr);
   for (int i = ptr; i != cur; i = next(i)) {
-    printf("\t%s\n", ring_buf[i]);
+    printf("    %s\n", ring_buf[i]);
   }
   printf("--> %s\n", ring_buf[cur]);
 }
