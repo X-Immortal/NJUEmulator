@@ -401,7 +401,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    count += info.parse(&os, &info, &ap);
+    count += info.parse(&os, &info, (va_list *) &ap);
   }
   *os.out = '\0';
   return count;
