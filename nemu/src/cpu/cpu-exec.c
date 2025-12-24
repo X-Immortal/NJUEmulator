@@ -80,6 +80,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #ifdef CONFIG_FTRACE
   bool is_function_call(Decode *s);
   bool is_function_return(Decode *s);
+  const char* get_func_name(uint32_t addr);
   if (is_function_call(s)) {
     const char *func_name = get_func_name(s->dnpc);
     if (func_name) {
