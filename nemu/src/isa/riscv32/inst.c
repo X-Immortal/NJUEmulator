@@ -127,9 +127,17 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul    , M, R(rd) = src1 * src2);
   INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh   , M, R(rd) = (SEXT(src1, 32) * SEXT(src2, 32)) >> 32);
   INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu  , M, R(rd) = ((uint64_t) src1 * (uint64_t) src2) >> 32);
-  INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , M, if (src2 == 0) R(rd) = UINT32_MAX; else R(rd) = (int32_t) src1 / (int32_t) src2);
+  INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div    , M, 
+    if (src2 == 0) R(rd) = UINT32_MAX; 
+    else if (src1 == INT32_MIN && src2 == -1) R(rd) = src1;
+    else R(rd) = (int32_t) src1 / (int32_t) src2
+  );
   INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu   , M, if (src2 == 0) R(rd) = UINT32_MAX; else R(rd) = src1 / src2);
-  INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , M, if (src2 == 0) R(rd) = src1; else R(rd) = (int32_t) src1 % (int32_t) src2);
+  INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , M, 
+    if (src2 == 0) R(rd) = src1;
+    else if (src1 == INT32_MIN && src2 == -1) R(rd) = 0;
+    else R(rd) = (int32_t) src1 % (int32_t) src2
+  );
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , M, if (src2 == 0) R(rd) = src1; else R(rd) = src1 % src2);
   
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
