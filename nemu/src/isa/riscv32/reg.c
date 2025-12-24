@@ -23,18 +23,16 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-#ifndef NR_REGS
-#define NR_REGS ARRLEN(regs)
-#endif
+size_t nr_regs = ARRLEN(regs);
 
 void isa_reg_display() {
-  for (int i = 0; i < NR_REGS; i++) {
+  for (int i = 0; i < nr_regs; i++) {
     printf("%-15s\t0x%-18x\t%-15d\n", reg_name(i), gpr(i), gpr(i));
   }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
-  for (int i = 0; i < NR_REGS; i++) {
+  for (int i = 0; i < nr_regs; i++) {
     if (strcmp(s, regs[i]) == 0) {
       return gpr(i);
     }

@@ -18,7 +18,16 @@
 #include "../local-include/reg.h"
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  return false;
+  extern size_t nr_regs;
+  for (int i = 0; i < nr_regs; i++) {
+    if (gpr(i) != ref_r->gpr[i]) {
+      printf("Difftest failed at pc = " FMT_WORD "\n", pc);
+      printf("reg %-4s: nemu = " FMT_WORD ", ref = " FMT_WORD "\n",
+             reg_name(i), gpr(i), ref_r->gpr[i]);
+      return false;
+    }
+  }
+  return true;
 }
 
 void isa_difftest_attach() {
