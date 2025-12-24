@@ -84,14 +84,14 @@ static void exec_once(Decode *s, vaddr_t pc) {
   if (is_function_call(s)) {
     const char *func_name = get_func_name(s->dnpc);
     if (func_name) {
-      printf(FMT_WORD ": call [%s@"FMT_WORD"]\n", s->dnpc, func_name, s->dnpc);
+      printf(FMT_WORD ": call [%s@"FMT_WORD"]\n", pc, func_name, s->dnpc);
     } else {
-      printf(FMT_WORD ": call [???@"FMT_WORD"]\n", s->dnpc, s->dnpc);
+      printf(FMT_WORD ": call [???@"FMT_WORD"]\n", pc, s->dnpc);
     }
   } else if (is_function_return(s)) {
-    const char *func_name = get_func_name(pc);
+    const char *func_name = get_func_name(s->dnpc);
     if (func_name) {
-      printf(FMT_WORD ": ret [%s]\n", s->dnpc, func_name);
+      printf(FMT_WORD ": ret [%s]\n", pc, func_name);
     } else {
       printf(FMT_WORD ": ret [???]\n", s->dnpc);
     }
