@@ -26,6 +26,7 @@ static void read_elf_header() {
   assert(ret == 1);
   if (memcmp(elf_header.e_ident, ELFMAG, sizeof(ELFMAG)) != 0) {
     printf("%x, %c, %c, %c\n", elf_header.e_ident[0], elf_header.e_ident[1], elf_header.e_ident[2], elf_header.e_ident[3]);
+    printf("%x, %c, %c, %c\n", ELFMAG[0], ELFMAG[1], ELFMAG[2], ELFMAG[3]);
     panic("Not a valid ELF file!");
   }
 }
