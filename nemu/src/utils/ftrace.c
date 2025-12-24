@@ -83,10 +83,6 @@ static void read_symbol_table() {
       strncpy(func_map[func_num].name, strtab + sym.st_name, FUNC_NAME_MAX_LEN - 1);
       func_map[func_num].name[FUNC_NAME_MAX_LEN - 1] = '\0';
       func_num++;
-      printf("Function [%s] at "FMT_WORD", size %zu bytes\n",
-             func_map[func_num - 1].name,
-             func_map[func_num - 1].addr,
-             func_map[func_num - 1].size);
     }
   }
 
@@ -111,7 +107,7 @@ void init_ftrace(const char *elf_file) {
 
 const char* get_func_name(uint32_t addr) {
   for (int i = 0; i < func_num; i++) {
-    if (func_map[i].addr >= addr && 
+    if (func_map[i].addr <= addr && 
           addr < func_map[i].addr + func_map[i].size) {
       return func_map[i].name;
     }
