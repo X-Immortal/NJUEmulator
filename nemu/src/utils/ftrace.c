@@ -24,8 +24,7 @@ static void read_elf_header() {
   rewind(elf_fp);
   int ret = fread(&elf_header, sizeof(elf_header), 1, elf_fp);
   assert(ret == 1);
-  if (memcmp(elf_header.e_ident, ELFMAG, sizeof(ELFMAG)) != 0) {
-    printf("%lu", sizeof(ELFMAG));
+  if (memcmp(elf_header.e_ident, ELFMAG, sizeof(ELFMAG) - 1) != 0) {
     panic("Not a valid ELF file!");
   }
 }
