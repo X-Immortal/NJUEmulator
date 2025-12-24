@@ -151,6 +151,11 @@ config ITRACE_COND
   string "Only trace instructions when the condition is true"
   default "true"
 
+config FTRACE
+  depends on ITRACE
+  bool "Enable function tracer"
+  default y
+
 config MTRACE_START
   depends on TRACE
   hex "From where memory tracing is enabled (the address in memory)"

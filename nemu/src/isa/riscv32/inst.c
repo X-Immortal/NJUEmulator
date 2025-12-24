@@ -145,3 +145,11 @@ int isa_exec_once(Decode *s) {
   s->isa.inst = inst_fetch(&s->snpc, 4);
   return decode_exec(s);
 }
+
+bool is_function_call(Decode *s) {
+  return s->dnpc != s->snpc && gpr(1) == s->snpc;  // save return address in $ra
+}
+
+bool is_function_return(Decode *s) {
+  return s->dnpc != s->snpc && s->dnpc == gpr(1);  // return address in $ra
+}

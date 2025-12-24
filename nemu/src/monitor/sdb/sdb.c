@@ -146,6 +146,7 @@ static int cmd_info(char *args) {
   if (strcmp(arg, "r") == 0) {
     isa_reg_display();
   } else if (strcmp(arg, "w") == 0) {
+    void print_wp();
     print_wp();
   } else {
     printf("Invalid argument '%s'\n", arg);
@@ -243,6 +244,7 @@ static int cmd_w(char *args) {
     return 0;
   }
 
+  bool add_wp(char *expr);
   if (!add_wp(args)) {
     printf("Failed to add watchpoint\n");
   } 
@@ -268,6 +270,7 @@ static int cmd_d(char *args) {
     return 0;
   }
 
+  bool delete_wp(int no);
   if(!delete_wp(no)) {
     printf("Failed to delete watchpoint '%d'", no);
   } else {

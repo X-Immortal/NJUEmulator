@@ -32,8 +32,6 @@ static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
 void device_update();
-void rbuf_push(const char *log);
-void rbuf_print();
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
 #ifdef CONFIG_ITRACE_COND
@@ -42,6 +40,7 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
   IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
 #ifdef CONFIG_WATCHPOINT
+  bool check_wp();
   if (!check_wp()) { nemu_state.state = NEMU_STOP; }
 #endif
 }
@@ -75,7 +74,28 @@ static void exec_once(Decode *s, vaddr_t pc) {
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
 
+  void rbuf_push(const char *log);
   rbuf_push(s->logbuf); 
+
+#ifdef CONFIG_FTRACE
+  bool is_function_call(Decode *s);
+  bool is_function_return(Decode *s);
+  if (is_function_call(s)) {
+    const char *func_name = get_func_name(s->dnpc);
+    if (func_name) {
+      printf(FMT_WORD ": call [%s@"FMT_WORD"]\n", s->dnpc, func_name, s->dnpc);
+    } else {
+      printf(FMT_WORD ": call [???@"FMT_WORD"]\n", s->dnpc, s->dnpc);
+    }
+  } else if (is_function_return(s)) {
+    const char *func_name = get_func_name(pc);
+    if (func_name) {
+      printf(FMT_WORD ": ret [%s]\n", s->dnpc, func_name);
+    } else {
+      printf(FMT_WORD ": ret [???]\n", s->dnpc);
+    }
+  }
+#endif
 #endif
 
 }
@@ -127,6 +147,7 @@ void cpu_exec(uint64_t n) {
 
     case NEMU_ABORT:
 #ifdef CONFIG_ITRACE
+      void rbuf_print();
       rbuf_print();
 #endif
     case NEMU_END: 

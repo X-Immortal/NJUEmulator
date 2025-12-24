@@ -1,9 +1,9 @@
-#include <utils.h>
+#include <common.h>
 
 #define RING_BUF_SIZE 16
-char ring_buf[RING_BUF_SIZE][128];
-int ptr = 0;
-bool full = false;
+static char ring_buf[RING_BUF_SIZE][128];
+static int ptr = 0;
+static bool full = false;
 
 static int next(int n) {
   return (n + 1) % RING_BUF_SIZE;

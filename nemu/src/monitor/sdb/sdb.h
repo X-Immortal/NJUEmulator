@@ -23,9 +23,4 @@
 
 word_t eval_expr(char *e, bool *success);
 
-bool add_wp(char *expr);
-bool delete_wp(int no);
-void print_wp();
-bool check_wp();
-
 #endif
