@@ -23,7 +23,7 @@ typedef struct {
 
 struct info_t;
 
-typedef int (*parse_t)(ostream_t *out, struct info_t *info, va_list args);
+typedef int (*parse_t)(ostream_t *out, struct info_t *info, va_list *args);
 
 typedef struct info_t {
   parse_t parse;
@@ -32,12 +32,12 @@ typedef struct info_t {
   int precision;
 } info_t;
 
-static int parse_int(ostream_t *out, info_t *info, va_list args);
-static int parse_str(ostream_t *out, info_t *info, va_list args);
-static int parse_uint(ostream_t *out, info_t *info, va_list args);
-static int parse_hex_lower(ostream_t *out, info_t *info, va_list args);
-static int parse_hex_upper(ostream_t *out, info_t *info, va_list args);
-static int parse_char(ostream_t *out, info_t *info, va_list args);
+static int parse_int(ostream_t *out, info_t *info, va_list *args);
+static int parse_str(ostream_t *out, info_t *info, va_list *args);
+static int parse_uint(ostream_t *out, info_t *info, va_list *args);
+static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args);
+static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args);
+static int parse_char(ostream_t *out, info_t *info, va_list *args);
 
 static struct {
   const char *ph;
@@ -216,8 +216,8 @@ do {\
 } while (0)
 
 __attribute__((unused))
-static int parse_int(ostream_t *out, info_t *info, va_list args) {
-  int arg = va_arg(args, int);
+static int parse_int(ostream_t *out, info_t *info, va_list *args) {
+  int arg = va_arg(*args, int);
   int arg_temp = arg < 0 ? -arg : arg;
 
   int buf_size = 10;
@@ -247,8 +247,8 @@ static int parse_int(ostream_t *out, info_t *info, va_list args) {
 }
 
 __attribute__((unused))
-static int parse_str(ostream_t *out, info_t *info, va_list args) {
-  const char *arg = va_arg(args, const char *);
+static int parse_str(ostream_t *out, info_t *info, va_list *args) {
+  const char *arg = va_arg(*args, const char *);
   int len = strlen(arg);
   if (info->precision != -1) {
     len = len > info->precision ? info->precision : len;
@@ -260,8 +260,8 @@ static int parse_str(ostream_t *out, info_t *info, va_list args) {
 }
 
 __attribute__((unused))
-static int parse_uint(ostream_t *out, info_t *info, va_list args) {
-  unsigned int arg = va_arg(args, unsigned int);
+static int parse_uint(ostream_t *out, info_t *info, va_list *args) {
+  unsigned int arg = va_arg(*args, unsigned int);
   unsigned int arg_temp = arg < 0 ? -arg : arg;
 
   int buf_size = 10;
@@ -285,8 +285,8 @@ static int parse_uint(ostream_t *out, info_t *info, va_list args) {
 }
 
 __attribute__((unused))
-static int parse_hex(ostream_t *out, info_t *info, va_list args, bool upper) {
-  unsigned int arg = va_arg(args, unsigned int);
+static int parse_hex(ostream_t *out, info_t *info, va_list *args, bool upper) {
+  unsigned int arg = va_arg(*args, unsigned int);
   unsigned int arg_temp = arg < 0 ? -arg : arg;
 
   int buf_size = 8;
@@ -315,18 +315,18 @@ static int parse_hex(ostream_t *out, info_t *info, va_list args, bool upper) {
 }
 
 __attribute__((unused))
-static int parse_hex_lower(ostream_t *out, info_t *info, va_list args) {
+static int parse_hex_lower(ostream_t *out, info_t *info, va_list *args) {
   return parse_hex(out, info, args, false);
 }
 
 __attribute__((unused))
-static int parse_hex_upper(ostream_t *out, info_t *info, va_list args) {
+static int parse_hex_upper(ostream_t *out, info_t *info, va_list *args) {
   return parse_hex(out, info, args, true);
 }
 
 __attribute__((unused))
-static int parse_char(ostream_t *out, info_t *info, va_list args) {
-  char arg = va_arg(args, int);
+static int parse_char(ostream_t *out, info_t *info, va_list *args) {
+  char arg = va_arg(*args, int);
 
   int count = 0;
   int space = info->width - 1;
@@ -372,7 +372,7 @@ int printf(const char *fmt, ...) {
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    count += info.parse(&os, &info, args);
+    count += info.parse(&os, &info, &args);
   }
 
   va_end(args);
@@ -401,7 +401,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 
     fmt++;
     fmt = parse_format(fmt, &info);
-    count += info.parse(&os, &info, ap);
+    count += info.parse(&os, &info, &ap);
   }
   *os.out = '\0';
   return count;
