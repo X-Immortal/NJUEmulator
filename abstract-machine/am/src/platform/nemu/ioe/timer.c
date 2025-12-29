@@ -2,10 +2,19 @@
 #include <nemu.h>
 #include "stdio.h"
 
+#define RTC_HIGH_ADDR (RTC_ADDR + 4)
+
 static uint64_t start_time;
 
 static uint64_t read_time() {
-  return (((uint64_t) inl(RTC_ADDR + 4)) << 32) | ((uint64_t) inl(RTC_ADDR));
+  while (true) {
+    uint32_t high1 = inl(RTC_HIGH_ADDR);
+    uint32_t low   = inl(RTC_ADDR);
+    uint32_t high2 = inl(RTC_HIGH_ADDR);
+    if (high1 == high2) {
+      return (((uint64_t) high1) << 32) | ((uint64_t) low);
+    }
+  }
 }
 
 void __am_timer_init() {
