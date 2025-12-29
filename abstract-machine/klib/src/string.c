@@ -56,7 +56,12 @@ void *memmove(void *dst, const void *src, size_t n) {
   unsigned char *p_dest = dst;
   const unsigned char *p_src = src;
   if (p_dest > p_src && p_dest < p_src + n) {
-    for (size_t i = n - 1; i >= 0; i--) *(p_dest + i) = *(p_src + i);
+    size_t i = n - 1;
+    while (true) {
+      *(p_dest + i) = *(p_src + i);
+      if (i == 0) break;
+      i--;
+    }
   } else {
     memcpy(dst, src, n);
   }
