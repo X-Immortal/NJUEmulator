@@ -153,6 +153,7 @@ static int decode_exec(Decode *s) {
       }
       cpu.tdata2 = src1;
     }
+    printf("imm: %d\n", imm);
     panic("error");
   );
   
