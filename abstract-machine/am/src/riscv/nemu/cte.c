@@ -5,9 +5,8 @@
 static Context* (*user_handler)(Event, Context*) = NULL;
 
 Context* __am_irq_handle(Context *c) {
-  printf("x1: %u\n", c->gpr1);
-  for (int i = 0; i < NR_REGS - 3; i++) {
-    printf("x%d: %u\n", i + 3, c->gpr[i]);
+  for (int i = 0; i < NR_REGS; i++) {
+    printf("x%d: %u\n", i, c->gpr[i]);
   }
   printf("mcause: %u\n", c->mcause);
   printf("mstatus: %u\n", c->mstatus);
