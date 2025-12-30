@@ -30,17 +30,10 @@ static inline int check_reg_idx(int idx) {
 #define mstatus (cpu.csr[2])
 #define mcause (cpu.csr[3])
 #define csr_idx_map(idx) \
-  { \
-    int result; \
-    switch (idx) { \
-      case 0x305: result = 0; break; /* mtvec  */ \
-      case 0x341: result = 1; break; /* mepc   */ \
-      case 0x300: result = 2; break; /* mstatus*/ \
-      case 0x342: result = 3; break; /* mcause */ \
-      default: panic("not implemented"); \
-    } \
-    result;  \
-  }
+  idx == 0x305 ? 0 : \
+  idx == 0x341 ? 1 : \
+  idx == 0x300 ? 2 : \
+  idx == 0x342 ? 3 : -1
 #define csr(idx) (cpu.csr[csr_idx_map(idx)])
 
 static inline const char* reg_name(int idx) {
