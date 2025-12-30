@@ -32,10 +32,10 @@ const size_t nr_csrs = ARRLEN(csrs);
 
 void isa_reg_display() {
   for (int i = 0; i < nr_regs; i++) {
-    printf("%-15s\t0x%-18x\t%-15d\n", reg_name(i), gpr(i), gpr(i));
+    printf("%-15s\t0x%-18x\t%-15u\n", reg_name(i), gpr(i), gpr(i));
   }
   for (int i = 0; i < nr_csrs; i++) {
-    printf("%-15s\t0x%-18x\t%-15d\n", csr_name(i), cpu.csr[i], cpu.csr[i]);
+    printf("%-15s\t0x%-18x\t%-15u\n", csr_name(i), cpu.csr[i], cpu.csr[i]);
   }
 }
 
