@@ -65,6 +65,19 @@ word_t paddr_read(paddr_t addr, int len) {
   return 0;
 }
 
+void handle_trigger(paddr_t addr, int len) {
+  if (cpu.mcontrol6 & 0x1) { // MCONTROL6.TD
+    if ((cpu.mcontrol6 & 0x800) == 0) { // MCONTROL6.M
+      if ((cpu.tdata2 & 0x1) == 0) { // tdata2.E
+        nemu_state.state = NEMU_STOP;
+        printf("Trigger hit at address " FMT_PADDR " (load/store " FMT_PADDR ", len=%d) at pc = " FMT_WORD "\n",
+               addr, addr, len, cpu.pc);
+      }
+    }
+  }
+
+}
+
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { 
   #ifdef CONFIG_MTRACE
