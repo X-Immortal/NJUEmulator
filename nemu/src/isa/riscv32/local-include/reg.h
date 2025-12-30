@@ -23,11 +23,32 @@ static inline int check_reg_idx(int idx) {
   return idx;
 }
 
+static inline int check_csr_idx(int idx) {
+  assert(idx >= 0 && idx < 4);
+  return idx;
+}
+
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
+
+#define mtvec (cpu.csr[0])
+#define mepc (cpu.csr[1])
+#define mstatus (cpu.csr[2])
+#define mcause (cpu.csr[3])
+#define csr_idx_map(idx) \
+  idx == 0x305 ? 0 : \
+  idx == 0x341 ? 1 : \
+  idx == 0x300 ? 2 : \
+  idx == 0x342 ? 3 : -1
+#define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];
   return regs[check_reg_idx(idx)];
+}
+
+static inline const char* csr_name(int idx) {
+  extern const char* csrs[];
+  return csrs[check_csr_idx(idx)];
 }
 
 #endif
