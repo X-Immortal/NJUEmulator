@@ -20,7 +20,7 @@
 
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
-  word_t csr[6];
+  // word_t csr[6];
   vaddr_t pc;
   word_t mcontrol6;
   word_t tdata2;
