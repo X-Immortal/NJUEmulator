@@ -378,9 +378,9 @@ int printf(const char *fmt, ...) {
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
-      *os.out++ = *fmt++;
+      *os.out++ = *fmt;
       count++;
-      if (os.out == os.end) {
+      if (*fmt++ == '\n' || os.out == os.end) {
         flush_stdout(&os);
       }
       continue;
