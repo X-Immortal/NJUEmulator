@@ -72,8 +72,8 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 }
 
 static void handle_trigger(paddr_t addr, int len) {
-  if (((mcontrol6 >> (32-4)) & 0xf) == 6 &&
-      addr == tdata2) {
+  if (((cpu.mcontrol6 >> (32-4)) & 0xf) == 6 &&
+      addr == cpu.tdata2) {
     nemu_state.state = NEMU_STOP;
   }
 }
@@ -153,14 +153,14 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, 
     if ((imm & 0x00000FFF) == 0x000007a1) {
       if (rd != 0) {
-        R(rd) = mcontrol6;
+        R(rd) = cpu.mcontrol6;
       }
-      mcontrol6 = src1;
+      cpu.mcontrol6 = src1;
     } else if ((imm & 0x00000FFF) == 0x000007a2) {
       if (rd != 0) {
-        R(rd) = tdata2;
+        R(rd) = cpu.tdata2;
       }
-      tdata2 = src1;
+      cpu.tdata2 = src1;
     } 
   );
   // INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , CSR, if (rd != 0) R(rd) = csr(imm); csr(imm) = R(src1));

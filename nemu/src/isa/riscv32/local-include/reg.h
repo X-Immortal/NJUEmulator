@@ -34,8 +34,8 @@ static inline int check_csr_idx(int idx) {
 #define mepc (cpu.csr[1])
 #define mstatus (cpu.csr[2])
 #define mcause (cpu.csr[3])
-#define mcontrol6 (cpu.csr[4])
-#define tdata2 (cpu.csr[5])
+// #define mcontrol6 (cpu.csr[4])
+// #define tdata2 (cpu.csr[5])
 #define csr_idx_map(idx) \
   idx == 0x305 ? 0 : \
   idx == 0x341 ? 1 : \
