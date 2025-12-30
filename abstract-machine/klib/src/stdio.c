@@ -122,6 +122,7 @@ static const char *parse_format(const char *fmt, info_t *info) {
 }
 
 static void flush_stdout(ostream_t *out) {
+  *out->out = '\0';
   putstr(out->begin);
   out->out = out->begin;
 }
