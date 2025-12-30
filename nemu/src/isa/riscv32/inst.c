@@ -143,13 +143,11 @@ static int decode_exec(Decode *s) {
 
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, 
     if (imm == 0x7a1) {
-      long old = cpu.mcontrol6;
-      cpu.mcontrol6 = R(src1);
-      R(rd) = old;
+      R(rd) = cpu.mcontrol6;
+      cpu.mcontrol6 = src1;
     } else if (imm == 0x7a2) {
-      long old = cpu.tdata2;
-      cpu.tdata2 = R(src1);
-      R(rd) = old;
+      R(rd) = cpu.tdata2;
+      cpu.tdata2 = src1;
     }
   );
   
