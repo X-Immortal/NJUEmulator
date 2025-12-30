@@ -142,10 +142,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , M, if (src2 == 0) R(rd) = src1; else R(rd) = src1 % src2);
 
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, 
-    if (imm == 0x7a1) {
+    if (BITS(imm, 19, 0) == 0x7a1) {
       R(rd) = cpu.mcontrol6;
       cpu.mcontrol6 = src1;
-    } else if (imm == 0x7a2) {
+    } else if (BITS(imm, 19, 0) == 0x7a2) {
       R(rd) = cpu.tdata2;
       cpu.tdata2 = src1;
     }
