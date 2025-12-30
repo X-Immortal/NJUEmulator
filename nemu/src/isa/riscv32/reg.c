@@ -50,7 +50,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   }
   for (int i = 0; i < nr_csrs; i++) {
     if (strcmp(s, csrs[i]) == 0) {
-      return csr(i);
+      return cpu.csr[i];
     }
   }
   *success = false;
