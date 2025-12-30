@@ -65,11 +65,12 @@ word_t paddr_read(paddr_t addr, int len) {
   return 0;
 }
 
-// void handle_trigger(paddr_t addr, int len) {
-//   if ((cpu.mcontrol6 >> (32-4)) & 0xf) {
-    
-//   }
-// }
+void handle_trigger(paddr_t addr, int len) {
+  if (((cpu.mcontrol6 >> (32-4)) & 0xf) == 6 &&
+      addr == cpu.tdata2) {
+    nemu_state.state = NEMU_STOP;
+  }
+}
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { 
