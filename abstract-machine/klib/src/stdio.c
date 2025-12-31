@@ -258,7 +258,7 @@ do {\
         if (n <= 9) { \
           buf[--p] = n + '0'; \
         } else { \
-          buf[--p] = n + (upper) ? 'A' : 'a'; \
+          buf[--p] = n + ((upper) ? 'A' : 'a'); \
         } \
         temp /= base; \
       } \
@@ -307,7 +307,7 @@ static int parse_uint(ostream_t *out, info_t *info, va_list_ptr args) {
 
 __attribute__((unused))
 static int parse_hex(ostream_t *out, info_t *info, va_list_ptr args, bool upper) {
-  parse_num_common(unsigned int, 8, 16, upper, upper);
+  parse_num_common(unsigned int, 8, 16, upper, false);
 }
 
 __attribute__((unused))
