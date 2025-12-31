@@ -70,6 +70,14 @@ int _write(int fd, void *buf, size_t count) {
 }
 
 void *_sbrk(intptr_t increment) {
+  extern char _end;
+  static void *brk = &_end;
+  void *old_brk = brk;
+  intptr_t new_brk = (intptr_t) brk + increment;
+  if (_syscall_(SYS_brk, new_brk, 0, 0) == 0) {
+    brk = (void *) new_brk;
+    return old_brk;
+  }
   return (void *)-1;
 }
 
