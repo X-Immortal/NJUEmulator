@@ -307,7 +307,7 @@ static int parse_uint(ostream_t *out, info_t *info, va_list_ptr args) {
 
 __attribute__((unused))
 static int parse_hex(ostream_t *out, info_t *info, va_list_ptr args, bool upper) {
-  parse_num_common(unsigned int, 8, 16, upper, false);
+  parse_num_common(unsigned int, 8, 16, upper, upper);
 }
 
 __attribute__((unused))
