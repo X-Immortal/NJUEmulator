@@ -258,7 +258,7 @@ do {\
         if (n <= 9) { \
           buf[--p] = n + '0'; \
         } else { \
-          buf[--p] = n + (upper) ? 'A' : 'a'; \
+          buf[--p] = n - 10 + ((upper) ? 'A' : 'a'); \
         } \
         temp /= base; \
       } \
