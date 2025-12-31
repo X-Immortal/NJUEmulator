@@ -17,6 +17,7 @@ typedef enum {
 
 typedef struct {
   os_type_t type;
+  char *begin;
   char *out;
   char *end;
 } ostream_t;
@@ -48,6 +49,7 @@ static int parse_uint(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_hex_lower(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_hex_upper(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_char(ostream_t *out, info_t *info, va_list_ptr args);
+static int parse_ptr(ostream_t *out, info_t *info, va_list_ptr args);
 
 static struct {
   const char *ph;
@@ -59,6 +61,7 @@ static struct {
   { "x" , parse_hex_lower             },
   { "X" , parse_hex_upper             },
   { "c" , parse_char                  },
+  { "p" , parse_ptr                   }, 
 };
 
 __attribute__((unused))
@@ -118,51 +121,72 @@ static const char *parse_format(const char *fmt, info_t *info) {
   return fmt;
 }
 
+static void flush_stdout(ostream_t *out) {
+  *out->out = '\0';
+  putstr(out->begin);
+  out->out = out->begin;
+}
+
 static int fill_c(ostream_t *out, int c, int n) {
-  if (out->type == STDOUT) {
-    for (int i = 0; i < n; i++) {
-      putch(c);
-    }
-    return n;
-  }
-  if (out->type == STR) {
-    if (out->end != NULL) {
-      if (out->out > out->end) return 0;
-      if (out->end - out->out + 1 < n) {
-        memset(out->out, c, out->end - out->out + 1);
-        out->out = out->end;
-        return out->end - out->out + 1;
+  if (out->end != NULL) {
+    int remaining = out->end - out->out;
+    int to_fill = n;
+    while (to_fill) {
+      int size = to_fill < remaining ? to_fill : remaining;
+      memset(out->out, c, size);
+      to_fill -= size;
+      out->out += size;
+      if (out->out == out->end) {
+        if (out->type == STDOUT) {
+          flush_stdout(out);
+        } else {
+          break;
+        }
       }
     }
-    memset(out->out, c, n);
-    out->out += n;
-    return n;
+  } else {
+    if (out->type == STDOUT) {
+      for (int i = 0; i < n; i++) {
+        putch(c);
+      }
+    } else {
+      memset(out->out, c, n);
+      out->out += n;
+    }
   }
-  return -1;
+  return n;
 }
  
 static int fill_data(ostream_t *out, const char *data, int n) {
-  if (out->type == STDOUT) {
-    char temp[n + 1];
-    strncpy(temp, data, n);
-    temp[n] = '\0';
-    putstr(temp);
-    return n;
-  }
-  if (out->type == STR) {
-    if (out->end != NULL) {
-      if (out->out > out->end) return 0;
-      if (out->end - out->out + 1 < n) {
-        strncpy(out->out, data, out->end - out->out + 1);
-        out->out = out->end;
-        return out->out - out->end + 1;
+  if (out->end != NULL) {
+    int remaining = out->end - out->out;
+    int to_fill = n;
+    while (to_fill) {
+      int size = to_fill < remaining ? to_fill : remaining;
+      strncpy(out->out, data, size);
+      data += size;
+      to_fill -= size;
+      out->out += size;
+      if (out->out == out->end) {
+        if (out->type == STDOUT) {
+          flush_stdout(out);
+        } else {
+          break;
+        }
       }
     }
-    strncpy(out->out, data, n);
-    out->out += n;
-    return n;
+  } else {
+    if (out->type == STDOUT) {
+        char temp[n + 1];
+        strncpy(temp, data, n);
+        temp[n] = '\0';
+        putstr(temp);
+    } else {
+      strncpy(out->out, data, n);
+      out->out += n;
+    }
   }
-  return -1;
+  return n;
 }
 
 static int fill(ostream_t *out, info_t *info, const char *data, int n, int space) {
@@ -183,10 +207,7 @@ static int fill(ostream_t *out, info_t *info, const char *data, int n, int space
   return count;
 }
 
-#define INT32_MIN_STR "-2147483648"
-#define INT32_MIN_STR_LEN 11
-
-#define add_zero(buf, p, info, digit) \
+#define add_zero() \
 do { \
   int zero = 0; \
   switch (info->fill_type) { \
@@ -207,7 +228,7 @@ do { \
   memset(buf + p, '0', zero); \
 } while (0)
 
-#define fix_type_and_count_size(info, buf_size) \
+#define fix_type_and_count_size() \
 do {\
   if (info->fill_type == LEADING_ZERO && info->precision >= 0) { \
     info->fill_type = RIGHT_ALIGN; \
@@ -225,35 +246,45 @@ do {\
   buf_size += 2;  \
 } while (0)
 
+#define num2str(num, base, upper, _signed) \
+  do { \
+    typeof(num) temp = num; \
+    if (temp == 0) { \
+      buf[--p] = '0'; \
+    } else { \
+      bool minus = (_signed) && temp < 0; \
+      while (temp) { \
+        int n = abs(temp % (base)); \
+        if (n <= 9) { \
+          buf[--p] = n + '0'; \
+        } else { \
+          buf[--p] = n + (upper) ? 'A' : 'a'; \
+        } \
+        temp /= base; \
+      } \
+      if (minus)  buf[--p] = '-'; \
+    } \
+  } while (0)
+
+#define parse_num_common(type, init_size, base, upper, _signed) \
+  do { \
+    type arg = va_arg(deref_va_list(args), type); \
+    int buf_size = init_size; \
+    fix_type_and_count_size(); \
+    char buf[buf_size]; \
+    int p = buf_size - 1; \
+    buf[p] = '\0'; \
+    num2str(arg, base, upper, _signed); \
+    int digit = buf_size - 1 - p; \
+    add_zero(); \
+    int space = info->width - digit; \
+    space = space >= 0 ? space : 0; \
+    return fill(out, info, buf + p, digit, space); \
+  } while (0)
+
 __attribute__((unused))
 static int parse_int(ostream_t *out, info_t *info, va_list_ptr args) {
-  int arg = va_arg(deref_va_list(args), int);
-  int arg_temp = arg < 0 ? -arg : arg;
-
-  int buf_size = 10;
-  fix_type_and_count_size(info, buf_size);
-
-  char buf[buf_size];
-  int p = buf_size - 1;
-  buf[p] = '\0';
-  if (arg == INT32_MIN) {
-    strcpy(buf + buf_size - 1 - INT32_MIN_STR_LEN, INT32_MIN_STR);
-    p -= INT32_MIN_STR_LEN;
-  } else {
-    while (arg_temp) {
-      buf[--p] = arg_temp % 10 + '0';
-      arg_temp /= 10;
-    }
-    if (arg == 0) buf[--p] = '0';
-    if (arg < 0)  buf[--p] = '-';
-  }
-  int digit = buf_size - 1 - p;
-
-  add_zero(buf, p, info, digit);
-
-  int space = info->width - digit;
-  space = space >= 0 ? space : 0;
-  return fill(out, info, buf + p, digit, space);
+  parse_num_common(int, 10, 10, false, true);
 }
 
 __attribute__((unused))
@@ -271,57 +302,12 @@ static int parse_str(ostream_t *out, info_t *info, va_list_ptr args) {
 
 __attribute__((unused))
 static int parse_uint(ostream_t *out, info_t *info, va_list_ptr args) {
-  unsigned int arg = va_arg(deref_va_list(args), unsigned int);
-  unsigned int arg_temp = arg < 0 ? -arg : arg;
-
-  int buf_size = 10;
-  fix_type_and_count_size(info, buf_size);
-
-  char buf[buf_size];
-  int p = buf_size - 1;
-  buf[p] = '\0';
-  while (arg_temp) {
-    buf[--p] = arg_temp % 10 + '0';
-    arg_temp /= 10;
-  }
-  if (arg == 0) buf[--p] = '0';
-  int digit = buf_size - 1 - p;
-
-  add_zero(buf, p, info, digit);
-
-  int space = info->width - digit;
-  space = space >= 0 ? space : 0;
-  return fill(out, info, buf + p, digit, space);
+  parse_num_common(unsigned int, 10, 10, false, false);
 }
 
 __attribute__((unused))
 static int parse_hex(ostream_t *out, info_t *info, va_list_ptr args, bool upper) {
-  unsigned int arg = va_arg(deref_va_list(args), unsigned int);
-  unsigned int arg_temp = arg < 0 ? -arg : arg;
-
-  int buf_size = 8;
-  fix_type_and_count_size(info, buf_size);
-
-  char buf[buf_size];
-  int p = buf_size - 1;
-  buf[p] = '\0';
-  while (arg_temp) {
-    int n = arg_temp % 16;
-    if (n <= 9) {
-      buf[--p] = n + '0';
-    } else {
-      buf[--p] = n + upper ? 'A' : 'a';
-    }
-    arg_temp /= 16;
-  }
-  if (arg == 0) buf[--p] = '0';
-  int digit = buf_size - 1 - p;
-
-  add_zero(buf, p, info, digit);
-
-  int space = info->width - digit;
-  space = space >= 0 ? space : 0;
-  return fill(out, info, buf + p, digit, space);
+  parse_num_common(unsigned int, 8, 16, upper, false);
 }
 
 __attribute__((unused))
@@ -357,26 +343,57 @@ static int parse_char(ostream_t *out, info_t *info, va_list_ptr args) {
   return count;
 }
 
-// no buf version
+__attribute__((unused))
+static int parse_ptr(ostream_t *out, info_t *info, va_list_ptr args) {
+  uintptr_t arg = va_arg(deref_va_list(args), uintptr_t);
+
+  int buf_size = sizeof(uintptr_t) * 2 + 2;
+  fix_type_and_count_size();
+
+  char buf[buf_size];
+  int p = buf_size - 1;
+  buf[p] = '\0';
+  num2str(arg, 16, false, false);
+  buf[--p] = 'x';
+  buf[--p] = '0';
+  int digit = buf_size - 1 - p;
+  
+  add_zero();
+  int space = info->width - digit;
+  space = space >= 0 ? space : 0;
+  return fill(out, info, buf + p, digit, space);
+}
+
+#define BUF_SIZE 4096
+
+// buf version
 int printf(const char *fmt, ...) {
+  static char buf[BUF_SIZE] = "";
+
   va_list args;
   va_start(args, fmt);
 
   info_t info;
   int count = 0;
-  ostream_t os = {STDOUT, NULL, NULL};
+  ostream_t os = {STDOUT, buf, buf, buf + BUF_SIZE - 1};
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
-      putch(*fmt++);
+      *os.out++ = *fmt;
       count++;
+      if (*fmt++ == '\n' || os.out == os.end) {
+        flush_stdout(&os);
+      }
       continue;
     }
 
     if (*(fmt + 1) == '%') {
-      putch('%');
+      *os.out++ = '%';
       fmt += 2;
       count++;
+      if (os.out == os.end) {
+        flush_stdout(&os);
+      }
       continue;
     }
 
@@ -393,7 +410,7 @@ int printf(const char *fmt, ...) {
 int vsprintf(char *out, const char *fmt, va_list ap) {
   info_t info;
   int count = 0;
-  ostream_t os = {STR, out, NULL};
+  ostream_t os = {STR, out, out, NULL};
 
   while (*fmt != '\0') {
     if (*fmt != '%') {
@@ -434,42 +451,34 @@ int snprintf(char *out, size_t n, const char *fmt, ...) {
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  panic("Not implemented");
-  // char buf[BUF_SIZE] = "";
-  // int p = 0;
+  info_t info;
+  int count = 0;
+  ostream_t os = {STR, out, out, out + n - 1};
 
-  // info_t info;
-  // int count = 0;
+  while (*fmt != '\0') {
+    if (*fmt != '%') {
+      if (os.out != os.end) {
+        *os.out++ = *fmt++;
+      }
+      count++;
+      continue;
+    }
 
-  // char *end = out + n - 2;
+    if (*(fmt + 1) == '%') {
+      if (os.out != os.end) {
+        *os.out++ = '%';
+      }
+      fmt += 2;
+      count++;
+      continue;
+    }
 
-  // while (*fmt != '\0') {
-  //   if (out > end) {
-  //     out = buf;
-  //     end = buf + BUF_SIZE - 1;
-  //   }
-
-  //   if (*fmt != '%') {
-  //     *out++ = *fmt++;
-  //     count++;
-  //     continue;
-  //   }
-
-  //   if (*(fmt + 1) == '%') {
-  //     *out++ = '%';
-  //     fmt += 2;
-  //     count++;
-  //     continue;
-  //   }
-
-  //   fmt++;
-  //   fmt = parse_format(fmt, &info);
-  //   char *new_out = info.parse(out, end, &info, &ap);
-  //   count += new_out - out;
-  //   out = new_out;
-  // }
-  // *out = '\0';
-  // return count;
+    fmt++;
+    fmt = parse_format(fmt, &info);
+    count += info.parse(&os, &info, ref_va_list(ap));
+  }
+  *os.out = '\0';
+  return count;
 }
 
 #endif
