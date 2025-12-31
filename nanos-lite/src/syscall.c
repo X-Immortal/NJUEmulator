@@ -37,6 +37,6 @@ void do_syscall(Context *c) {
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
-  printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%p\n",
+  printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
          syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
 }
