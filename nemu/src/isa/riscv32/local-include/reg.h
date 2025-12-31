@@ -30,20 +30,20 @@ static inline int check_csr_idx(int idx) {
 
 #define gpr(idx) (cpu.gpr[check_reg_idx(idx)])
 
-// #define mtvec (cpu.csr[0])
-// #define mepc (cpu.csr[1])
-// #define mstatus (cpu.csr[2])
-// #define mcause (cpu.csr[3])
-// #define mcontrol6 (cpu.csr[4])
-// #define tdata2 (cpu.csr[5])
-/* #define csr_idx_map(idx) \
+#define mtvec (cpu.csr[0])
+#define mepc (cpu.csr[1])
+#define mstatus (cpu.csr[2])
+#define mcause (cpu.csr[3])
+#define mcontrol6 (cpu.csr[4])
+#define tdata2 (cpu.csr[5])
+#define csr_idx_map(idx) \
   idx == 0x305 ? 0 : \
   idx == 0x341 ? 1 : \
   idx == 0x300 ? 2 : \
   idx == 0x342 ? 3 : \
   idx == 0x7a1 ? 4 : \
-  idx == 0x7a2 ? 5 : -1 */
-// #define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
+  idx == 0x7a2 ? 5 : -1
+#define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];

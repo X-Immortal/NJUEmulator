@@ -65,13 +65,6 @@ word_t paddr_read(paddr_t addr, int len) {
   return 0;
 }
 
-static void handle_trigger(paddr_t addr, int len) {
-  if (((cpu.mcontrol6 >> (32-4)) & 0xf) == 6 &&
-      addr == cpu.tdata2) {
-    nemu_state.state = NEMU_STOP;
-  }
-}
-
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { 
   #ifdef CONFIG_MTRACE
@@ -81,7 +74,6 @@ void paddr_write(paddr_t addr, int len, word_t data) {
       printf("write %d bytes at 0x%x\n", len, addr); 
   #endif
     pmem_write(addr, len, data);
-    handle_trigger(addr, len);
     return;
   }
   IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
