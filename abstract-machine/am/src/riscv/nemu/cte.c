@@ -15,8 +15,12 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case MCAUSE_YIELD: 
-        ev.event = EVENT_YIELD;
+      case MCAUSE_ECALL: 
+        if (c->GPR1 == (uintptr_t) -1) {
+          ev.event = EVENT_YIELD;
+        } else {
+          ev.event = EVENT_SYSCALL;
+        }
         c->mepc += 4;
         break;
       default: ev.event = EVENT_ERROR; break;

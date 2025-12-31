@@ -13,7 +13,7 @@
 # define EXPECT_TYPE EM_X86_64
 #elif defined(__ISA_X86__)
 # define EXPECT_TYPE EM_386  // see /usr/include/elf.h to get the right type
-#elif defined(__ISA_RISCV32__) || defined(__ISA_RISCV64__)
+#elif defined(__riscv)
 # define EXPECT_TYPE EM_RISCV
 #elif defined(__ISA_MIPS32__)
 # define EXPECT_TYPE EM_MIPS
