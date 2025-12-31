@@ -41,6 +41,7 @@ void do_syscall(Context *c) {
       if (a[1] == 1 || a[1] == 2) {
         write(a[2], a[3]);
         c->GPRx = a[3];
+        return;
       }
       break;
     case SYS_brk: c->GPRx = 0;            break;
