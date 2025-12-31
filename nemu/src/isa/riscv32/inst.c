@@ -75,7 +75,7 @@ static void handle_trigger(Decode *s, paddr_t addr, int len) {
   if (((mcontrol6 >> (32-4)) & 0xf) == 6 &&
       addr == tdata2) {
     if (((mcontrol6 >> 12) & 0xf) == 0) {
-      isa_raise_intr(3, s->snpc);
+      s->dnpc = isa_raise_intr(3, s->snpc);
     } else {
       nemu_state.state = NEMU_STOP;
     }
