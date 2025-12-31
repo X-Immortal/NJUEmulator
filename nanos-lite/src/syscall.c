@@ -3,6 +3,7 @@
 
 #define write(buf, len) do { for (size_t _i = 0; _i < (len); _i++) { putch(((char *) (buf))[_i]); } } while (0)
 
+__attribute__((unused))
 static const char *syscall_name[] = {
   "SYS_exit",
   "SYS_yield",
@@ -45,6 +46,6 @@ void do_syscall(Context *c) {
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
-  printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
-         syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
+  // printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
+  //        syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
 }
