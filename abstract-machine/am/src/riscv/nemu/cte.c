@@ -23,6 +23,9 @@ Context* __am_irq_handle(Context *c) {
         }
         // c->mepc += 4;
         break;
+      case MCAUSE_BREAKPOINT:
+        ev.event = EVENT_BREAKPOINT;
+        break;
       default: ev.event = EVENT_ERROR; break;
     }
 

@@ -31,6 +31,7 @@ enum { MODE_U, MODE_S, MODE_M = 3 };
 #define MSTATUS_UXL  0
 
 #define MCAUSE_ECALL 11
+#define MCAUSE_BREAKPOINT 3
 #endif
 
 #endif
