@@ -98,7 +98,7 @@ void *memmove(void *dst, const void *src, size_t n) {
   uintptr_t _dest = (uintptr_t) dst;
   uintptr_t _src = (uintptr_t) src;
 
-  if (_dest - _src >= n) {
+  if (_dest < _src || _dest - _src >= n) {
     // copy from the beginning to the end
     memcpy(dst, src, n);
   } else {
