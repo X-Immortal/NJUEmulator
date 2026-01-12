@@ -123,7 +123,7 @@ void *memmove(void *dst, const void *src, size_t n) {
         op_t low = 0;
         int low_len = _src % OPSIZ;
         int high_len = OPSIZ - low_len;
-        for (int i = low_len - 1; i >= 0; --i) {
+        for (int i = 0; i < low_len; ++i) {
           op_t data = *(byte *) --_src;
           low |= data << (i << 3);
         }
