@@ -15,6 +15,26 @@ typedef unsigned long int op_t;
 #define MERGE(l_word, l_off, h_word, h_off) (((l_word) << (l_off)) | ((h_word) >> (h_off)))
 #endif
 
+static inline bool has_zero(op_t word) {
+  if (OPSIZ == 4) {
+    return !((word & 0x000000ffUL) &&
+             (word & 0x0000ff00UL) &&
+             (word & 0x00ff0000UL) &&
+             (word & 0xff000000UL));
+  } else if (OPSIZ == 8) {
+    return !((word & 0x00000000000000ffULL) &&
+             (word & 0x000000000000ff00ULL) &&
+             (word & 0x0000000000ff0000ULL) &&
+             (word & 0x00000000ff000000ULL) &&
+             (word & 0x000000ff00000000ULL) &&
+             (word & 0x0000ff0000000000ULL) &&
+             (word & 0x00ff000000000000ULL) &&
+             (word & 0xff00000000000000ULL));
+  } else {
+    panic("unsupported word length");
+  }
+}
+
 size_t strlen(const char *s) {
   size_t len = 0;
   for (const char *p = s; *p != '\0'; len++, p++);
@@ -43,7 +63,58 @@ char *strcat(char *dst, const char *src) {
 }
 
 int strcmp(const char *s1, const char *s2) {
-  for (; *s1 != '\0' && *s1 == *s2; s1++, s2++);
+  // compare by byte until s1 is aligned
+  uintptr_t off = -(uintptr_t) s1 % OPSIZ;
+  while (off > 0) {
+    if (*s1 == '\0' || *s1 != *s2) {
+      return *s1 - *s2;
+    }
+    --off;
+  }
+
+  uintptr_t p1 = (uintptr_t) s1;
+  uintptr_t p2 = (uintptr_t) s2;
+  if (p2 % OPSIZ == 0) {
+    // aligned compare
+    op_t w1, w2;
+    while (true) {
+      w1 = *(op_t *) p1;
+      w2 = *(op_t *) p2;
+      if (has_zero(w1) || w1 != w2) {
+        break;
+      }
+      p1 += OPSIZ;
+      p2 += OPSIZ;
+    }
+  } else {
+    // unaligned compare
+
+    // |...xxxxx|xxx.....|
+    //    l_word  r_word
+    int l_off = p2 % OPSIZ;
+    int h_off = OPSIZ - l_off;
+    p2 -= l_off;
+    op_t l_word, h_word;
+    l_word = *(op_t *) p2;
+    p2 += OPSIZ;
+    op_t w1, w2;
+    while (true) {
+      w1 = *(op_t *) p1;
+      h_word = *(op_t *) p2;
+      w2 = MERGE(l_word, l_off << 3, h_word, h_off << 3);
+      if (has_zero(w1) || w1 != w2) {
+        p2 -= h_off;
+        break;
+      }
+      p1 += OPSIZ;
+      p2 += OPSIZ;
+      l_word = h_word;
+    }
+  }
+
+  s1 = (const char *) p1;
+  s2 = (const char *) p2;
+  for (; *s1 && *s1 == *s2; ++s1, ++s2);
   return *s1 - *s2;
 }
 
