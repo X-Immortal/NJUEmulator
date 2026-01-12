@@ -5,9 +5,15 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 #define byte unsigned char
-typedef unsigned long long int op_t;
+typedef unsigned long int op_t;
 #define OPSIZ (sizeof(op_t))
 #define OP_T_THRES 8
+
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define MERGE(l_word, l_off, h_word, h_off) ((l_word >> l_off) | (r_word << r_off))
+#else
+#define MERGE(l_word, l_off, h_word, h_off) ((l_word << l_off) | (r_word >> r_off))
+#endif
 
 size_t strlen(const char *s) {
   size_t len = 0;
@@ -100,7 +106,7 @@ void *memmove(void *dst, const void *src, size_t n) {
     _dest += n;
     _src += n;
 
-    if (n >= 0) {
+    if (n >= OP_T_THRES) {
       // copy by byte until dest is aligned
       while (_dest % OPSIZ != 0) {
         *(byte *) --_dest = *(byte *) --_src;
@@ -119,25 +125,21 @@ void *memmove(void *dst, const void *src, size_t n) {
         // unaligned copy
 
         // |...xxxxx|xxx.....|
-        //      high low 
-        op_t low = 0;
-        int low_len = _src % OPSIZ;
-        int high_len = OPSIZ - low_len;
-        for (int i = 0; i < low_len; ++i) {
-          op_t data = *(byte *) --_src;
-          low |= data << (i << 3);
-        }
-
-        while (n > OPSIZ + low_len) {
+        //    l_word  r_word
+        int l_off = _src % OPSIZ;
+        int r_off = OPSIZ - l_off;
+        _src -= l_off;
+        op_t l_word, r_word;
+        r_word = *(op_t *) _src;
+        while (n > OPSIZ + l_off) {
           _dest -= OPSIZ;
           _src -= OPSIZ;
-          op_t data = *(op_t *) _src;
-          op_t high = data << (low_len << 3);
-          *(op_t *) _dest = (high | low);
-          low = data >> (high_len << 3);
+          l_word = *(op_t *) _src;
+          *(op_t *) _dest = MERGE(l_word, l_off, r_word, r_off);
           n -= OPSIZ;
+          r_word = l_word;
         }
-        _src += low_len;
+        _src += l_off;
       }
     }
 
@@ -174,25 +176,22 @@ void *memcpy(void *out, const void *in, size_t n) {
       // unaligned copy
 
       // |...xxxxx|xxx.....|
-      //      high low 
-      op_t high = 0;
-      int low_len = src % OPSIZ;
-      int high_len = OPSIZ - low_len;
-      for (int i = 0; i < high_len; ++i) {
-        high |= *(byte *) src++;
-        high <<= 8;
-      }
-
-      while (n > OPSIZ + high_len) {
-        op_t data = *(op_t *) src;
-        op_t low = data >> (high_len << 3);
-        *(op_t *) dest = (high | low);
-        high = data << (low_len << 3);
+      //    l_word  r_word
+      int l_off = src % OPSIZ;
+      int r_off = OPSIZ - l_off;
+      src -= l_off;
+      op_t l_word, r_word;
+      l_word = *(op_t *) src;
+      src += OPSIZ;
+      while (n > OPSIZ + r_off) {
+        r_word = *(op_t *) src;
+        *(op_t *) dest = MERGE(l_word, l_off, r_word, r_off);
         dest += OPSIZ;
         src += OPSIZ;
         n -= OPSIZ;
+        l_word = r_word;
       }
-      src -= high_len;
+      src -= r_off;
     }
   }
 
