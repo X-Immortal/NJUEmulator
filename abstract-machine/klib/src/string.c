@@ -139,9 +139,9 @@ void *memcpy(void *out, const void *in, size_t n) {
 
       while (n > OPSIZ) {
         op_t data = *(op_t *) src;
-        op_t low = data >> (low_len << 3);
+        op_t low = data >> (high_len << 3);
         *(op_t *) dest = (high | low);
-        high = data << (high_len << 3);
+        high = data << (low_len << 3);
         dest += OPSIZ;
         src += OPSIZ;
         n -= OPSIZ;
