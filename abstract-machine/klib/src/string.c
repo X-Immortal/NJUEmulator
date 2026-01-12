@@ -100,7 +100,7 @@ void *memmove(void *dst, const void *src, size_t n) {
     _dest += n;
     _src += n;
 
-    if (n >= OP_T_THRES) {
+    if (n >= 0) {
       // copy by byte until dest is aligned
       while (_dest % OPSIZ != 0) {
         *(byte *) --_dest = *(byte *) --_src;
