@@ -10,9 +10,9 @@ typedef unsigned long int op_t;
 #define OP_T_THRES 8
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#define MERGE(l_word, l_off, h_word, h_off) (((l_word) >> (l_off)) | ((r_word) << (r_off)))
+#define MERGE(l_word, l_off, h_word, h_off) (((l_word) >> (l_off)) | ((h_word) << (h_off)))
 #else
-#define MERGE(l_word, l_off, h_word, h_off) (((l_word) << (l_off)) | ((r_word) >> (r_off)))
+#define MERGE(l_word, l_off, h_word, h_off) (((l_word) << (l_off)) | ((h_word) >> (h_off)))
 #endif
 
 size_t strlen(const char *s) {
@@ -127,17 +127,17 @@ void *memmove(void *dst, const void *src, size_t n) {
         // |...xxxxx|xxx.....|
         //    l_word  r_word
         int l_off = _src % OPSIZ;
-        int r_off = OPSIZ - l_off;
+        int h_off = OPSIZ - l_off;
         _src -= l_off;
-        op_t l_word, r_word;
-        r_word = *(op_t *) _src;
+        op_t l_word, h_word;
+        h_word = *(op_t *) _src;
         while (n > OPSIZ + l_off) {
           _dest -= OPSIZ;
           _src -= OPSIZ;
           l_word = *(op_t *) _src;
-          *(op_t *) _dest = MERGE(l_word, l_off << 3, r_word, r_off << 3);
+          *(op_t *) _dest = MERGE(l_word, l_off << 3, h_word, h_off << 3);
           n -= OPSIZ;
-          r_word = l_word;
+          h_word = l_word;
         }
         _src += l_off;
       }
@@ -178,20 +178,20 @@ void *memcpy(void *out, const void *in, size_t n) {
       // |...xxxxx|xxx.....|
       //    l_word  r_word
       int l_off = src % OPSIZ;
-      int r_off = OPSIZ - l_off;
+      int h_off = OPSIZ - l_off;
       src -= l_off;
-      op_t l_word, r_word;
+      op_t l_word, h_word;
       l_word = *(op_t *) src;
       src += OPSIZ;
-      while (n > OPSIZ + r_off) {
-        r_word = *(op_t *) src;
-        *(op_t *) dest = MERGE(l_word, l_off << 3, r_word, r_off << 3);
+      while (n > OPSIZ + h_off) {
+        h_word = *(op_t *) src;
+        *(op_t *) dest = MERGE(l_word, l_off << 3, h_word, h_off << 3);
         dest += OPSIZ;
         src += OPSIZ;
         n -= OPSIZ;
-        l_word = r_word;
+        l_word = h_word;
       }
-      src -= r_off;
+      src -= h_off;
     }
   }
 
