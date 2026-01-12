@@ -4,6 +4,10 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
+#define byte unsigned char
+typedef unsigned long long int op_t;
+#define OPSIZ (sizeof(op_t))
+
 size_t strlen(const char *s) {
   size_t len = 0;
   for (const char *p = s; *p != '\0'; len++, p++);
@@ -44,9 +48,56 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 }
 
 void *memset(void *s, int c, size_t n) {
-  unsigned char value = c;
-  unsigned char *p = s; 
-  for (size_t i = 0; i < n; i++)  *p++ = value;
+  uintptr_t dest = (uintptr_t) s;
+
+  if (n >= 8) {
+    // get a word to set
+    op_t cccc = (byte) c;
+    c |= c << 8;
+    c |= c << 16;
+    if (OPSIZ > 4) {
+      c |= (c << 16) << 16;
+    }
+
+    // set by byte until aligned
+    while (dest % OPSIZ != 0) {
+      *(byte *) dest = c;
+      ++dest;
+      --n;
+    }
+
+    // set by 8 op_t's while n is enough
+    int xlen = n / (OPSIZ << 3);
+    while (xlen > 0) {
+      ((op_t *) dest)[0] = cccc;
+      ((op_t *) dest)[1] = cccc;
+      ((op_t *) dest)[2] = cccc;
+      ((op_t *) dest)[3] = cccc;
+      ((op_t *) dest)[4] = cccc;
+      ((op_t *) dest)[5] = cccc;
+      ((op_t *) dest)[6] = cccc;
+      ((op_t *) dest)[7] = cccc;
+      dest += 8 * OPSIZ;
+      --xlen;
+    }
+    n %= (OPSIZ << 3);
+
+    // set by op_t while n is enough
+    xlen = n / OPSIZ;
+    while (xlen > 0) {
+      ((op_t *) dest)[0] = cccc;
+      dest += OPSIZ;
+      --xlen;
+    }
+    n %= OPSIZ;
+  }
+
+  // set by byte
+  while (n > 0) {
+    *(byte *) dest = c;
+    ++dest;
+    --n;
+  }
   return s;
 }
 
