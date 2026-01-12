@@ -122,22 +122,22 @@ void *memmove(void *dst, const void *src, size_t n) {
         //      high low 
         op_t low = 0;
         int low_len = (_src - 1) % OPSIZ;
-        int high_len = OPSIZ - low_len;
+        // int high_len = OPSIZ - low_len;
         for (int i = 0; i < low_len; ++i) {
           op_t data = *(byte *) --_src;
           low |= data << (i << 3);
         }
 
-        while (n > OPSIZ + low_len) {
-          _dest -= OPSIZ;
-          _src -= OPSIZ;
-          op_t data = *(op_t *) _src;
-          op_t high = data << (low_len << 3);
-          *(op_t *) _dest = (high | low);
-          low = data >> (high_len << 3);
-          n -= OPSIZ;
-        }
-        _src += low_len;
+        // while (n > OPSIZ + low_len) {
+        //   _dest -= OPSIZ;
+        //   _src -= OPSIZ;
+        //   op_t data = *(op_t *) _src;
+        //   op_t high = data << (low_len << 3);
+        //   *(op_t *) _dest = (high | low);
+        //   low = data >> (high_len << 3);
+        //   n -= OPSIZ;
+        // }
+        // _src += low_len;
       }
     }
 
