@@ -10,9 +10,9 @@ typedef unsigned long int op_t;
 #define OP_T_THRES 8
 
 #if __BYTE_ORDER == __LITTLE_ENDIAN
-#define MERGE(l_word, l_off, h_word, h_off) ((l_word >> l_off) | (r_word << r_off))
+#define MERGE(l_word, l_off, h_word, h_off) (((l_word) >> (l_off)) | ((r_word) << (r_off)))
 #else
-#define MERGE(l_word, l_off, h_word, h_off) ((l_word << l_off) | (r_word >> r_off))
+#define MERGE(l_word, l_off, h_word, h_off) (((l_word) << (l_off)) | ((r_word) >> (r_off)))
 #endif
 
 size_t strlen(const char *s) {
@@ -135,7 +135,7 @@ void *memmove(void *dst, const void *src, size_t n) {
           _dest -= OPSIZ;
           _src -= OPSIZ;
           l_word = *(op_t *) _src;
-          *(op_t *) _dest = MERGE(l_word, l_off, r_word, r_off);
+          *(op_t *) _dest = MERGE(l_word, l_off << 3, r_word, r_off << 3);
           n -= OPSIZ;
           r_word = l_word;
         }
@@ -185,7 +185,7 @@ void *memcpy(void *out, const void *in, size_t n) {
       src += OPSIZ;
       while (n > OPSIZ + r_off) {
         r_word = *(op_t *) src;
-        *(op_t *) dest = MERGE(l_word, l_off, r_word, r_off);
+        *(op_t *) dest = MERGE(l_word, l_off << 3, r_word, r_off << 3);
         dest += OPSIZ;
         src += OPSIZ;
         n -= OPSIZ;
