@@ -132,8 +132,8 @@ void *memmove(void *dst, const void *src, size_t n) {
           op_t high = data << (low_len << 3);
           *(op_t *) _dest = (high | low);
           low = data >> (high_len << 3);
-          _dest += OPSIZ;
-          _src += OPSIZ;
+          _dest -= OPSIZ;
+          _src -= OPSIZ;
           n -= OPSIZ;
         }
         src += low_len;
@@ -142,7 +142,7 @@ void *memmove(void *dst, const void *src, size_t n) {
 
     // copy by byte
     while (n > 0) {
-      *(byte *) _dest++ = *(byte *) _src++;
+      *(byte *) _dest-- = *(byte *) _src--;
       --n;
     }
   }
