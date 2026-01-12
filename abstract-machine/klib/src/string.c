@@ -97,22 +97,22 @@ void *memmove(void *dst, const void *src, size_t n) {
     memcpy(dst, src, n);
   } else {
     // copy from the end to the beginning
-    _dest += n - 1;
-    _src += n - 1;
+    _dest += n;
+    _src += n;
 
     if (n >= OP_T_THRES) {
       // copy by byte until dest is aligned
       while (_dest % OPSIZ != 0) {
-        *(byte *) _dest-- = *(byte *) _src--;
+        *(byte *) --_dest = *(byte *) --_src;
         --n;
       }
 
       if (_src % OPSIZ == 0) {
         // aligned copy
         while (n > OPSIZ) {
-          *(op_t *) _dest = *(op_t *) _src;
           _dest -= OPSIZ;
           _src -= OPSIZ;
+          *(op_t *) _dest = *(op_t *) _src;
           n -= OPSIZ;
         }
       } else {
@@ -124,17 +124,17 @@ void *memmove(void *dst, const void *src, size_t n) {
         int low_len = _src % OPSIZ;
         int high_len = OPSIZ - low_len;
         for (int i = 0; i < low_len; ++i) {
-          op_t data = *(byte *) src--;
+          op_t data = *(byte *) --_src;
           low |= data << (i << 3);
         }
 
         while (n > OPSIZ + low_len) {
+          _dest -= OPSIZ;
+          _src -= OPSIZ;
           op_t data = *(op_t *) _src;
           op_t high = data << (low_len << 3);
           *(op_t *) _dest = (high | low);
           low = data >> (high_len << 3);
-          _dest -= OPSIZ;
-          _src -= OPSIZ;
           n -= OPSIZ;
         }
         _src += low_len;
@@ -143,7 +143,7 @@ void *memmove(void *dst, const void *src, size_t n) {
 
     // copy by byte
     while (n > 0) {
-      *(byte *) _dest-- = *(byte *) _src--;
+      *(byte *) --_dest = *(byte *) --_src;
       --n;
     }
   }
