@@ -97,8 +97,8 @@ void *memmove(void *dst, const void *src, size_t n) {
     memcpy(dst, src, n);
   } else {
     // copy from the end to the beginning
-    _dest += n;
-    _src += n;
+    _dest += n - 1;
+    _src += n - 1;
 
     if (n >= OP_T_THRES) {
       // copy by byte until dest is aligned
