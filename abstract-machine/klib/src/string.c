@@ -129,23 +129,23 @@ void *memcpy(void *out, const void *in, size_t n) {
 
       // |...xxxxx|xxx.....|
       //      high low 
-      op_t high = 0;
-      int low_len = src % OPSIZ;
-      int high_len = OPSIZ - low_len;
-      for (int i = 0; i < high_len; ++i) {
-        high |= *(byte *) src++;
-        high <<= 8;
-      }
+      // op_t high = 0;
+      // int low_len = src % OPSIZ;
+      // int high_len = OPSIZ - low_len;
+      // for (int i = 0; i < high_len; ++i) {
+      //   high |= *(byte *) src++;
+      //   high <<= 8;
+      // }
 
-      while (n > OPSIZ + high_len) {
-        op_t data = *(op_t *) src;
-        op_t low = data >> (high_len << 3);
-        *(op_t *) dest = (high | low);
-        high = data << (low_len << 3);
-        dest += OPSIZ;
-        src += OPSIZ;
-        n -= OPSIZ;
-      }
+      // while (n > OPSIZ + high_len) {
+      //   op_t data = *(op_t *) src;
+      //   op_t low = data >> (high_len << 3);
+      //   *(op_t *) dest = (high | low);
+      //   high = data << (low_len << 3);
+      //   dest += OPSIZ;
+      //   src += OPSIZ;
+      //   n -= OPSIZ;
+      // }
     }
   }
 
