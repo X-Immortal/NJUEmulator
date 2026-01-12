@@ -120,13 +120,13 @@ void *memmove(void *dst, const void *src, size_t n) {
 
         // |...xxxxx|xxx.....|
         //      high low 
-        op_t low = 0;
-        int low_len = (_src - 1) % OPSIZ;
+        // op_t low = 0;
+        // int low_len = (_src - 1) % OPSIZ;
         // int high_len = OPSIZ - low_len;
-        for (int i = 0; i < low_len; ++i) {
-          op_t data = *(byte *) --_src;
-          low |= data << (i << 3);
-        }
+        // for (int i = 0; i < low_len; ++i) {
+        //   op_t data = *(byte *) --_src;
+        //   low |= data << (i << 3);
+        // }
 
         // while (n > OPSIZ + low_len) {
         //   _dest -= OPSIZ;
