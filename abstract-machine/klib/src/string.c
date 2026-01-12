@@ -74,9 +74,9 @@ int strcmp(const char *s1, const char *s2) {
 
   uintptr_t p1 = (uintptr_t) s1;
   uintptr_t p2 = (uintptr_t) s2;
+  op_t w1, w2;
   if (p2 % OPSIZ == 0) {
     // aligned compare
-    op_t w1, w2;
     while (true) {
       w1 = *(op_t *) p1;
       w2 = *(op_t *) p2;
@@ -97,7 +97,6 @@ int strcmp(const char *s1, const char *s2) {
     op_t l_word, h_word;
     l_word = *(op_t *) p2;
     p2 += OPSIZ;
-    op_t w1, w2;
     while (true) {
       w1 = *(op_t *) p1;
       h_word = *(op_t *) p2;
@@ -112,8 +111,8 @@ int strcmp(const char *s1, const char *s2) {
     }
   }
 
-  s1 = (const char *) p1;
-  s2 = (const char *) p2;
+  s1 = (const char *) &w1;
+  s2 = (const char *) &w2;
   for (; *s1 && *s1 == *s2; ++s1, ++s2);
   return *s1 - *s2;
 }
