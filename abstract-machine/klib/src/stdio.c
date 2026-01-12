@@ -403,6 +403,8 @@ int printf(const char *fmt, ...) {
   }
 
   va_end(args);
+  flush_stdout(&os);
+
   return count;
 }
 
