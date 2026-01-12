@@ -50,6 +50,7 @@ static int parse_hex_lower(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_hex_upper(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_char(ostream_t *out, info_t *info, va_list_ptr args);
 static int parse_ptr(ostream_t *out, info_t *info, va_list_ptr args);
+static int parse_size_t(ostream_t *out, info_t *info, va_list_ptr args);
 
 static struct {
   const char *ph;
@@ -62,6 +63,7 @@ static struct {
   { "X" , parse_hex_upper             },
   { "c" , parse_char                  },
   { "p" , parse_ptr                   }, 
+  { "zu", parse_size_t                },
 };
 
 __attribute__((unused))
@@ -318,6 +320,11 @@ static int parse_hex_lower(ostream_t *out, info_t *info, va_list_ptr args) {
 __attribute__((unused))
 static int parse_hex_upper(ostream_t *out, info_t *info, va_list_ptr args) {
   return parse_hex(out, info, args, true);
+}
+
+__attribute__((unused))
+static int parse_size_t(ostream_t *out, info_t *info, va_list_ptr args) {
+  parse_num_common(size_t, 20, 10, false, false);
 }
 
 __attribute__((unused))
