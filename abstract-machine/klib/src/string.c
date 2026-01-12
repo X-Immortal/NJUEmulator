@@ -53,10 +53,10 @@ void *memset(void *s, int c, size_t n) {
   if (n >= 8) {
     // get a word to set
     op_t cccc = (byte) c;
-    c |= c << 8;
-    c |= c << 16;
+    cccc |= cccc << 8;
+    cccc |= cccc << 16;
     if (OPSIZ > 4) {
-      c |= (c << 16) << 16;
+      cccc |= (cccc << 16) << 16;
     }
 
     // set by byte until aligned
