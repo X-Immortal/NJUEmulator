@@ -89,17 +89,62 @@ void *memset(void *s, int c, size_t n) {
 void *memmove(void *dst, const void *src, size_t n) {
   if (dst == src) return dst;
 
-  unsigned char *p_dest = dst;
-  const unsigned char *p_src = src;
-  if (p_dest > p_src && p_dest < p_src + n) {
-    size_t i = n - 1;
-    while (true) {
-      *(p_dest + i) = *(p_src + i);
-      if (i == 0) break;
-      i--;
-    }
-  } else {
+  uintptr_t _dest = (uintptr_t) dst;
+  uintptr_t _src = (uintptr_t) src;
+
+  if (_dest - _src >= n) {
+    // copy from the beginning to the end
     memcpy(dst, src, n);
+  } else {
+    // copy from the end to the beginning
+    _dest += n;
+    _src += n;
+
+    if (n >= OP_T_THRES) {
+      // copy by byte until dest is aligned
+      while (_dest % OPSIZ != 0) {
+        *(byte *) _dest-- = *(byte *) _src--;
+        --n;
+      }
+
+      if (_src % OPSIZ == 0) {
+        // aligned copy
+        while (n > OPSIZ) {
+          *(op_t *) _dest = *(op_t *) _src;
+          _dest -= OPSIZ;
+          _src -= OPSIZ;
+          n -= OPSIZ;
+        }
+      } else {
+        // unaligned copy
+
+        // |...xxxxx|xxx.....|
+        //      high low 
+        op_t low = 0;
+        int low_len = _src % OPSIZ;
+        int high_len = OPSIZ - low_len;
+        for (int i = 0; i < low_len; ++i) {
+          low |= (*(byte *) src--) << (i << 3);
+        }
+
+        while (n > OPSIZ + low_len) {
+          op_t data = *(op_t *) _src;
+          op_t high = data << (low_len << 3);
+          *(op_t *) _dest = (high | low);
+          low = data >> (high_len << 3);
+          _dest += OPSIZ;
+          _src += OPSIZ;
+          n -= OPSIZ;
+        }
+        src += low_len;
+      }
+    }
+
+    // copy by byte
+    while (n > 0) {
+      *(byte *) _dest++ = *(byte *) _src++;
+      --n;
+    }
   }
 
   return dst;
