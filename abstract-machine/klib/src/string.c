@@ -127,7 +127,7 @@ void *memmove(void *dst, const void *src, size_t n) {
           op_t data = *(byte *) --_src;
           low |= data << (i << 3);
         }
-        printf("low: %x%x\n", low >> 32, low);
+        printf("low: %x%x\n", (int)(low >> 32), (int) low);
 
         while (n > OPSIZ + low_len) {
           _dest -= OPSIZ;
