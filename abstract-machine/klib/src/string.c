@@ -7,6 +7,7 @@
 #define byte unsigned char
 typedef unsigned long long int op_t;
 #define OPSIZ (sizeof(op_t))
+#define OP_T_THRES 8
 
 size_t strlen(const char *s) {
   size_t len = 0;
@@ -50,7 +51,7 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 void *memset(void *s, int c, size_t n) {
   uintptr_t dest = (uintptr_t) s;
 
-  if (n >= 8) {
+  if (n >= OP_T_THRES) {
     // get a word to set
     op_t cccc = (byte) c;
     cccc |= cccc << 8;
@@ -66,24 +67,8 @@ void *memset(void *s, int c, size_t n) {
       --n;
     }
 
-    // set by 8 op_t's while n is enough
-    int xlen = n / (OPSIZ << 3);
-    while (xlen > 0) {
-      ((op_t *) dest)[0] = cccc;
-      ((op_t *) dest)[1] = cccc;
-      ((op_t *) dest)[2] = cccc;
-      ((op_t *) dest)[3] = cccc;
-      ((op_t *) dest)[4] = cccc;
-      ((op_t *) dest)[5] = cccc;
-      ((op_t *) dest)[6] = cccc;
-      ((op_t *) dest)[7] = cccc;
-      dest += 8 * OPSIZ;
-      --xlen;
-    }
-    n %= (OPSIZ << 3);
-
     // set by op_t while n is enough
-    xlen = n / OPSIZ;
+    int xlen = n / OPSIZ;
     while (xlen > 0) {
       ((op_t *) dest)[0] = cccc;
       dest += OPSIZ;
@@ -121,9 +106,54 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
-  unsigned char *dest = out;
-  const unsigned char *src = in;
-  for (size_t i = 0; i < n; i++) *dest++ = *src++;
+  uintptr_t dest = (uintptr_t) out;
+  uintptr_t src = (uintptr_t) in;
+
+  if (n >= OP_T_THRES) {
+    // copy by byte until dest is aligned
+    while (dest % OPSIZ != 0) {
+      *(byte *) dest++ = *(byte *) src++;
+      --n;
+    }
+
+    if (src % OPSIZ == 0) {
+      // aligned copy
+      while (n > OPSIZ) {
+        *(op_t *) dest = *(op_t *) src;
+        dest += OPSIZ;
+        src += OPSIZ;
+        n -= OPSIZ;
+      }
+    } else {
+      // unaligned copy
+
+      // |...xxxxx|xxx.....|
+      //      high low 
+      op_t high = 0;
+      int low_len = src % OPSIZ;
+      int high_len = OPSIZ - low_len;
+      for (int i = 0; i < high_len; ++i) {
+        high |= *(byte *) src++;
+        high <<= 8;
+      }
+
+      while (n > OPSIZ) {
+        op_t data = *(op_t *) src;
+        op_t low = data >> (low_len << 3);
+        *(op_t *) dest = (high | low);
+        high = data << (high_len << 3);
+        dest += OPSIZ;
+        src += OPSIZ;
+        n -= OPSIZ;
+      }
+    }
+  }
+
+  // copy by byte
+  while (n > 0) {
+    *(byte *) dest++ = *(byte *) src++;
+    --n;
+  }
   return out;
 }
 
