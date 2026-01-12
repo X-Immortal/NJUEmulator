@@ -136,7 +136,7 @@ void *memmove(void *dst, const void *src, size_t n) {
           _src -= OPSIZ;
           n -= OPSIZ;
         }
-        src += low_len;
+        _src += low_len;
       }
     }
 
