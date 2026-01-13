@@ -228,7 +228,6 @@ void *memcpy(void *out, const void *in, size_t n) {
     }
 
     if (src % OPSIZ == 0) {
-    printf("called memcpy\n");
       // aligned copy
       while (n > OPSIZ) {
         *(op_t *) dest = *(op_t *) src;
@@ -237,6 +236,7 @@ void *memcpy(void *out, const void *in, size_t n) {
         n -= OPSIZ;
       }
     } else {
+    printf("called memcpy\n");
       // unaligned copy
 
       // |...xxxxx|xxx.....|
