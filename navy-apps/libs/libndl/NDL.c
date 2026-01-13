@@ -73,6 +73,7 @@ static void init_screen() {
   char buf[40];
   char *ret = fgets(buf, sizeof(buf), screen_info);
   assert(ret != NULL);
+  puts(ret);
   int n = sscanf(buf, " WIDTH : %d HEIGHT : %d", &screen_w, &screen_h);
   assert(n == 2);
   fclose(screen_info);
