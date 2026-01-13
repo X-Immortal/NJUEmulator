@@ -86,7 +86,6 @@ int NDL_QueryAudio() {
 static void init_screen() {
   FILE *screen_info = fopen("/proc/dispinfo", "r");
   int ret = fscanf(screen_info, " WIDTH : %d HEIGHT : %d", &screen_w, &screen_h);
-  printf("n=%d\n", ret);
   assert(ret == 2);
   fclose(screen_info);
 }
