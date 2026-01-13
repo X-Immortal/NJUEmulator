@@ -34,7 +34,6 @@ void NDL_OpenCanvas(int *w, int *h) {
   canvas_h = *h > screen_h ? screen_h : *h;
   canvas_x = (screen_w - canvas_w) / 2;
   canvas_y = (screen_h - canvas_h) / 2;
-  printf("cw=%d, ch=%d\n", canvas_w, canvas_h);
 
   if (getenv("NWM_APP")) {
     int fbctl = 4;
