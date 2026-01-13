@@ -51,6 +51,7 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
     screen_w = screen_info.width;
   }
 
+  offset /= sizeof(uint32_t);
   AM_GPU_FBDRAW_T ctl = {
     .pixels = (void *) buf,
     .y = offset / screen_w,
