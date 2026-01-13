@@ -128,7 +128,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     default:
       return -1;
   }
-  return file->open_offset = offset > file->size ? file->size : offset;
+  return file->open_offset = (offset > file->size ? file->size : offset);
 }
 
 int fs_close(int fd) {
