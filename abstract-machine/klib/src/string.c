@@ -222,11 +222,11 @@ void *memcpy(void *out, const void *in, size_t n) {
 
   if (n >= OP_T_THRES) {
     // copy by byte until dest is aligned
-    printf("called memcpy\n");
     while (dest % OPSIZ != 0) {
       *(byte *) dest++ = *(byte *) src++;
       --n;
     }
+    printf("called memcpy\n");
 
     if (src % OPSIZ == 0) {
       // aligned copy
