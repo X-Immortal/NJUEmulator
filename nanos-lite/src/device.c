@@ -35,14 +35,32 @@ size_t events_read(void *buf, size_t offset, size_t len) {
   }
 }
 
+static int screen_w = 0;
+
 size_t dispinfo_read(void *buf, size_t offset, size_t len) {
   AM_GPU_CONFIG_T screen_info;
   ioe_read(AM_GPU_CONFIG, &screen_info);
+  screen_w = screen_info.width;
   return snprintf((char *) buf, len, "WIDTH:%d\nHEIGHT:%d\n", screen_info.width, screen_info.height);
 }
 
 size_t fb_write(const void *buf, size_t offset, size_t len) {
-  return 0;
+  if (screen_w == 0) {
+    AM_GPU_CONFIG_T screen_info;
+    ioe_read(AM_GPU_CONFIG, &screen_info);
+    screen_w = screen_info.width;
+  }
+
+  AM_GPU_FBDRAW_T ctl = {
+    .pixels = (void *) buf,
+    .y = offset / screen_w,
+    .x = offset % screen_w,
+    .w = len,
+    .h = 1,
+    .sync = true
+  };
+  ioe_write(AM_GPU_FBDRAW, &ctl);
+  return len;
 }
 
 void init_device() {
