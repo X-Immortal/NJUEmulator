@@ -217,12 +217,12 @@ void *memmove(void *dst, const void *src, size_t n) {
 }
 
 void *memcpy(void *out, const void *in, size_t n) {
-  printf("called memcpy\n");
   uintptr_t dest = (uintptr_t) out;
   uintptr_t src = (uintptr_t) in;
 
   if (n >= OP_T_THRES) {
     // copy by byte until dest is aligned
+    printf("called memcpy\n");
     while (dest % OPSIZ != 0) {
       *(byte *) dest++ = *(byte *) src++;
       --n;
