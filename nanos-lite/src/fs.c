@@ -72,7 +72,7 @@ int fs_open(const char *pathname, int flags, int mode) {
     } \
     offset = file->disk_offset + file->open_offset; \
     if (file->open_offset + len > file->size) { \
-      len = file->size - offset; \
+      len = file->size - file->open_offset; \
     } \
   } while (0)
 
@@ -80,12 +80,10 @@ size_t fs_read(int fd, void *buf, size_t len) {
   if (fd < 0 || fd >= NR_FILES) {
     return -1;
   }
-  printf("len=%zu\n", len);
 
   size_t offset = 0;
   size_t ret;
   check_fd();
-  printf("len=%zu\n", len);
   if (file_table[fd].read == NULL) {
     ret = ramdisk_read(buf, offset, len);
   } else {

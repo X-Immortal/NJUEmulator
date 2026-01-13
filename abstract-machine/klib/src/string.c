@@ -246,8 +246,6 @@ void *memcpy(void *out, const void *in, size_t n) {
       op_t l_word, h_word;
       l_word = *(op_t *) src;
       src += OPSIZ;
-    printf("called memcpy\n");
-    printf("n=%zu, bound=%zu", n, OPSIZ + h_off);
       while (n > OPSIZ + h_off) {
         h_word = *(op_t *) src;
         *(op_t *) dest = MERGE(l_word, l_off << 3, h_word, h_off << 3);
