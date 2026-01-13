@@ -52,12 +52,11 @@ size_t fb_write(const void *buf, size_t offset, size_t len) {
   }
 
   offset /= sizeof(uint32_t);
-  len /= sizeof(uint32_t);
   AM_GPU_FBDRAW_T ctl = {
     .pixels = (void *) buf,
     .y = offset / screen_w,
     .x = offset % screen_w,
-    .w = len,
+    .w = len / sizeof(uint32_t),
     .h = 1,
     .sync = true
   };
