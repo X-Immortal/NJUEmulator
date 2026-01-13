@@ -1,6 +1,7 @@
 #include <common.h>
 #include "syscall.h"
 #include <fs.h>
+#include <timer.h>
 
 #define write(buf, len) do { for (size_t _i = 0; _i < (len); _i++) { putch(((char *) (buf))[_i]); } } while (0)
 #define is_file_opr(sysc_no) ( \
@@ -35,7 +36,6 @@ static const char *syscall_name[] = {
   "SYS_gettimeofday",
 };
 
-const char *get_filename(int fd);
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -47,6 +47,7 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_yield: yield(); c->GPRx = 0; break;
     case SYS_exit:  halt(a[1]);           break;
+    case SYS_brk: c->GPRx = 0;            break;
     case SYS_open:
       c->GPRx = fs_open((const char *) a[1], (int) a[2], (int) a[3]);
       break;
@@ -62,7 +63,9 @@ void do_syscall(Context *c) {
     case SYS_close:
       c->GPRx = fs_close((int) a[1]);
       break;
-    case SYS_brk: c->GPRx = 0;            break;
+    case SYS_gettimeofday:
+      c->GPRx = tm_gettimeofday((struct timeval *) a[1], (struct timezone *) a[2]);
+      break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
