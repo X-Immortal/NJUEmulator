@@ -1,4 +1,5 @@
 #include <proc.h>
+#include <fs.h>
 #include <elf.h>
 
 #ifdef __LP64__
@@ -24,23 +25,32 @@
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
+  int fd = fs_open(filename, 0, 0);
   Elf_Ehdr elf_header;
-  ramdisk_read(&elf_header, 0, sizeof(Elf_Ehdr));
+  size_t ret = fs_read(fd, &elf_header, sizeof(Elf_Ehdr));
+  assert(ret == sizeof(Elf_Ehdr));
   assert(memcmp(elf_header.e_ident, ELFMAG, sizeof(ELFMAG) - 1) == 0);
   assert(elf_header.e_type == ET_EXEC);
   assert(elf_header.e_machine == EXPECT_TYPE);
 
   Elf_Phdr program_header;
+  size_t offset;
   for (int i = 0; i < elf_header.e_phnum; i++) {
-    ramdisk_read(&program_header, elf_header.e_phoff + i * elf_header.e_phentsize,
-       elf_header.e_phentsize);
+    offset = elf_header.e_phoff + i * elf_header.e_phentsize;
+    ret = fs_lseek(fd, offset, SEEK_SET);
+    assert(ret == offset);
+    ret = fs_read(fd, &program_header, elf_header.e_phentsize);
+    assert(ret == elf_header.e_phentsize);
     if (program_header.p_type == PT_LOAD) {
-      ramdisk_read((void *) program_header.p_vaddr, program_header.p_offset,
-       program_header.p_filesz);
+      ret = fs_lseek(fd, program_header.p_offset, SEEK_SET);
+      assert(ret == program_header.p_offset);
+      ret = fs_read(fd, (void *) program_header.p_vaddr, program_header.p_filesz);
+      assert(ret == program_header.p_filesz);
       memset((void *) (program_header.p_vaddr + program_header.p_filesz), 0, 
        program_header.p_memsz - program_header.p_filesz);
     }
   }
+  assert(fs_close(fd) == 0);
   return elf_header.e_entry;
 }
 
