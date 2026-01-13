@@ -14,6 +14,8 @@ typedef struct {
 
 enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
 
+#define is_file(fd) (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
 
@@ -67,18 +69,20 @@ int fs_open(const char *pathname, int flags, int mode) {
     if (fd < 0 || fd >= NR_FILES) { \
       return -1; \
     } \
-    Finfo *file = &file_table[fd]; \
-    if (file->open_offset >= file->size) { \
-      return 0; \
-    } \
-    offset = file->disk_offset + file->open_offset; \
-    if (file->open_offset + len > file->size) { \
-      len = file->size - offset; \
+    if (is_file(fd)) { \
+      Finfo *file = &file_table[fd]; \
+      if (file->open_offset >= file->size) { \
+        return 0; \
+      } \
+      offset = file->disk_offset + file->open_offset; \
+      if (file->open_offset + len > file->size) { \
+        len = file->size - offset; \
+      } \
     } \
   } while (0)
 
 size_t fs_read(int fd, void *buf, size_t len) {
-  size_t offset;
+  size_t offset = 0;
   check_fd();
   size_t ret = file_table[fd].read(buf, offset, len);
   file_table[fd].open_offset += len;
@@ -86,7 +90,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
 }
 
 size_t fs_write(int fd, const void *buf, size_t len) {
-  size_t offset;
+  size_t offset = 0;
   check_fd();
   size_t ret = file_table[fd].write(buf, offset, len);
   file_table[fd].open_offset += len;
