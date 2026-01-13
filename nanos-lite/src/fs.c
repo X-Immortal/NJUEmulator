@@ -14,8 +14,6 @@ typedef struct {
 
 enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
 
-#define is_file(fd) (fd != FD_STDIN && fd != FD_STDOUT && fd != FD_STDERR)
-
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
 
@@ -83,7 +81,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
   size_t offset = 0;
   check_fd();
   size_t ret = file_table[fd].read(buf, offset, len);
-  file_table[fd].open_offset += len;
+  file_table[fd].open_offset += ret;
   return ret;
 }
 
@@ -91,7 +89,7 @@ size_t fs_write(int fd, const void *buf, size_t len) {
   size_t offset = 0;
   check_fd();
   size_t ret = file_table[fd].write(buf, offset, len);
-  file_table[fd].open_offset += len;
+  file_table[fd].open_offset += ret;
   return ret;
 }
 
