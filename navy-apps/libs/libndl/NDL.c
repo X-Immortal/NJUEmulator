@@ -55,7 +55,7 @@ void NDL_OpenCanvas(int *w, int *h) {
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
-  FILE *screen = fopen("dev/fb", "wb");
+  FILE *screen = fopen("/dev/fb", "wb");
   int ret;
   long offset;
   long base = (canvas_y + y) * screen_w + (canvas_x + x);
