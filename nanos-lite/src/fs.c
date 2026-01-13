@@ -22,6 +22,7 @@ enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
+size_t serial_write(const void *buf, size_t offset, size_t len);
 
 size_t invalid_read(void *buf, size_t offset, size_t len) {
   panic("should not reach here");
@@ -33,18 +34,11 @@ size_t invalid_write(const void *buf, size_t offset, size_t len) {
   return 0;
 }
 
-static size_t _serial_write(const void *buf, size_t len) {
-  for (size_t i = 0; i < len; ++i) {
-    putch(((char *) buf)[i]);
-  }
-  return len;
-}
-
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
   [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, invalid_write},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, invalid_write},
+  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, serial_write},
+  [FD_STDERR] = {"stderr", 0, 0, invalid_read, serial_write},
 #include "files.h"
 };
 
@@ -66,9 +60,6 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 #define check_fd() \
   do { \
-    if (fd < 0 || fd >= NR_FILES) { \
-      return -1; \
-    } \
     Finfo *file = &file_table[fd]; \
     if (file->open_offset >= file->size) { \
       return 0; \
@@ -80,11 +71,14 @@ int fs_open(const char *pathname, int flags, int mode) {
   } while (0)
 
 size_t fs_read(int fd, void *buf, size_t len) {
-  if (is_iostream(fd)) return 0;
+  if (fd < 0 || fd >= NR_FILES) {
+    return -1;
+  }
+
   size_t offset = 0;
-  check_fd();
   size_t ret;
   if (file_table[fd].read == NULL) {
+    check_fd();
     ret = ramdisk_read(buf, offset, len);
   } else {
     ret = file_table[fd].read(buf, offset, len);
@@ -94,15 +88,14 @@ size_t fs_read(int fd, void *buf, size_t len) {
 }
 
 size_t fs_write(int fd, const void *buf, size_t len) {
-  if (fd == FD_STDOUT || fd == FD_STDERR) {
-    return _serial_write(buf, len);
+  if (fd < 0 || fd >= NR_FILES) {
+    return -1;
   }
-  if (is_iostream(fd)) return 0;
 
   size_t offset = 0;
-  check_fd();
   size_t ret;
   if (file_table[fd].read == NULL) {
+    check_fd();
     ret = ramdisk_write(buf, offset, len);
   } else {
     ret = file_table[fd].write(buf, offset, len);
