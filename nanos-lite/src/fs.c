@@ -52,7 +52,6 @@ void init_fs() {
   AM_GPU_CONFIG_T screen_info;
   ioe_read(AM_GPU_CONFIG, &screen_info);
   file_table[FD_FB].size = screen_info.vmemsz;
-  printf("vmemsz=%zu\n", screen_info.vmemsz);
 }
 
 int fs_open(const char *pathname, int flags, int mode) {
@@ -116,7 +115,6 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     return -1;
   }
 
-  printf("offset=%zu\n", offset);
   Finfo *file = &file_table[fd];
   switch (whence) {
     case SEEK_SET:
@@ -130,6 +128,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     default:
       return -1;
   }
+  printf("offset=%zu\n", offset);
   return file->open_offset = offset > file->size ? file->size : offset;
 }
 
