@@ -1,19 +1,14 @@
 #include <stdio.h>
-#include <sys/time.h>
+#include <NDL.h>
 
 #define TEST_TIMES 100
 
 int main() {
-	struct timeval start;
-	gettimeofday(&start, NULL);
-	struct timeval cur;
+	NDL_Init(0);
+	uint32_t start = NDL_GetTicks();
 	for (size_t i = 1; i <= TEST_TIMES; ++i) {
-		while (1) {
-			gettimeofday(&cur, NULL);
-			if (cur.tv_usec - start.tv_sec >= i * 500000) {
-				break;
-			}
-		}
+		while (NDL_GetTicks() - start < i * 500);
 		printf("passed %d * 0.5 seconds\n", i);
 	}
+	NDL_Quit();
 }
