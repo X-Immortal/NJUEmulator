@@ -1,4 +1,3 @@
-#include <common.h>
 #include <timer.h>
 
 int tm_gettimeofday(struct timeval *tv, struct timezone *tz) {
