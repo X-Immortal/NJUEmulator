@@ -52,6 +52,7 @@ void init_fs() {
   AM_GPU_CONFIG_T screen_info;
   ioe_read(AM_GPU_CONFIG, &screen_info);
   file_table[FD_FB].size = screen_info.vmemsz;
+  printf("vmemsz=%zu\n", screen_info.vmemsz);
 }
 
 int fs_open(const char *pathname, int flags, int mode) {
