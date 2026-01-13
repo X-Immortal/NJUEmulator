@@ -3,6 +3,13 @@
 #include <fs.h>
 
 #define write(buf, len) do { for (size_t _i = 0; _i < (len); _i++) { putch(((char *) (buf))[_i]); } } while (0)
+#define is_file_opr(sysc_no) ( \
+  sysc_no == SYS_open  || \
+  sysc_no == SYS_write || \
+  sysc_no == SYS_read  || \
+  sysc_no == SYS_lseek || \
+  sysc_no == SYS_close    \
+)
 
 __attribute__((unused))
 static const char *syscall_name[] = {
@@ -27,6 +34,8 @@ static const char *syscall_name[] = {
   "SYS_times",
   "SYS_gettimeofday",
 };
+
+const char *get_filename(int fd);
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -57,6 +66,11 @@ void do_syscall(Context *c) {
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
-  printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
-         syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
+  if (is_file_opr(a[0])) {
+    printf("syscall %s occured, id=%d, args=[%s, %u, %u], ret=%d\n",
+          syscall_name[a[0]], a[0], get_filename(a[1]), a[2], a[3], c->GPRx);
+  } else {
+    printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
+          syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
+  }
 }

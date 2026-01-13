@@ -124,3 +124,10 @@ int fs_close(int fd) {
   }
   return 0;
 }
+
+const char *get_filename(int fd) {
+  if (fd < 0 || fd >= NR_FILES) {
+    return "invalid file";
+  }
+  return file_table[fd].name;
+}
