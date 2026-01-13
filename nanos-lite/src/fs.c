@@ -69,15 +69,13 @@ int fs_open(const char *pathname, int flags, int mode) {
     if (fd < 0 || fd >= NR_FILES) { \
       return -1; \
     } \
-    if (is_file(fd)) { \
-      Finfo *file = &file_table[fd]; \
-      if (file->open_offset >= file->size) { \
-        return 0; \
-      } \
-      offset = file->disk_offset + file->open_offset; \
-      if (file->open_offset + len > file->size) { \
-        len = file->size - offset; \
-      } \
+    Finfo *file = &file_table[fd]; \
+    if (file->open_offset >= file->size) { \
+      return 0; \
+    } \
+    offset = file->disk_offset + file->open_offset; \
+    if (file->open_offset + len > file->size) { \
+      len = file->size - offset; \
     } \
   } while (0)
 
