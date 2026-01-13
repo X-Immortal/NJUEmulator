@@ -80,6 +80,7 @@ size_t fs_read(int fd, void *buf, size_t len) {
   if (fd < 0 || fd >= NR_FILES) {
     return -1;
   }
+  printf("len=%zu\n", len);
 
   size_t offset = 0;
   size_t ret;
