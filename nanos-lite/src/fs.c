@@ -111,6 +111,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
       break;
     case SEEK_END:
       offset += file->size;
+      break;
     default:
       return -1;
   }
