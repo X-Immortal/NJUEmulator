@@ -14,7 +14,7 @@ typedef struct {
 
 enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_FB};
 
-#define is_file(fd) (fd == FD_STDIN || fd == FD_STDOUT || fd == FD_STDERR)
+#define is_file(fd) (fd != FD_STDIN && fd != FD_STDOUT && fd != FD_STDERR)
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
