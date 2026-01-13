@@ -38,9 +38,9 @@ static size_t _serial_write(const void *buf, size_t offset, size_t len) {
 
 /* This is the information about all files in disk. */
 static Finfo file_table[] __attribute__((used)) = {
-  [FD_STDIN]  = {"stdin", 0, 0, invalid_read, invalid_write},
-  [FD_STDOUT] = {"stdout", 0, 0, invalid_read, _serial_write},
-  [FD_STDERR] = {"stderr", 0, 0, invalid_read, _serial_write},
+  [FD_STDIN]  = {"stdin", SIZE_MAX, 0, invalid_read, invalid_write},
+  [FD_STDOUT] = {"stdout", SIZE_MAX, 0, invalid_read, _serial_write},
+  [FD_STDERR] = {"stderr", SIZE_MAX, 0, invalid_read, _serial_write},
 #include "files.h"
 };
 
