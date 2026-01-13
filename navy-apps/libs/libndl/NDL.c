@@ -4,10 +4,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <assert.h>
 
 static int evtdev = -1;
 static int fbdev = -1;
 static int screen_w = 0, screen_h = 0;
+static int canvas_w = 0, canvas_h = 0;
 
 uint32_t NDL_GetTicks() {
 	struct timeval tv;
@@ -23,6 +25,13 @@ int NDL_PollEvent(char *buf, int len) {
 }
 
 void NDL_OpenCanvas(int *w, int *h) {
+  if (*w == 0 && *h == 0) {
+    *w = screen_w;
+    *h = screen_h;
+  }
+  canvas_w = *w;
+  canvas_h = *h;
+
   if (getenv("NWM_APP")) {
     int fbctl = 4;
     fbdev = 5;
@@ -59,10 +68,21 @@ int NDL_QueryAudio() {
   return 0;
 }
 
+static void init_screen() {
+  FILE *screen_info = fopen("/proc/dispinfo", "r");
+  char buf[40];
+  char *ret = fgets(buf, sizeof(buf), screen_info);
+  assert(ret != NULL);
+  int n = sscanf(buf, " WIDTH : %d HEIGHT : %d", &screen_w, &screen_h);
+  assert(n == 2);
+  fclose(screen_info);
+}
+
 int NDL_Init(uint32_t flags) {
   if (getenv("NWM_APP")) {
     evtdev = 3;
   }
+  init_screen();
   return 0;
 }
 
