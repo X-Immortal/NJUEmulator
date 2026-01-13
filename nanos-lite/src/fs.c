@@ -128,8 +128,9 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     default:
       return -1;
   }
+  file->open_offset = offset > file->size ? file->size : offset;
   printf("offset=%zu, size=%zu, open_offset=%zu\n", offset, file->size, file->open_offset);
-  return file->open_offset = offset > file->size ? file->size : offset;
+  return file->open_offset;
 }
 
 int fs_close(int fd) {
