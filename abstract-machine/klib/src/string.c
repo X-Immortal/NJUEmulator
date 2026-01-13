@@ -236,7 +236,6 @@ void *memcpy(void *out, const void *in, size_t n) {
         n -= OPSIZ;
       }
     } else {
-    printf("called memcpy\n");
       // unaligned copy
 
       // |...xxxxx|xxx.....|
@@ -248,6 +247,7 @@ void *memcpy(void *out, const void *in, size_t n) {
       l_word = *(op_t *) src;
       src += OPSIZ;
       while (n > OPSIZ + h_off) {
+    printf("called memcpy\n");
         h_word = *(op_t *) src;
         *(op_t *) dest = MERGE(l_word, l_off << 3, h_word, h_off << 3);
         dest += OPSIZ;
