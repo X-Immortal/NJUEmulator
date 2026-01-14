@@ -151,13 +151,14 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   uint32_t *pixels = (uint32_t *) malloc(w * h * sizeof(*pixels));
   assert(pixels);
   uint32_t *pixels_p = pixels;
+  SDL_PixelFormat *format = s->format;
   switch (bpp) {
     case 1:
       uint8_t *idx_p = s->pixels + y * s->pitch + x;
-      SDL_Color *palette = s->format->palette->colors;
+      SDL_Color *palette = format->palette->colors;
       for (int i = 0; i < h; ++i) {
         for (int j = 0; j < w; ++j) {
-          assert(idx_p[j] >= 0 && idx_p[j] < s->format->palette->ncolors);
+          assert(idx_p[j] >= 0 && idx_p[j] < format->palette->ncolors);
           SDL_Color color = palette[idx_p[j]];
           pixels_p[j] = (NDL_Color) {
             .r = color.r,
@@ -175,7 +176,13 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
       uint8_t *s_pixels_p = s->pixels + y * s->pitch + x;
       for (int i = 0; i < h; ++i) {
         for (int j = 0; j < w; ++j) {
-          pixels_p[j] = ((uint32_t *) s_pixels_p)[j];
+          uint32_t s_pixel = ((uint32_t *) s_pixels_p)[j];
+          pixels_p[j] = (NDL_Color) {
+            .a = (s_pixel & format->Amask) >> format->Ashift,
+            .r = (s_pixel & format->Rmask) >> format->Rshift,
+            .g = (s_pixel & format->Gmask) >> format->Gshift,
+            .b = (s_pixel & format->Bmask) >> format->Bshift
+          }.val;
         }
         s_pixels_p += s->pitch;
         pixels_p += w;
