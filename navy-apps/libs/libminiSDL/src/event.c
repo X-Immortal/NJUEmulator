@@ -2,8 +2,10 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 
 #define keyname(k) #k,
+#define NR_KEYS (sizeof(keyname) / sizeof(*keyname))
 
 static const char *keyname[] = {
   "NONE",
@@ -23,9 +25,24 @@ int SDL_PollEvent(SDL_Event *ev) {
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
-  return 1;
+  char buf[20];
+  char key[20];
+  int ret = NDL_PollEvent(buf, sizeof(buf));
+  if (ret) {
+    if (sscanf(buf, "kd %s", key) == 1) {
+      event->type = SDL_KEYDOWN;
+    } else {
+      event->type = SDL_KEYUP;
+    }
+
+    for (int i = 0; i < NR_KEYS; ++i) {
+      if (strcmp(key, keyname[i]) == 0) {
+        event->key.keysym.sym = i;
+        break;
+      }
+    }
+  }
+  return ret;
 }
 
 int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {

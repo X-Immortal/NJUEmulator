@@ -58,11 +58,9 @@ void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
   FILE *screen = fopen("/dev/fb", "wb");
   int ret;
   if (w == screen_w) {
-    printf("draw at one time\n");
     ret = fwrite(pixels, sizeof(*pixels), w * h, screen);
     assert(ret == w * h);
   } else {
-    printf("draw at multiple times\n");
     long base = (canvas_y + y) * screen_w + (canvas_x + x);
     for (int i = 0; i < h; ++i) {
       ret = fseek(screen, (base + i * screen_w) * sizeof(uint32_t), SEEK_SET);
