@@ -19,30 +19,31 @@ int SDL_PushEvent(SDL_Event *ev) {
 }
 
 int SDL_PollEvent(SDL_Event *ev) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
-  return 0;
+  assert(ev);
+
+  char buf[20];
+  char key[20];
+  int ret = NDL_PollEvent(buf, sizeof(buf));
+  if (ret) {
+    if (sscanf(buf, "kd %s", key) == 1) {
+      ev->type = SDL_KEYDOWN;
+    } else if (sscanf(buf, "ku %s", key) == 1) {
+      ev->type = SDL_KEYUP;
+    }
+
+    for (int i = 0; i < NR_KEYS; ++i) {
+      if (strcmp(key, keyname[i]) == 0) {
+        ev->key.keysym.sym = i;
+        break;
+      }
+    }
+  }
+  return ret;
 }
 
 int SDL_WaitEvent(SDL_Event *event) {
-  char buf[20];
-  char key[20];
-  int ret;
   while (1) {
-    if (NDL_PollEvent(buf, sizeof(buf))) {
-      if (sscanf(buf, "kd %s", key) == 1) {
-        event->type = SDL_KEYDOWN;
-      } else if (sscanf(buf, "ku %s", key) == 1) {
-        event->type = SDL_KEYUP;
-      }
-
-      for (int i = 0; i < NR_KEYS; ++i) {
-        if (strcmp(key, keyname[i]) == 0) {
-          event->key.keysym.sym = i;
-          return 1;
-        }
-      }
-    }
+    if (SDL_PollEvent(event)) return 1;
   }
 }
 
