@@ -3,10 +3,10 @@
 #include <assert.h>
 #include <stdarg.h>
 
-#define ERROR_BUF_SIZE 1024
+#define SDL_ERROR_BUF_SIZE 1024
 
 uint32_t SDL_start_time;
-static char error_buf[ERROR_BUF_SIZE];
+static char SDL_error_buf[SDL_ERROR_BUF_SIZE];
 
 int SDL_Init(uint32_t flags) {
   int ret = NDL_Init(flags);
@@ -19,13 +19,13 @@ void SDL_Quit() {
 }
 
 char *SDL_GetError() {
-  return error_buf;
+  return SDL_error_buf;
 }
 
 int SDL_SetError(const char* fmt, ...) {
   va_list args;
   va_start(args, fmt);
-  int ret = vsnprintf(error_buf, ERROR_BUF_SIZE, fmt, args);
+  int ret = vsnprintf(SDL_error_buf, SDL_ERROR_BUF_SIZE, fmt, args);
   va_end(args);
   return ret;
 }

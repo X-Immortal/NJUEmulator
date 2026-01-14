@@ -11,6 +11,7 @@ static const char *keyname[] = {
   "NONE",
   _KEYS(keyname)
 };
+static uint8_t keystate[NR_KEYS];
 
 int SDL_PushEvent(SDL_Event *ev) {
   printf("%s not implemented!\n", __func__);
@@ -53,8 +54,18 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
   return 0;
 }
 
+static void SDL_UpdateKeyState() {
+  memset(keystate, 0, sizeof(keystate));
+  SDL_Event event;
+  while (SDL_PollEvent(&event)) {
+    keystate[event.key.keysym.sym] = event.type == SDL_KEYDOWN ? 1 : 0;
+  }
+}
+
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
-  return NULL;
+  SDL_UpdateKeyState();
+  if (numkeys != NULL) {
+    *numkeys = NR_KEYS;
+  }
+  return keystate;
 }
