@@ -36,5 +36,5 @@ SDL_Surface* IMG_LoadJPG_RW(SDL_RWops *src) {
 }
 
 char *IMG_GetError() {
-  return "Navy does not support IMG_GetError()";
+  return SDL_GetError();
 }
