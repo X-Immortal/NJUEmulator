@@ -1,6 +1,15 @@
 HAS_NAVY = 1
 RAMDISK_FILE = build/ramdisk.img
 
+STRACE ?= off
+VALID_STRACE = on off
+ifeq ($(filter $(VALID_STRACE), $(STRACE)), )
+  $(error Expected $$STRACE in {$(VALID_STRACE), Got "$(STRACE)"})
+endif
+ifeq ($(STRACE), on)
+CFLAGS += -DCONFIG_STRACE
+endif
+
 NAME = nanos-lite
 SRCS = $(shell find -L ./src/ -name "*.c" -o -name "*.cpp" -o -name "*.S")
 include $(AM_HOME)/Makefile

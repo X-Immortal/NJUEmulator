@@ -69,6 +69,7 @@ void do_syscall(Context *c) {
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 
+#ifdef CONFIG_STRACE
   if (is_file_opr(a[0])) {
     const char *name = a[0] == SYS_open ? (const char *) a[1] : get_filename(a[1]);
     printf("syscall %s occured, id=%d, args=[%s, %u, %u], ret=%d\n",
@@ -77,4 +78,5 @@ void do_syscall(Context *c) {
     printf("syscall %s occured, id=%d, args=[%u, %u, %u], ret=%d\n",
           syscall_name[a[0]], a[0], a[1], a[2], a[3], c->GPRx);
   }
+#endif
 }
