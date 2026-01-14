@@ -158,7 +158,13 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
       for (int i = 0; i < h; ++i) {
         for (int j = 0; j < w; ++j) {
           assert(idx_p[j] >= 0 && idx_p[j] < s->format->palette->ncolors);
-          pixels_p[j] = palette[idx_p[j]].val;
+          SDL_Color color = palette[idx_p[j]];
+          pixels_p[j] = (NDL_Color) {
+            .r = color.r,
+            .g = color.g,
+            .b = color.b,
+            .a = color.a
+          }.val;
         }
         idx_p += s->pitch;
         pixels_p += w;

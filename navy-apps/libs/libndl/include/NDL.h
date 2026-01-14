@@ -7,6 +7,11 @@
 extern "C" {
 #endif
 
+typedef union {
+  struct { uint8_t a, r, g, b; };
+  uint32_t val;
+} NDL_Color;
+
 int NDL_Init(uint32_t flags);
 void NDL_Quit();
 uint32_t NDL_GetTicks();
