@@ -59,6 +59,7 @@ static void SDL_UpdateKeyState() {
   memset(keystate, 0, sizeof(keystate));
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
+    printf("new state\n");
     keystate[event.key.keysym.sym] = event.type == SDL_KEYDOWN ? 1 : 0;
   }
 }
