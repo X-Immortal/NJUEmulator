@@ -313,12 +313,8 @@ uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint
 }
 
 int SDL_LockSurface(SDL_Surface *s) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
   return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *s) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
 }

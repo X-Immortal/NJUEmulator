@@ -13,6 +13,8 @@ install: install-file
 init:;
 
 install-file:
+	rm -r $(NAVY_HOME)/fsimg/share/games/bird
+	mkdir -p $(NAVY_HOME)/fsimg/share/games
 	ln -sf -T $(abspath $(REPO_PATH)/res) $(NAVY_HOME)/fsimg/share/games/bird
 
 .PHONY: install-file init
