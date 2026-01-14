@@ -7,7 +7,7 @@ ifeq ($(filter $(VALID_STRACE), $(STRACE)), )
   $(error Expected $$STRACE in {$(VALID_STRACE), Got "$(STRACE)"})
 endif
 ifeq ($(STRACE), on)
-CFLAGS += -DCONFIG_STRACE=1
+  CFLAGS += -DCONFIG_STRACE=1
 endif
 
 NAME = nanos-lite
