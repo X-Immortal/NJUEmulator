@@ -1,8 +1,12 @@
 #include <NDL.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdarg.h>
+
+#define ERROR_BUF_SIZE 1024
 
 uint32_t SDL_start_time;
+static char error_buf[ERROR_BUF_SIZE];
 
 int SDL_Init(uint32_t flags) {
   int ret = NDL_Init(flags);
@@ -15,11 +19,15 @@ void SDL_Quit() {
 }
 
 char *SDL_GetError() {
-  return "Navy does not support SDL_GetError()";
+  return error_buf;
 }
 
 int SDL_SetError(const char* fmt, ...) {
-  return -1;
+  va_list args;
+  va_start(args, fmt);
+  int ret = vsnprintf(error_buf, ERROR_BUF_SIZE, fmt, args);
+  va_end(args);
+  return ret;
 }
 
 int SDL_ShowCursor(int toggle) {
