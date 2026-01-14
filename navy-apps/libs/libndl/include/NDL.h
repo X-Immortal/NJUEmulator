@@ -8,7 +8,11 @@ extern "C" {
 #endif
 
 typedef union {
+#if __BYTE_ORDER == __LITTLE_ENDIAN 
+  struct { uint8_t b, g, r, a; };
+#else
   struct { uint8_t a, r, g, b; };
+#endif
   uint32_t val;
 } NDL_Color;
 
