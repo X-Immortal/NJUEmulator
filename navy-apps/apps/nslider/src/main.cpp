@@ -82,7 +82,7 @@ int main() {
     }
 
     int wait = 0;
-    while (wait < 50000000) wait++;
+    while (wait < 5000000) wait++;
   }
 
   return 0;
