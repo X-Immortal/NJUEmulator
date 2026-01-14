@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <SDL.h>
+#include <assert.h>
 
 char handle_key(SDL_Event *ev);
 
@@ -16,6 +17,7 @@ static void sh_printf(const char *format, ...) {
 
 static void sh_banner() {
   sh_printf("Built-in Shell in NTerm (NJU Terminal)\n\n");
+  assert(setenv("PATH", "/bin", 0) == 0);
 }
 
 static void sh_prompt() {
@@ -24,7 +26,7 @@ static void sh_prompt() {
 
 static void sh_handle_cmd(const char *cmd) {
   *(char *) strchr(cmd, '\n') = '\0';
-  execve(cmd, NULL, NULL);
+  execvp(cmd, NULL);
 }
 
 void builtin_sh_run() {
