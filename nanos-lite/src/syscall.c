@@ -2,6 +2,7 @@
 #include "syscall.h"
 #include <fs.h>
 #include <timer.h>
+#include <config.h>
 
 #define write(buf, len) do { for (size_t _i = 0; _i < (len); _i++) { putch(((char *) (buf))[_i]); } } while (0)
 #define is_file_opr(sysc_no) ( \
