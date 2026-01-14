@@ -1,4 +1,6 @@
 #include <sdl-file.h>
+#include <stdio.h>
+#include <assert.h>
 
 SDL_RWops* SDL_RWFromFile(const char *filename, const char *mode) {
   printf("%s not implemented!\n", __func__);

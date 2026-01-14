@@ -3,12 +3,68 @@
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
-  printf("%s not implemented!\n", __func__);
-  assert(0);
+  
+  SDL_Rect src_rect, dst_rect;
+  if (srcrect == NULL) {
+    src_rect.x = src_rect.y = 0;
+    src_rect.w = src->w;
+    src_rect.h = src->h;
+  } else {
+    src_rect = *srcrect;
+  }
+  if (dstrect == NULL) {
+    dst_rect.x = dst_rect.y = 0;
+  } else {
+    dst_rect = *dstrect;
+  }
+
+  if (src_rect.x < 0) {
+    dst_rect.x -= src_rect.x;
+    src_rect.w += src_rect.x;
+    src_rect.x = 0;
+  }
+  if (src_rect.y < 0) {
+    dst_rect.y -= src_rect.y;
+    src_rect.h += src_rect.y;
+    src_rect.y = 0;
+  }
+  if (src_rect.x + src_rect.w > src->w) {
+    src_rect.w = src->w - src_rect.x;
+  }
+  if (src_rect.y + src_rect.h > src->h) {
+    src_rect.h = src->h - src_rect.y;
+  }
+
+  if (dst_rect.x < 0) {
+    src_rect.x -= dst_rect.x;
+    src_rect.w += dst_rect.x;
+    dst_rect.x = 0;
+  }
+  if (dst_rect.y < 0) {
+    src_rect.y -= dst_rect.y;
+    src_rect.h += dst_rect.y;
+    dst_rect.y = 0;
+  }
+  if (dst_rect.x + src_rect.w > dst->w) {
+    src_rect.w = dst->w - dst_rect.x;
+  }
+  if (dst_rect.y + src_rect.h > dst->h) {
+    src_rect.h = dst->h - dst_rect.y;
+  }
+
+  if (src_rect.w <= 0 || src_rect.h <= 0) return;
+
+  int bpp = src->format->BytesPerPixel;
+  uint8_t *src_p = src->pixels + src_rect.y * src->pitch + src_rect.x * bpp;
+  uint8_t *dst_p = dst->pixels + dst_rect.y * dst->pitch + dst_rect.x * bpp;
+  for (int i = 0; i < src_rect.h; ++i) {
+    memcpy(dst_p + i * dst->pitch, src_p + i * src->pitch, src_rect.w * bpp);
+  }
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
@@ -17,8 +73,29 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
+  if (x == 0 && y == 0 && w == 0 && h == 0) {
+    w = s->w;
+    h = s->h;
+  }
+
+  if (x < 0) {
+    w += x;
+    x = 0;
+  }
+  if (y < 0) {
+    h += y;
+    y = 0;
+  }
+  if (x + w > s->w) {
+    w = s->w - x;
+  }
+  if (y + h > s->h) {
+    h = s->h - y;
+  }
+
+  if (w <= 0 || h <= 0) return;
+
+  NDL_DrawRect((uint32_t *) s->pixels, x, y, w, h);
 }
 
 // APIs below are already implemented.
