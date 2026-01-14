@@ -31,7 +31,7 @@ int SDL_WaitEvent(SDL_Event *event) {
   if (ret) {
     if (sscanf(buf, "kd %s", key) == 1) {
       event->type = SDL_KEYDOWN;
-    } else {
+    } else if (sscanf(buf, "ku %s", key) == 1) {
       event->type = SDL_KEYUP;
     }
 
