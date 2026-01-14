@@ -36,7 +36,7 @@ int SDL_PollEvent(SDL_Event *ev) {
     for (int i = 0; i < NR_KEYS; ++i) {
       if (strcmp(key, keyname[i]) == 0) {
         ev->key.keysym.sym = i;
-        // keystate[i] = ev->type == SDL_KEYDOWN ? 1 : 0;
+        keystate[i] = ev->type == SDL_KEYDOWN ? 1 : 0;
         break;
       }
     }
