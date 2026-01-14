@@ -36,6 +36,7 @@ int SDL_PollEvent(SDL_Event *ev) {
     for (int i = 0; i < NR_KEYS; ++i) {
       if (strcmp(key, keyname[i]) == 0) {
         ev->key.keysym.sym = i;
+        // keystate[i] = ev->type == SDL_KEYDOWN ? 1 : 0;
         break;
       }
     }
@@ -56,7 +57,7 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 }
 
 static void SDL_UpdateKeyState() {
-  memset(keystate, 0, sizeof(keystate));
+  // memset(keystate, 0, sizeof(keystate));
   SDL_Event event;
   while (SDL_PollEvent(&event)) {
     printf("new state\n");
