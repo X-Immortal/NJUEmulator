@@ -1,9 +1,13 @@
 #include <sdl-file.h>
 
 SDL_RWops* SDL_RWFromFile(const char *filename, const char *mode) {
+  printf("%s not implemented!\n", __func__);
+  assert(0);
   return NULL;
 }
 
 SDL_RWops* SDL_RWFromMem(void *mem, int size) {
+  printf("%s not implemented!\n", __func__);
+  assert(0);
   return NULL;
 }
