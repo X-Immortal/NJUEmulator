@@ -68,8 +68,43 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
+  assert(dst);
+
+  SDL_Rect dst_rect;
+  if (dstrect == NULL) {
+    dst_rect.x = dst_rect.y = 0;
+    dst_rect.w = dst->w;
+    dst_rect.h = dst->h;
+  } else {
+    dst_rect = *dstrect;
+  }
+
+  if (dst_rect.x < 0) {
+    dst_rect.w += dst_rect.x;
+    dst_rect.x = 0;
+  }
+  if (dst_rect.y < 0) {
+    dst_rect.h += dst_rect.y;
+    dst_rect.y = 0;
+  }
+  if (dst_rect.x + dst_rect.w > dst->w) {
+    dst_rect.w = dst->w - dst_rect.x;
+  }
+  if (dst_rect.y + dst_rect.h > dst->h) {
+    dst_rect.h = dst->h - dst_rect.y;
+  }
+
+  if (dst_rect.w <= 0 || dst_rect.h <= 0) return;
+
+  int bpp = dst->format->BytesPerPixel;
+  assert(bpp == 4);
+  uint8_t *dst_p = dst->pixels + dst_rect.y * dst->pitch + dst_rect.x * bpp;
+  for (int i = 0; i < dst_rect.h; ++i) {
+    for (int j = 0; j < dst_rect.w; ++j) {
+      ((uint32_t *) dst_p)[j] = color;
+    }
+    dst_p += dst->pitch;
+  }
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
