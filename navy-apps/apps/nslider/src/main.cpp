@@ -80,9 +80,6 @@ int main() {
           break;
       }
     }
-
-    int wait = 0;
-    while (wait < 5000000) wait++;
   }
 
   return 0;

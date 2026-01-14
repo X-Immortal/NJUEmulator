@@ -2,8 +2,12 @@
 #include <stdio.h>
 #include <assert.h>
 
+uint32_t SDL_start_time;
+
 int SDL_Init(uint32_t flags) {
-  return NDL_Init(flags);
+  int ret = NDL_Init(flags);
+  SDL_start_time = NDL_GetTicks();
+  return ret;
 }
 
 void SDL_Quit() {
