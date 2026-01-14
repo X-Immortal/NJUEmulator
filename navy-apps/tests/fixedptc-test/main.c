@@ -3,10 +3,9 @@
 #include <assert.h>
 
 int main() {
-  fixedpt a = fixedpt_fromint(1);
-  fixedpt b = fixedpt_rconst(0.5);
-  fixedpt r = fixedpt_div(a, b);
-  printf("r=%x, 2=%x\n", r, (fixedpt) fixedpt_fromint(2));
-  assert(r == fixedpt_fromint(2));
+  fixedpt b = fixedpt_rconst(1.33);
+  fixedpt r = fixedpt_floor(b);
+  printf("r=%x, 1=%x\n", r, (fixedpt) fixedpt_fromint(1));
+  assert(r == fixedpt_fromint(1));
   return 0;
 }
