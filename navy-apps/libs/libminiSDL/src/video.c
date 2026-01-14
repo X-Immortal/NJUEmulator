@@ -148,12 +148,12 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
   if (w <= 0 || h <= 0) return;
 
   int bpp = s->format->BytesPerPixel;
+  uint32_t *pixels = (uint32_t *) malloc(w * h * sizeof(*pixels));
+  assert(pixels);
+  uint32_t *pixels_p = pixels;
   switch (bpp) {
     case 1:
-      uint32_t *pixels = malloc(s->w * s->h * sizeof(*pixels));
-      assert(pixels);
-      uint8_t *idx_p = s->pixels + y * s->w + x;
-      uint32_t *pixels_p = pixels + y * s->w + x;
+      uint8_t *idx_p = s->pixels + y * s->pitch + x;
       SDL_Color *palette = s->format->palette->colors;
       for (int i = 0; i < h; ++i) {
         for (int j = 0; j < w; ++j) {
@@ -161,18 +161,27 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
           pixels_p[j] = palette[idx_p[j]].val;
         }
         idx_p += s->pitch;
-        pixels_p += s->pitch;
+        pixels_p += w;
       }
       NDL_DrawRect(pixels, x, y, w, h);
-      free(pixels);
       break;
     case 4:
-      NDL_DrawRect((uint32_t *) s->pixels, x, y, w, h);
+      uint8_t *s_pixels_p = s->pixels + y * s->pitch + x;
+      for (int i = 0; i < h; ++i) {
+        for (int j = 0; j < w; ++j) {
+          pixels_p[j] = ((uint32_t *) s_pixels_p)[j];
+        }
+        s_pixels_p += s->pitch;
+        pixels_p += w;
+      }
+      NDL_DrawRect(pixels, x, y, w, h);
       break;
     default:
+      free(pixels);
       printf("do not support pixel size: %d Bytes\n", bpp);
       assert(0);
   }
+  free(pixels);
 }
 
 // APIs below are already implemented.
