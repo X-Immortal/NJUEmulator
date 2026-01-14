@@ -56,17 +56,17 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
   return 0;
 }
 
-static void SDL_UpdateKeyState() {
-  // memset(keystate, 0, sizeof(keystate));
-  SDL_Event event;
-  while (SDL_PollEvent(&event)) {
-    printf("new state\n");
-    keystate[event.key.keysym.sym] = event.type == SDL_KEYDOWN ? 1 : 0;
-  }
-}
+// static void SDL_UpdateKeyState() {
+//   // memset(keystate, 0, sizeof(keystate));
+//   SDL_Event event;
+//   while (SDL_PollEvent(&event)) {
+//     printf("new state\n");
+//     keystate[event.key.keysym.sym] = event.type == SDL_KEYDOWN ? 1 : 0;
+//   }
+// }
 
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  SDL_UpdateKeyState();
+  // SDL_UpdateKeyState();
   if (numkeys != NULL) {
     *numkeys = NR_KEYS;
   }
