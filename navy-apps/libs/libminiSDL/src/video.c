@@ -97,13 +97,25 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   if (dst_rect.w <= 0 || dst_rect.h <= 0) return;
 
   int bpp = dst->format->BytesPerPixel;
-  assert(bpp == 4);
   uint8_t *dst_p = dst->pixels + dst_rect.y * dst->pitch + dst_rect.x * bpp;
-  for (int i = 0; i < dst_rect.h; ++i) {
-    for (int j = 0; j < dst_rect.w; ++j) {
-      ((uint32_t *) dst_p)[j] = color;
-    }
-    dst_p += dst->pitch;
+  switch (bpp) {
+    case 1:
+      for (int i = 0; i < dst_rect.h; ++i) {
+        memset(dst_p, (uint8_t) color, dst_rect.w);
+        dst_p += dst->pitch;
+      }
+      break;
+    case 4:
+      for (int i = 0; i < dst_rect.h; ++i) {
+        for (int j = 0; j < dst_rect.w; ++j) {
+          ((uint32_t *) dst_p)[j] = color;
+        }
+        dst_p += dst->pitch;
+      }
+      break;
+    default:
+      printf("do not support pixel size: %d Bytes\n", bpp);
+      assert(0);
   }
 }
 
