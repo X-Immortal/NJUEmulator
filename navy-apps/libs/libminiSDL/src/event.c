@@ -26,6 +26,7 @@ int SDL_PollEvent(SDL_Event *ev) {
   char key[20];
   int ret = NDL_PollEvent(buf, sizeof(buf));
   if (ret) {
+    printf("%s\n", buf);
     if (sscanf(buf, "kd %s", key) == 1) {
       ev->type = SDL_KEYDOWN;
     } else if (sscanf(buf, "ku %s", key) == 1) {
