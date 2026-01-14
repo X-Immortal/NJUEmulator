@@ -19,8 +19,6 @@ char *SDL_GetError() {
 }
 
 int SDL_SetError(const char* fmt, ...) {
-  printf("%s not implemented!\n", __func__);
-  assert(0);
   return -1;
 }
 
