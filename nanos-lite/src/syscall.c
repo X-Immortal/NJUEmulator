@@ -46,10 +46,14 @@ void do_syscall(Context *c) {
   a[2] = c->GPR3;
   a[3] = c->GPR4;
 
+  again:
   switch (a[0]) {
     case SYS_yield: yield(); c->GPRx = 0; break;
-    case SYS_exit:  halt(a[1]);           break;
     case SYS_brk: c->GPRx = 0;            break;
+    case SYS_exit:
+      a[0] = SYS_execve;
+      a[1] = (uintptr_t) "/bin/menu";
+      goto again;
     case SYS_open:
       c->GPRx = fs_open((const char *) a[1], (int) a[2], (int) a[3]);
       break;
