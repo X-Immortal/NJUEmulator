@@ -260,7 +260,7 @@ do {\
         if (n <= 9) { \
           buf[--p] = n + '0'; \
         } else { \
-          buf[--p] = n + (upper) ? 'A' : 'a'; \
+          buf[--p] = n - 10 + ((upper) ? 'A' : 'a'); \
         } \
         temp /= base; \
       } \
@@ -410,6 +410,7 @@ int printf(const char *fmt, ...) {
   }
 
   va_end(args);
+  flush_stdout(&os);
 
   return count;
 }

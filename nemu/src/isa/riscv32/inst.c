@@ -25,15 +25,17 @@
 enum {
   TYPE_I, TYPE_U, TYPE_S, TYPE_R,
   TYPE_J, TYPE_B,
-  TYPE_M,
+  TYPE_M, TYPE_CSR,
   TYPE_N, // none
 };
 
 #define src1R() do { *src1 = R(rs1); } while (0)
 #define src2R() do { *src2 = R(rs2); } while (0)
+#define src1CSR() do { *src1 = rs1; } while (0)
 #define immI() do { *imm = SEXT(BITS(i, 31, 20), 12); } while(0)
 #define immU() do { *imm = SEXT(BITS(i, 31, 12), 20) << 12; } while(0)
 #define immS() do { *imm = (SEXT(BITS(i, 31, 25), 7) << 5) | BITS(i, 11, 7); } while(0)
+#define immCSR() do { *imm = BITS(i, 31, 20); } while(0)
 #define immJ() \
 do {\
   *imm = (SEXT(BITS(i, 31, 31), 1) << 20) |\
@@ -62,7 +64,7 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_R: src1R(); src2R();         break;
     case TYPE_J:                   immJ(); break;
     case TYPE_B: src1R(); src2R(); immB(); break;
-
+    case TYPE_CSR: src1CSR();          immCSR(); break;
   
     case TYPE_N: break;
     default: panic("unsupported type = %d", type);
@@ -140,7 +142,14 @@ static int decode_exec(Decode *s) {
     else R(rd) = (int32_t) src1 % (int32_t) src2
   );
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , M, if (src2 == 0) R(rd) = src1; else R(rd) = src1 % src2);
+
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , CSR, if (rd != 0) R(rd) = csr(imm); csr(imm) = R(src1));
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , CSR, R(rd) = csr(imm); if (src1 != 0) csr(imm) |= R(src1));
   
+
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , N, s->dnpc = mepc);
+
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
   INSTPAT_END();

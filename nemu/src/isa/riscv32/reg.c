@@ -23,18 +23,34 @@ const char *regs[] = {
   "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
 
-size_t nr_regs = ARRLEN(regs);
+const char *csrs[] = {
+  "mtvec", "mepc", "mstatus", "mcause"
+};
+
+const size_t nr_regs = ARRLEN(regs);
+const size_t nr_csrs = ARRLEN(csrs);
 
 void isa_reg_display() {
   for (int i = 0; i < nr_regs; i++) {
-    printf("%-15s\t0x%-18x\t%-15d\n", reg_name(i), gpr(i), gpr(i));
+    printf("%-15s\t0x%-18x\t%-15u\n", reg_name(i), gpr(i), gpr(i));
+  }
+  for (int i = 0; i < nr_csrs; i++) {
+    printf("%-15s\t0x%-18x\t%-15u\n", csr_name(i), cpu.csr[i], cpu.csr[i]);
   }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {
+  if (strcmp(s, "pc") == 0) {
+    return cpu.pc;
+  }
   for (int i = 0; i < nr_regs; i++) {
     if (strcmp(s, regs[i]) == 0) {
       return gpr(i);
+    }
+  }
+  for (int i = 0; i < nr_csrs; i++) {
+    if (strcmp(s, csrs[i]) == 0) {
+      return cpu.csr[i];
     }
   }
   *success = false;
