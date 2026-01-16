@@ -30,10 +30,12 @@ static void sh_handle_cmd(const char *cmd) {
   char *arg = strtok((char *) cmd, " \n");
   printf("before:argv=%p\n", argv);
   printf("before:&arg=%p\n", arg);
+  printf("before:arg=%s:\n", arg);
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
     printf("before:&arg=%p\n", arg);
+    printf("before:arg=%s:\n", arg);
     argv[p++] = arg;
     assert(p < 19);
   } 
