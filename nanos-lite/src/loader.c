@@ -22,6 +22,8 @@
 # error Unsupported ISA
 #endif
 
+#define ALIGNMENT 16
+
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 
 static uintptr_t loader(PCB *pcb, const char *filename) {
@@ -89,8 +91,10 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     ++str_len;
   }
 
-  uintptr_t str_area_p = (uintptr_t) heap.end - ROUNDUP(str_len, 16);
-  uintptr_t start = str_area_p - ROUNDUP((argc + envc + 2) * sizeof(char *) + sizeof(int), 16);
+  uintptr_t stack = (uintptr_t) new_page(8);
+  uintptr_t end = stack + 8 * PGSIZE;
+  uintptr_t str_area_p = end - ROUNDUP(str_len, ALIGNMENT);
+  uintptr_t start = str_area_p - ROUNDUP((argc + envc + 2) * sizeof(char *) + sizeof(int), ALIGNMENT);
   int *argc_p = (int *) start;
   char **argv_p = (char **) (argc_p + 1);
   char **envp_p = argv_p + argc + 1;

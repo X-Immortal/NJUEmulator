@@ -3,7 +3,13 @@
 static void *pf = NULL;
 
 void* new_page(size_t nr_page) {
-  return NULL;
+  size_t size = nr_page * PGSIZE;
+  if (pf + size > heap.end) {
+    panic("Out of Memory!");
+  }
+  void *page = pf;
+  pf += size;
+  return page;
 }
 
 #ifdef HAS_VME
