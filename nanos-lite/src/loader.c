@@ -70,13 +70,13 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   uintptr_t entry = loader(pcb, filename);
   Log("Jump to entry = %p", entry);
   pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
-  printf("reached here\n");
 
   size_t str_len = 0;
   size_t argc = 0;
   for (size_t i = 0; argv[i]; ++i) {
     ++argc;
   }
+  printf("reached here\n");
   size_t argv_slen[argc];
   for (size_t i = 0; argv[i]; ++i) {
     str_len += argv_slen[i] = strlen(argv[i]) + 1;
