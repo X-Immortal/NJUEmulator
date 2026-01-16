@@ -25,8 +25,17 @@ static void sh_prompt() {
 }
 
 static void sh_handle_cmd(const char *cmd) {
-  *(char *) strchr(cmd, '\n') = '\0';
-  execvp(cmd, NULL);
+  char *argv[20];
+  int p = 0;
+  char *arg = strtok((char *) cmd, " \n");
+  assert(arg);
+  argv[p++] = arg;
+  while ((arg = strtok(NULL, " \n"))) {
+    argv[p++] = arg;
+    assert(p < 19);
+  } 
+  argv[p] = NULL;
+  execvp(cmd, argv);
 }
 
 void builtin_sh_run() {

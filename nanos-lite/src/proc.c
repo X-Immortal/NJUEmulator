@@ -20,9 +20,9 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  char *argv[] = { "/bin/menu", NULL };
+  char *argv[] = { "/bin/nterm", NULL };
   char *envp[] = { NULL };
-  context_uload(&pcb[0], "/bin/menu", argv, envp);
+  context_uload(&pcb[0], "/bin/nterm", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");
