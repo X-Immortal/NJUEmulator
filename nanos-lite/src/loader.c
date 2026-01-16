@@ -87,8 +87,8 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
   size_t env_slen[envc];
   for (size_t i = 0; envp[i]; ++i) {
-    str_len += env_slen[i] = strlen(envp[i]) + 1;
     printf("reached here\n");
+    str_len += env_slen[i] = strlen(envp[i]) + 1;
   }
 
   uintptr_t stack = (uintptr_t) new_page(8);
