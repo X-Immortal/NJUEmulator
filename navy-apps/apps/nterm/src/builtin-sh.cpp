@@ -28,10 +28,11 @@ static void sh_handle_cmd(const char *cmd) {
   char *argv[20];
   int p = 0;
   char *arg = strtok((char *) cmd, " \n");
+  printf("before:&arg=%p\n", arg);
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
-    printf("&arg=%p\n", arg);
+    printf("before:&arg=%p\n", arg);
     argv[p++] = arg;
     assert(p < 19);
   } 
