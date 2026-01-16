@@ -67,10 +67,6 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
-  uintptr_t entry = loader(pcb, filename);
-  Log("Jump to entry = %p", entry);
-  pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
-
   size_t str_len = 0;
   size_t argc = 0;
   printf("after:argv=%p\n", argv);
@@ -120,4 +116,8 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   envp_p[envc] = NULL;
 
   pcb->cp->GPRx = start;
+
+  uintptr_t entry = loader(pcb, filename);
+  Log("Jump to entry = %p", entry);
+  pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
 }
