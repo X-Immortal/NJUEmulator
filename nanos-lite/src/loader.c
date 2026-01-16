@@ -96,7 +96,7 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   char **argv_p = (char **) (argc_p + 1);
   char **envp_p = argv_p + argc;
 
-  *argc_p = argc;
+  *argc_p = argc - 1;
 
   char *str_p = (char *) str_area_p;
   for (size_t i = 0; i < argc; ++i) {
