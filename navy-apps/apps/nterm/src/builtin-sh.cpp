@@ -35,7 +35,8 @@ static void sh_handle_cmd(const char *cmd) {
     assert(p < 19);
   } 
   argv[p] = NULL;
-  execvp(cmd, argv);
+  char *envp[] = {NULL};
+  execve(cmd, argv, envp);
 }
 
 void builtin_sh_run() {
