@@ -82,7 +82,7 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
 
   size_t envc = 0;
-  assert(envp);
+  printf("reached here\n");
   for (size_t i = 0; envp[i]; ++i) {
     ++envc;
   }
