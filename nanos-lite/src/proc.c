@@ -20,9 +20,10 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
+  context_kload(&pcb[0], hello_fun, (void *) 'a');
   char *argv[] = { "/bin/nterm", NULL };
   char *envp[] = { NULL };
-  context_uload(&pcb[0], "/bin/nterm", argv, envp);
+  context_uload(&pcb[1], "/bin/nterm", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");
@@ -33,7 +34,6 @@ void init_proc() {
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
-  current = pcb;
+  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
   return current->cp;
 }
