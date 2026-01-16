@@ -67,6 +67,7 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
+  if (filename == NULL) return;
   size_t str_len = 0;
   size_t argc = 0;
   for (size_t i = 0; argv[i]; ++i) {
