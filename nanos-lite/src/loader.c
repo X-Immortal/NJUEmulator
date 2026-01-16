@@ -74,10 +74,8 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   size_t str_len = 0;
   size_t argc = 0;
   for (size_t i = 0; argv[i]; ++i) {
+    printf("arg=%s:\n", argv[i]);
     ++argc;
-  }
-  if (argc > 1) {
-    printf("option=%s:\n", argv[1]);
   }
   size_t argv_slen[argc];
   for (size_t i = 0; argv[i]; ++i) {
