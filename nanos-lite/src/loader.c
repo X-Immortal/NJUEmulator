@@ -91,7 +91,6 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     ++str_len;
   }
 
-  printf("reached here\n");
   uintptr_t stack = (uintptr_t) new_page(8);
   uintptr_t end = stack + 8 * PGSIZE;
   uintptr_t str_area_p = end - ROUNDUP(str_len, ALIGNMENT);
@@ -118,4 +117,5 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   envp_p[envc] = NULL;
 
   pcb->cp->GPRx = start;
+  printf("reached here\n");
 }
