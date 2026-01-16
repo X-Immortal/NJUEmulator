@@ -31,6 +31,7 @@ static void sh_handle_cmd(const char *cmd) {
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
+    printf("error\n");
     argv[p++] = arg;
     assert(p < 19);
   } 
