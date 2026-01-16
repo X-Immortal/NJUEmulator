@@ -60,3 +60,13 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
+void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
+  pcb->cp = kcontext((Area) { pcb->stack, &pcb->stack + 1 }, entry, arg);
+}
+
+void context_uload(PCB *pcb, const char *filename) {
+  uintptr_t entry = loader(pcb, filename);
+  Log("Jump to entry = %p", entry);
+  pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
+  pcb->cp->GPRx = (uintptr_t) heap.end;
+}

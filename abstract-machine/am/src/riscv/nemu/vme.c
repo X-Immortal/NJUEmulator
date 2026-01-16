@@ -70,5 +70,8 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
-  return NULL;
+  Context *context = (Context *) kstack.end - 1;
+  context->mepc = (uintptr_t) entry;
+  context->mstatus = (uintptr_t) 0x1800; // set mstatus to pass difftest
+  return context;
 }

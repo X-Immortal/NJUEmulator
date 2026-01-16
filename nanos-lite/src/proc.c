@@ -10,10 +10,6 @@ void switch_boot_pcb() {
   current = &pcb_boot;
 }
 
-void context_kload(PCB *process, void (*entry)(void *), void *arg) {
-  process->cp = kcontext((Area) { process->stack, &process->stack + 1 }, entry, arg);
-}
-
 void hello_fun(void *arg) {
   int j = 1;
   while (1) {
@@ -25,7 +21,7 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   context_kload(&pcb[0], hello_fun, (void *) 'a');
-  context_kload(&pcb[1], hello_fun, (void *) 'b');
+  context_uload(&pcb[1], "/bin/pal");
   switch_boot_pcb();
 
   Log("Initializing processes...");
