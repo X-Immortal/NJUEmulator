@@ -67,8 +67,8 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
 }
 
 void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
-  printf("reached here\n");
   uintptr_t entry = loader(pcb, filename);
+  printf("reached here\n");
   Log("Jump to entry = %p", entry);
   pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
 
