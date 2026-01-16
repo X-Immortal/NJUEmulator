@@ -31,12 +31,12 @@ static void sh_handle_cmd(const char *cmd) {
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
+    printf("arg=%s:\n", arg);
     argv[p++] = arg;
     assert(p < 19);
   } 
   argv[p] = NULL;
   char *envp[] = {NULL};
-  printf("before: argv=%p, envp=%p\n", argv, envp);
   execve(cmd, argv, envp);
 }
 

@@ -73,7 +73,6 @@ void do_syscall(Context *c) {
       c->GPRx = tm_gettimeofday((struct timeval *) a[1], (struct timezone *) a[2]);
       break;
     case SYS_execve:
-      printf("os: argv=%p, envp=%p\n", a[2], a[3]);
       context_uload(current, (const char *) a[1], (char * const *) a[2], (char * const *) a[3]);
       switch_boot_pcb();
       yield();
