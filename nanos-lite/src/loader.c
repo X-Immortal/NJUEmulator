@@ -91,6 +91,7 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
 
   uintptr_t str_area_p = (uintptr_t) heap.end - ROUNDUP(str_len, 16);
   uintptr_t start = str_area_p - ROUNDUP((argc + envc) * sizeof(char *) + sizeof(int), 16);
+  printf("start=%p\n", start);
   int *argc_p = (int *) start;
   char **argv_p = (char **) (argc_p + 1);
   char **envp_p = argv_p + argc;
