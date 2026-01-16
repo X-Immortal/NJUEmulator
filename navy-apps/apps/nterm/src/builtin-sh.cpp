@@ -28,7 +28,6 @@ static void sh_handle_cmd(const char *cmd) {
   char *argv[20];
   int p = 0;
   char *arg = strtok((char *) cmd, " \n");
-  printf("arg=%s\n", arg);
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
