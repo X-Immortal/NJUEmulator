@@ -82,10 +82,10 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
 
   size_t envc = 0;
-  printf("reached here\n");
   for (size_t i = 0; envp[i]; ++i) {
     ++envc;
   }
+  printf("reached here\n");
   size_t env_slen[envc];
   for (size_t i = 0; envp[i]; ++i) {
     str_len += env_slen[i] = strlen(envp[i]) + 1;
