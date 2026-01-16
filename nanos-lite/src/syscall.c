@@ -74,8 +74,8 @@ void do_syscall(Context *c) {
       break;
     case SYS_execve:
       context_uload(current, (const char *) a[1], (char * const *) a[2], (char * const *) a[3]);
-      switch_boot_pcb();
       printf("reached here\n");
+      switch_boot_pcb();
       yield();
       break;
     default: panic("Unhandled syscall ID = %d", a[0]);
