@@ -69,10 +69,7 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
 void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
   size_t str_len = 0;
   size_t argc = 0;
-  printf("after:argv=%p\n", argv);
   for (size_t i = 0; argv[i]; ++i) {
-    printf("after:&arg=%p\n", argv[i]);
-    printf("after:arg=%s:\n", argv[i]);
     ++argc;
   }
   size_t argv_slen[argc];
@@ -86,7 +83,6 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
   size_t env_slen[envc];
   for (size_t i = 0; envp[i]; ++i) {
-    printf("reached here\n");
     str_len += env_slen[i] = strlen(envp[i]) + 1;
   }
 

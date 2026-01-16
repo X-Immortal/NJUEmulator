@@ -28,20 +28,15 @@ static void sh_handle_cmd(const char *cmd) {
   char *argv[20];
   int p = 0;
   char *arg = strtok((char *) cmd, " \n");
-  printf("before:argv=%p\n", argv);
-  printf("before:&arg=%p\n", arg);
-  printf("before:arg=%s:\n", arg);
   assert(arg);
   argv[p++] = arg;
   while ((arg = strtok(NULL, " \n"))) {
-    printf("before:&arg=%p\n", arg);
-    printf("before:arg=%s:\n", arg);
     argv[p++] = arg;
     assert(p < 19);
   } 
   argv[p] = NULL;
   char *envp[] = {NULL};
-  execve(cmd, argv, envp);
+  execvp(cmd, argv);
 }
 
 void builtin_sh_run() {
