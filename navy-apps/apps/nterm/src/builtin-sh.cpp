@@ -34,6 +34,7 @@ static void sh_handle_cmd(const char *cmd) {
     argv[p++] = arg;
     assert(p < 19);
   } 
+  printf("p = %d\n", p);
   argv[p] = NULL;
   char *envp[] = {NULL};
   execve(cmd, argv, envp);
