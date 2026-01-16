@@ -115,9 +115,9 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
   envp_p[envc] = NULL;
 
-  pcb->cp->GPRx = start;
-
   uintptr_t entry = loader(pcb, filename);
   Log("Jump to entry = %p", entry);
   pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
+
+  pcb->cp->GPRx = start;
 }
