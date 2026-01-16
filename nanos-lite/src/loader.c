@@ -80,7 +80,6 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   for (size_t i = 0; argv[i]; ++i) {
     str_len += argv_slen[i] = strlen(argv[i]) + 1;
   }
-  printf("reached here\n");
 
   size_t envc = 0;
   for (size_t i = 0; envp[i]; ++i) {
@@ -92,6 +91,7 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     ++str_len;
   }
 
+  printf("reached here\n");
   uintptr_t stack = (uintptr_t) new_page(8);
   uintptr_t end = stack + 8 * PGSIZE;
   uintptr_t str_area_p = end - ROUNDUP(str_len, ALIGNMENT);
