@@ -90,13 +90,13 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   }
 
   uintptr_t str_area_p = (uintptr_t) heap.end - ROUNDUP(str_len, 16);
-  uintptr_t start = str_area_p - ROUNDUP((argc + envc) * sizeof(char *) + sizeof(int), 16);
+  uintptr_t start = str_area_p - ROUNDUP((argc + envc + 2) * sizeof(char *) + sizeof(int), 16);
   printf("start=%p\n", start);
   int *argc_p = (int *) start;
   char **argv_p = (char **) (argc_p + 1);
-  char **envp_p = argv_p + argc;
+  char **envp_p = argv_p + argc + 1;
 
-  *argc_p = argc - 1;
+  *argc_p = argc;
 
   char *str_p = (char *) str_area_p;
   for (size_t i = 0; i < argc; ++i) {
@@ -104,12 +104,14 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     argv_p[i] = str_p;
     str_p += argv_slen[i];
   }
+  argv_p[argc] = NULL;
 
   for (size_t i = 0; i < envc; ++i) {
     strcpy(str_p, envp[i]);
     envp_p[i] = str_p;
     str_p += env_slen[i];
   }
+  envp_p[envc] = NULL;
 
   pcb->cp->GPRx = start;
 }
