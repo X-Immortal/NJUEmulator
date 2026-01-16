@@ -64,9 +64,51 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
   pcb->cp = kcontext((Area) { pcb->stack, &pcb->stack + 1 }, entry, arg);
 }
 
-void context_uload(PCB *pcb, const char *filename) {
+void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
   uintptr_t entry = loader(pcb, filename);
   Log("Jump to entry = %p", entry);
   pcb->cp = ucontext(NULL, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
-  pcb->cp->GPRx = (uintptr_t) heap.end;
+
+  size_t str_len = 0;
+  size_t argc = 0;
+  for (size_t i = 0; argv[i]; ++i) {
+    ++argc;
+  }
+  size_t argv_slen[argc];
+  for (size_t i = 0; argv[i]; ++i) {
+    str_len += argv_slen[i] = strlen(argv[i]) + 1;
+  }
+
+  size_t envc = 0;
+  for (size_t i = 0; envp[i]; ++i) {
+    ++envc;
+  }
+  size_t env_slen[envc];
+  for (size_t i = 0; envp[i]; ++i) {
+    str_len += env_slen[i] = strlen(envp[i]);
+    ++str_len;
+  }
+
+  uintptr_t str_area_p = (uintptr_t) heap.end - ROUNDUP(str_len, 16);
+  uintptr_t start = str_area_p - ROUNDUP((argc + envc) * sizeof(char *) + sizeof(int), 16);
+  int *argc_p = (int *) start;
+  char **argv_p = (char **) (argc_p + 1);
+  char **envp_p = argv_p + argc;
+
+  *argc_p = argc;
+
+  char *str_p = (char *) str_area_p;
+  for (size_t i = 0; i < argc; ++i) {
+    strcpy(str_p, argv[i]);
+    argv_p[i] = str_p;
+    str_p += argv_slen[i];
+  }
+
+  for (size_t i = 0; i < envc; ++i) {
+    strcpy(str_p, envp[i]);
+    envp_p[i] = str_p;
+    str_p += env_slen[i];
+  }
+
+  pcb->cp->GPRx = start;
 }
