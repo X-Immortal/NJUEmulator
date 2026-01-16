@@ -75,7 +75,7 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   size_t argc = 0;
   printf("after:argv=%p\n", argv);
   for (size_t i = 0; argv[i]; ++i) {
-    printf("after:&arg=%p\n", &argv[i]);
+    printf("after:&arg=%p\n", argv[i]);
     ++argc;
   }
   size_t argv_slen[argc];
