@@ -13,7 +13,7 @@
   sysc_no == SYS_lseek || \
   sysc_no == SYS_close    \
 )
-#define DEFAULT_PROC "/bin/netrm"
+#define DEFAULT_PROC "/bin/nterm"
 
 __attribute__((unused))
 static const char *syscall_name[] = {
