@@ -68,7 +68,6 @@ void context_kload(PCB *pcb, void (*entry)(void *), void *arg) {
 
 void context_uload(PCB *pcb, const char *filename, char * const argv[], char * const envp[]) {
   static char *default_envp[] = { NULL };
-  assert(argv);
   assert(pcb && filename && argv);
   if (!envp) {
     envp = default_envp;

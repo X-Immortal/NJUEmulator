@@ -13,6 +13,7 @@
   sysc_no == SYS_lseek || \
   sysc_no == SYS_close    \
 )
+#define DEFAULT_PROC "/bin/netrm"
 
 __attribute__((unused))
 static const char *syscall_name[] = {
@@ -37,7 +38,8 @@ static const char *syscall_name[] = {
   "SYS_times",
   "SYS_gettimeofday",
 };
-
+static const char *exit_argv[] = { DEFAULT_PROC, NULL };
+static const char *exit_envp[] = { NULL };
 
 void do_syscall(Context *c) {
   uintptr_t a[4];
@@ -52,7 +54,9 @@ void do_syscall(Context *c) {
     case SYS_brk: c->GPRx = 0;            break;
     case SYS_exit:
       a[0] = SYS_execve;
-      a[1] = (uintptr_t) "/bin/nterm";
+      a[1] = (uintptr_t) DEFAULT_PROC;
+      a[2] = (uintptr_t) exit_argv;
+      a[3] = (uintptr_t) exit_envp;
       goto again;
     case SYS_open:
       c->GPRx = fs_open((const char *) a[1], (int) a[2], (int) a[3]);
