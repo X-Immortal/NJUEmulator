@@ -17,7 +17,10 @@ static void sh_printf(const char *format, ...) {
 
 static void sh_banner() {
   sh_printf("Built-in Shell in NTerm (NJU Terminal)\n\n");
-  assert(setenv("PATH", "/bin", 0) == 0);
+}
+
+void builtin_sh_init() {
+  assert(setenv("PATH", "/bin:/usr/bin", 0) == 0);
 }
 
 static void sh_prompt() {

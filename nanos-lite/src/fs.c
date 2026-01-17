@@ -61,7 +61,7 @@ int fs_open(const char *pathname, int flags, int mode) {
       return i;
     }
   }
-  panic("file %s not exists, should not reach here", pathname);
+  return -ENOENT;
 }
 
 #define check_fd() \
