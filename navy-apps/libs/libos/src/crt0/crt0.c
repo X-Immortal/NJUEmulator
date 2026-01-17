@@ -9,7 +9,11 @@ void call_main(uintptr_t *args) {
   int argc = *(int *) args;
   char **argv = (char **) ((int *) args + 1);
   char **envp = argv + argc + 1;
-  environ = envp;
+  if (*envp || !environ) {
+    environ = envp;
+  } else {
+    envp = environ;
+  }
   exit(main(argc, argv, envp));
   assert(0);
 }
