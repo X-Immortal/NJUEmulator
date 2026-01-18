@@ -36,6 +36,6 @@ int isa_mmu_check(vaddr_t vaddr, int len, int type) {
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   paddr_t pdir = (paddr_t) PDIR;
-  paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr), sizeof(uintptr_t))), 0);
-  return MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr), sizeof(uintptr_t))), PG_OFFSET(vaddr));
+  paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr), 4)), 0);
+  return MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr), 4)), PG_OFFSET(vaddr));
 }
