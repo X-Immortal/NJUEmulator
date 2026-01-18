@@ -16,7 +16,26 @@
 #include <isa.h>
 #include <memory/vaddr.h>
 #include <memory/paddr.h>
+#include <../local-include/reg.h>
+
+#define MODE (satp >> 31)
+#define VPN1(va) ((va) >> 22)
+#define VPN2(va) (((va) >> 12) & 0x000003FF)
+#define PG_OFFSET(addr) ((addr) & 0x00000FFF)
+#define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
+#define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
+#define PDIR (satp << 12)
+#define MERGE_ADDR(pno, pgoff) (((pno) << 12) | (pgoff))
+
+int isa_mmu_check(vaddr_t vaddr, int len, int type) {
+  if (MODE) {
+    return MMU_TRANSLATE;
+  }
+  return MMU_DIRECT;
+}
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
-  return MEM_RET_FAIL;
+  paddr_t pdir = (paddr_t) PDIR;
+  paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr), sizeof(uintptr_t))), 0);
+  return MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr), sizeof(uintptr_t))), PG_OFFSET(vaddr));
 }

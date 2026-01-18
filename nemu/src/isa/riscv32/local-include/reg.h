@@ -24,7 +24,7 @@ static inline int check_reg_idx(int idx) {
 }
 
 static inline int check_csr_idx(int idx) {
-  assert(idx >= 0 && idx < 4);
+  assert(idx >= 0 && idx < 5);
   return idx;
 }
 
@@ -34,11 +34,13 @@ static inline int check_csr_idx(int idx) {
 #define mepc (cpu.csr[1])
 #define mstatus (cpu.csr[2])
 #define mcause (cpu.csr[3])
+#define satp (cpu.csr[4])
 #define csr_idx_map(idx) \
   idx == 0x305 ? 0 : \
   idx == 0x341 ? 1 : \
   idx == 0x300 ? 2 : \
-  idx == 0x342 ? 3 : -1
+  idx == 0x342 ? 3 : \
+  idx == 0x180 ? 4 : -1
 #define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
 
 static inline const char* reg_name(int idx) {

@@ -12,6 +12,10 @@ static Area segments[] = {      // Kernel memory mappings
 };
 
 #define USER_SPACE RANGE(0x40000000, 0x80000000)
+#define VPN1(va) ((va) >> 22)
+#define VPN2(va) (((va) >> 12) & 0x000003FF)
+#define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
+#define MAKE_PTE(ppn) ((ppn) << 10)
 
 static inline void set_satp(void *pdir) {
   uintptr_t mode = 1ul << (__riscv_xlen - 1);
@@ -67,6 +71,14 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
+  PTE *updir = (PTE *) as->ptr;
+  uintptr_t vpn1 = VPN1((uintptr_t) va);
+  PTE *upt = (PTE *) updir[vpn1]; 
+  if (upt == NULL) {
+    upt = pgalloc_usr(as->pgsize);
+    updir[vpn1] = MAKE_PTE((uintptr_t) upt);
+  }
+  upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
