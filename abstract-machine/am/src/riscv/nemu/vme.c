@@ -77,8 +77,8 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   uintptr_t vpn1 = VPN1((uintptr_t) va);
   PTE *upt = (PTE *) EXTRACT_PTE(updir[vpn1]);
   if (upt == NULL) {
-    upt = pgalloc_usr(as->pgsize);
     printf("reached here\n");
+    upt = pgalloc_usr(as->pgsize);
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
   upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
