@@ -16,6 +16,7 @@ static Area segments[] = {      // Kernel memory mappings
 #define VPN2(va) (((va) >> 12) & 0x000003FF)
 #define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
 #define MAKE_PTE(ppn) ((ppn) << 10)
+#define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
 
 static inline void set_satp(void *pdir) {
   uintptr_t mode = 1ul << (__riscv_xlen - 1);
@@ -73,10 +74,10 @@ void __am_switch(Context *c) {
 void map(AddrSpace *as, void *va, void *pa, int prot) {
   PTE *updir = (PTE *) as->ptr;
   uintptr_t vpn1 = VPN1((uintptr_t) va);
-  PTE *upt = (PTE *) updir[vpn1]; 
+  PTE *upt = (PTE *) EXTRACT_PTE(updir[vpn1]);
   if (upt == NULL) {
     upt = pgalloc_usr(as->pgsize);
-    updir[vpn1] = MAKE_PTE((uintptr_t) upt);
+    updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
   upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
 }
