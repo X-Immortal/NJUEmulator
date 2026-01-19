@@ -35,7 +35,6 @@ bool vme_init(void* (*pgalloc_f)(int), void (*pgfree_f)(void*)) {
   pgfree_usr = pgfree_f;
 
   kas.ptr = pgalloc_f(PGSIZE);
-  kas.pgsize = PGSIZE;
   printf("pdir=%x\n", kas.ptr);
 
   int i;
@@ -79,11 +78,10 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   uintptr_t vpn1 = VPN1((uintptr_t) va);
   PTE *upt = (PTE *) MERGE_ADDR(EXTRACT_PTE(updir[vpn1]), 0);
   if (upt == NULL) {
-    upt = pgalloc_usr(as->pgsize);
+    upt = pgalloc_usr(PGSIZE);
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
   upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
-  // printf("pte at %p, map vno %x to pno %x\n", upt + VPN2((uintptr_t) va), (int) PPN((uintptr_t) va), upt[VPN2((uintptr_t) va)]);
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {

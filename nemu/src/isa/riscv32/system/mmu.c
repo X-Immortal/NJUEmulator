@@ -38,10 +38,6 @@ int isa_mmu_check(vaddr_t vaddr, int len, int type) {
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   paddr_t pdir = (paddr_t) PDIR;
   paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr) * PTE_LEN, PTE_LEN)), 0);
-  // printf("pgtable at %x, vno=%x, pno=%x\n", pgt, PPN(vaddr), EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN)));
-  // printf("pte at %x, value=%x\n", pgt + VPN2(vaddr) * PTE_LEN, paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN));
   paddr_t ret = MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN)), PG_OFFSET(vaddr));
-  // printf("ret=%x, vaddr=%x\n", ret, vaddr);
-  assert(ret == vaddr);
   return ret;
 }
