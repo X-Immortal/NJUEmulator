@@ -17,6 +17,7 @@ static Area segments[] = {      // Kernel memory mappings
 #define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
 #define MAKE_PTE(ppn) ((ppn) << 10)
 #define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
+#define MERGE_ADDR(pno, pgoff) (((pno) << 12) | (pgoff))
 
 static inline void set_satp(void *pdir) {
   uintptr_t mode = 1ul << (__riscv_xlen - 1);
@@ -75,7 +76,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   printf("reached head\n");
   PTE *updir = (PTE *) as->ptr;
   uintptr_t vpn1 = VPN1((uintptr_t) va);
-  PTE *upt = (PTE *) EXTRACT_PTE(updir[vpn1]);
+  PTE *upt = (PTE *) MERGE_ADDR(EXTRACT_PTE(updir[vpn1]), 0);
   if (upt == NULL) {
     upt = pgalloc_usr(as->pgsize);
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
