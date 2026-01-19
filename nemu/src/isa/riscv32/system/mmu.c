@@ -26,6 +26,7 @@
 #define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
 #define PDIR (satp << 12)
 #define MERGE_ADDR(pno, pgoff) (((pno) << 12) | (pgoff))
+#define PTE_LEN 4
 
 int isa_mmu_check(vaddr_t vaddr, int len, int type) {
   if (MODE) {
@@ -36,6 +37,6 @@ int isa_mmu_check(vaddr_t vaddr, int len, int type) {
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   paddr_t pdir = (paddr_t) PDIR;
-  paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr), 4)), 0);
-  return MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr), 4)), PG_OFFSET(vaddr));
+  paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr) * PTE_LEN, PTE_LEN)), 0);
+  return MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN)), PG_OFFSET(vaddr));
 }
