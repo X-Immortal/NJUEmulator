@@ -72,6 +72,7 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
+  printf("reached here\n");
   PTE *updir = (PTE *) as->ptr;
   uintptr_t vpn1 = VPN1((uintptr_t) va);
   PTE *upt = (PTE *) EXTRACT_PTE(updir[vpn1]);
