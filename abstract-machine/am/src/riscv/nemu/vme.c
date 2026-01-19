@@ -73,7 +73,6 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
-  printf("reached head\n");
   PTE *updir = (PTE *) as->ptr;
   uintptr_t vpn1 = VPN1((uintptr_t) va);
   PTE *upt = (PTE *) MERGE_ADDR(EXTRACT_PTE(updir[vpn1]), 0);
@@ -81,9 +80,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
     upt = pgalloc_usr(as->pgsize);
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
-  printf("reached here\n");
   upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
-  printf("reached tail\n");
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
