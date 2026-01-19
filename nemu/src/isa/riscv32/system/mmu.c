@@ -22,8 +22,8 @@
 #define VPN1(va) ((va) >> 22)
 #define VPN2(va) (((va) >> 12) & 0x000003FF)
 #define PG_OFFSET(addr) ((addr) & 0x00000FFF)
-#define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
-#define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
+#define PPN(pa) ((pa) >> 12)
+#define EXTRACT_PTE(pte) ((pte) >> 10)
 #define PDIR (satp << 12)
 #define MERGE_ADDR(pno, pgoff) (((pno) << 12) | (pgoff))
 #define PTE_LEN 4

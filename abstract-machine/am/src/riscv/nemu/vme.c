@@ -14,9 +14,9 @@ static Area segments[] = {      // Kernel memory mappings
 #define USER_SPACE RANGE(0x40000000, 0x80000000)
 #define VPN1(va) ((va) >> 22)
 #define VPN2(va) (((va) >> 12) & 0x000003FF)
-#define PPN(pa) (((pa) >> 12) & 0x000FFFFF)
+#define PPN(pa) ((pa) >> 12)
 #define MAKE_PTE(ppn) ((ppn) << 10)
-#define EXTRACT_PTE(pte) ((pte >> 10) & 0x003FFFFF)
+#define EXTRACT_PTE(pte) ((pte) >> 10)
 #define MERGE_ADDR(pno, pgoff) (((pno) << 12) | (pgoff))
 
 static inline void set_satp(void *pdir) {
