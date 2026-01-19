@@ -74,10 +74,10 @@ void __am_switch(Context *c) {
 void map(AddrSpace *as, void *va, void *pa, int prot) {
   printf("reached head\n");
   PTE *updir = (PTE *) as->ptr;
+  printf("reached here\n");
   uintptr_t vpn1 = VPN1((uintptr_t) va);
   PTE *upt = (PTE *) EXTRACT_PTE(updir[vpn1]);
   if (upt == NULL) {
-    printf("reached here\n");
     upt = pgalloc_usr(as->pgsize);
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
