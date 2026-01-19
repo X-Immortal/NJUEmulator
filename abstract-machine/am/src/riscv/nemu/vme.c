@@ -83,7 +83,7 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
     updir[vpn1] = MAKE_PTE(PPN((uintptr_t) upt));
   }
   upt[VPN2((uintptr_t) va)] = MAKE_PTE(PPN((uintptr_t) pa));
-  printf("pte at %p, map vno %x to pno %x\n", upt + VPN2((uintptr_t) va), (int) PPN((uintptr_t) va), upt[VPN2((uintptr_t) va)]);
+  // printf("pte at %p, map vno %x to pno %x\n", upt + VPN2((uintptr_t) va), (int) PPN((uintptr_t) va), upt[VPN2((uintptr_t) va)]);
 }
 
 Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
