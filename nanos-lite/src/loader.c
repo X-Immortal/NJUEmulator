@@ -62,7 +62,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         assert(fs_lseek(fd, f_off + len, SEEK_SET) == f_off + len);
         size_t nr_read = program_header.p_filesz - len;
         nr_read = (nr_read < PGSIZE - p_off) ? nr_read : (PGSIZE - p_off);
-        assert(fs_read(fd, (void *) (vaddr + p_off), nr_read) == nr_read);
+        assert(fs_read(fd, (void *) (page + p_off), nr_read) == nr_read);
         len += nr_read;
         p_off += nr_read;
       }
