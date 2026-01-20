@@ -65,8 +65,13 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         len += nr_read;
         p_off += nr_read;
       }
-      memset((void *) (program_header.p_vaddr + program_header.p_filesz), 0, 
-       program_header.p_memsz - program_header.p_filesz);
+      
+      len = ROUNDUP(len, PGSIZE);
+      while (len < program_header.p_memsz) {
+        page = new_page(1);
+        memset(page, 0, PGSIZE);
+        len += PGSIZE;
+      }
     }
   }
   assert(fs_close(fd) == 0);
