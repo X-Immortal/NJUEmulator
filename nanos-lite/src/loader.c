@@ -38,7 +38,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
   Elf_Phdr program_header;
   size_t f_off;
-  void *page = NULL;
+  void *page = new_page(1);
   uintptr_t vaddr = 0;
   size_t p_off = PGSIZE;
   for (int i = 0; i < elf_header.e_phnum; i++) {
@@ -50,12 +50,13 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     if (program_header.p_type == PT_LOAD) {
       f_off = program_header.p_offset;
       p_off = program_header.p_vaddr - vaddr;
+      vaddr = program_header.p_vaddr - PGSIZE;
       size_t len = 0;
       while (len < program_header.p_filesz) {
-        if (page == NULL || p_off >= PGSIZE) {
+        if (p_off >= PGSIZE) {
           page = new_page(1);
-          vaddr = program_header.p_vaddr;
           p_off = 0;
+          vaddr += PGSIZE;
           map(&pcb->as, (void *) vaddr, page, 0);
         }
         assert(fs_lseek(fd, f_off + len, SEEK_SET) == f_off + len);
