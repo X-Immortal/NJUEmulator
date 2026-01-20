@@ -71,6 +71,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     }
   }
   assert(fs_close(fd) == 0);
+  assert(elf_header.e_entry == 0x40000000);
   return elf_header.e_entry;
 }
 
