@@ -54,6 +54,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       while (len < program_header.p_filesz) {
         if (page == NULL || p_off >= PGSIZE) {
           page = new_page(1);
+          assert(vaddr);
           vaddr = program_header.p_vaddr;
           p_off = 0;
           map(&pcb->as, (void *) vaddr, page, 0);
