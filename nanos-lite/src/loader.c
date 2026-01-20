@@ -23,6 +23,7 @@
 #endif
 
 #define ALIGNMENT 16
+#define NR_PGS_USTACK 8
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 
@@ -36,18 +37,34 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   assert(elf_header.e_machine == EXPECT_TYPE);
 
   Elf_Phdr program_header;
-  size_t offset;
+  size_t f_off;
+  void *page = NULL;
+  uintptr_t vaddr = 0;
+  size_t p_off = PGSIZE;
   for (int i = 0; i < elf_header.e_phnum; i++) {
-    offset = elf_header.e_phoff + i * elf_header.e_phentsize;
-    ret = fs_lseek(fd, offset, SEEK_SET);
-    assert(ret == offset);
+    f_off = elf_header.e_phoff + i * elf_header.e_phentsize;
+    ret = fs_lseek(fd, f_off, SEEK_SET);
+    assert(ret == f_off);
     ret = fs_read(fd, &program_header, elf_header.e_phentsize);
     assert(ret == elf_header.e_phentsize);
     if (program_header.p_type == PT_LOAD) {
-      ret = fs_lseek(fd, program_header.p_offset, SEEK_SET);
-      assert(ret == program_header.p_offset);
-      ret = fs_read(fd, (void *) program_header.p_vaddr, program_header.p_filesz);
-      assert(ret == program_header.p_filesz);
+      f_off = program_header.p_offset;
+      p_off = program_header.p_vaddr - vaddr;
+      size_t len = 0;
+      while (len < program_header.p_filesz) {
+        if (page == NULL || p_off >= PGSIZE) {
+          page = new_page(1);
+          vaddr = program_header.p_vaddr;
+          p_off = 0;
+          map(&pcb->as, (void *) vaddr, page, 0);
+        }
+        assert(fs_lseek(fd, f_off + len, SEEK_SET) == f_off + len);
+        size_t nr_read = program_header.p_filesz - len;
+        nr_read = (nr_read < PGSIZE - p_off) ? nr_read : (PGSIZE - p_off);
+        assert(fs_read(fd, (void *) (vaddr + p_off), nr_read) == nr_read);
+        len += nr_read;
+        p_off += nr_read;
+      }
       memset((void *) (program_header.p_vaddr + program_header.p_filesz), 0, 
        program_header.p_memsz - program_header.p_filesz);
     }
@@ -73,6 +90,8 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     envp = default_envp;
   }
 
+  protect(&pcb->as);
+
   size_t str_len = 0;
   size_t argc = 0;
   for (size_t i = 0; argv[i]; ++i) {
@@ -92,7 +111,14 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
     str_len += env_slen[i] = strlen(envp[i]) + 1;
   }
 
-  uintptr_t stack = (uintptr_t) new_page(8);
+  uintptr_t stack = (uintptr_t) new_page(NR_PGS_USTACK);
+  for (int i = 0; i < NR_PGS_USTACK; ++i) {
+    map(&pcb->as, 
+      (void *) (pcb->as.area.end - (NR_PGS_USTACK - i) * PGSIZE), 
+      (void *) (stack + i * PGSIZE),
+      0);
+  }
+
   uintptr_t end = stack + 8 * PGSIZE;
   uintptr_t str_area_p = end - ROUNDUP(str_len, ALIGNMENT);
   uintptr_t start = str_area_p - ROUNDUP((argc + envc + 2) * sizeof(char *) + sizeof(int), ALIGNMENT);

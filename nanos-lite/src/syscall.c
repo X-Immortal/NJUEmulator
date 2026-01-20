@@ -53,6 +53,7 @@ void do_syscall(Context *c) {
     case SYS_yield: yield(); c->GPRx = 0; break;
     case SYS_brk: c->GPRx = 0;            break;
     case SYS_exit:
+      halt(-1);
       a[0] = SYS_execve;
       a[1] = (uintptr_t) DEFAULT_PROC;
       a[2] = (uintptr_t) exit_argv;
