@@ -26,7 +26,7 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, (void *) 'a');
+  // context_kload(&pcb[0], hello_fun, (void *) 'a');
   char *argv[] = { "/bin/dummy", NULL };
   char *envp[] = { NULL };
   context_uload(&pcb[1], "/bin/dummy", argv, envp);
@@ -40,6 +40,7 @@ void init_proc() {
 
 Context* schedule(Context *prev) {
   current->cp = prev;
-  current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
+  current = &pcb[1];
+  // current = (current == &pcb[0] ? &pcb[1] : &pcb[0]);
   return current->cp;
 }
