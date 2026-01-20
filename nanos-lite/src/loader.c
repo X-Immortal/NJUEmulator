@@ -55,7 +55,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         if (page == NULL || p_off >= PGSIZE) {
           page = new_page(1);
           vaddr = program_header.p_vaddr;
-          assert(vaddr);
           p_off = 0;
           map(&pcb->as, (void *) vaddr, page, 0);
         }
@@ -71,7 +70,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     }
   }
   assert(fs_close(fd) == 0);
-  assert(elf_header.e_entry == 0x40000000);
   return elf_header.e_entry;
 }
 
