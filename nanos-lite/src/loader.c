@@ -139,4 +139,5 @@ void context_uload(PCB *pcb, const char *filename, char * const argv[], char * c
   pcb->cp = ucontext(&pcb->as, (Area) { pcb->stack, &pcb->stack + 1 }, (void *) entry);
 
   pcb->cp->GPRx = start;
+  pcb->max_brk = 0;
 }
