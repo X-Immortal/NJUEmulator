@@ -38,41 +38,27 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
   Elf_Phdr program_header;
   size_t f_off;
-  void *page = new_page(1);
-  uintptr_t vaddr = 0;
-  size_t p_off = PGSIZE;
   for (int i = 0; i < elf_header.e_phnum; i++) {
     f_off = elf_header.e_phoff + i * elf_header.e_phentsize;
     ret = fs_lseek(fd, f_off, SEEK_SET);
     assert(ret == f_off);
     ret = fs_read(fd, &program_header, elf_header.e_phentsize);
     assert(ret == elf_header.e_phentsize);
+
     if (program_header.p_type == PT_LOAD) {
-      f_off = program_header.p_offset;
-      p_off = program_header.p_vaddr - vaddr;
-      vaddr = program_header.p_vaddr - PGSIZE;
-      size_t len = 0;
-      while (len < program_header.p_filesz) {
-        if (p_off >= PGSIZE) {
-          page = new_page(1);
-          p_off = 0;
-          vaddr += PGSIZE;
-          map(&pcb->as, (void *) vaddr, page, 0);
-        }
-        assert(fs_lseek(fd, f_off + len, SEEK_SET) == f_off + len);
-        size_t nr_read = program_header.p_filesz - len;
-        nr_read = (nr_read < PGSIZE - p_off) ? nr_read : (PGSIZE - p_off);
-        assert(fs_read(fd, (void *) (page + p_off), nr_read) == nr_read);
-        len += nr_read;
-        p_off += nr_read;
+      size_t nr_page = ROUNDUP(program_header.p_memsz, PGSIZE) / PGSIZE;
+      void *page = new_page(nr_page);
+      uintptr_t vaddr = program_header.p_vaddr;
+      for (size_t i = 0; i < nr_page; ++i) {
+        map(&pcb->as, 
+            (void *) (vaddr + i * PGSIZE), 
+            (void *) ((uintptr_t) page + i * PGSIZE), 
+            0);
       }
-      
-      len = ROUNDUP(len, PGSIZE);
-      while (len < program_header.p_memsz) {
-        page = new_page(1);
-        memset(page, 0, PGSIZE);
-        len += PGSIZE;
-      }
+      assert(fs_lseek(fd, program_header.p_offset, SEEK_SET) == program_header.p_offset);
+      assert(fs_read(fd, page, program_header.p_filesz) == program_header.p_filesz);
+      memset((void *) ((uintptr_t) page + program_header.p_filesz), 0, 
+             program_header.p_memsz - program_header.p_filesz);
     }
   }
   assert(fs_close(fd) == 0);
