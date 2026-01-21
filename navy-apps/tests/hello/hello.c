@@ -1,9 +1,11 @@
 #include <unistd.h>
 #include <stdio.h>
 
+void *_sbrk(intptr_t increment);
+
 int main() {
   // write(1, "Hello World!\n", 13);
-  printf("1\n");
+  // printf("1\n");
   // int i = 2;
   // volatile int j = 0;
   // while (1) {
@@ -13,5 +15,6 @@ int main() {
   //     j = 0;
   //   }
   // }
+  _sbrk(0);
   return 0;
 }
