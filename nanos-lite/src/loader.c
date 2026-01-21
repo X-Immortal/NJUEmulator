@@ -48,10 +48,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     if (program_header.p_type == PT_LOAD) {
       size_t nr_page = ROUNDUP(program_header.p_memsz, PGSIZE) / PGSIZE;
       void *page = new_page(nr_page);
-      uintptr_t vaddr = program_header.p_vaddr;
       for (size_t i = 0; i < nr_page; ++i) {
         map(&pcb->as, 
-            (void *) (vaddr + i * PGSIZE), 
+            (void *) (program_header.p_vaddr + i * PGSIZE), 
             (void *) ((uintptr_t) page + i * PGSIZE), 
             0);
       }
