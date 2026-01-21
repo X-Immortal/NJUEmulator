@@ -16,7 +16,7 @@ int main() {
   //     j = 0;
   //   }
   // }
-  // void *start = _sbrk(0);
+  void *start = _sbrk(0);
   void *end = _sbrk(4096);
   // ((char *) start)[0] = 'A';
   // ((char *) start)[1] = 'B';
