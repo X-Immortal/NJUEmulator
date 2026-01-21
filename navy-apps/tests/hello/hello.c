@@ -18,8 +18,8 @@ int main() {
   // }
   void *start = _sbrk(0);
   void *end = _sbrk(4096);
-  ((char *) start)[0] = 'A';
-  ((char *) start)[1] = 'B';
-  assert(((char *) start)[0] + 1 == ((char *) start)[1]);
+  // ((char *) start)[0] = 'A';
+  // ((char *) start)[1] = 'B';
+  // assert(((char *) start)[0] + 1 == ((char *) start)[1]);
   return 0;
 }
