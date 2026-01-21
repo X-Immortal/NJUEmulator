@@ -52,7 +52,8 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_yield: yield(); c->GPRx = 0; break;
     case SYS_brk: 
-      c->GPRx = mm_brk(a[1]);
+      c->GPRx = 0;
+      // c->GPRx = mm_brk(a[1]);
       break;
     case SYS_exit:
       halt(0);
