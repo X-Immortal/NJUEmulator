@@ -35,7 +35,6 @@ int mm_brk(uintptr_t brk) {
   if (brk <= current->max_brk) return 0;
 
   uintptr_t new_space = ROUNDUP(brk - current->max_brk, PGSIZE);
-  assert(new_space == 4096);
   int nr_page = new_space / PGSIZE;
   void *page = new_page(nr_page);
   for (int i = 0; i < nr_page; ++i) {
