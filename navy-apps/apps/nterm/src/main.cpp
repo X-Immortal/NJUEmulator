@@ -12,7 +12,6 @@ void builtin_sh_run();
 void extern_app_run(const char *app_path);
 
 int main(int argc, char *argv[]) {
-  printf("reached here\n");
   SDL_Init(0);
   builtin_sh_init();
   font = new BDF_Font(font_fname);
