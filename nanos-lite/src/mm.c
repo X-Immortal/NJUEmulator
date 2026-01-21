@@ -44,6 +44,7 @@ int mm_brk(uintptr_t brk) {
         0);
   }
   current->max_brk += new_space;
+  assert(0);
   return 0;
 }
 
