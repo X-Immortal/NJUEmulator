@@ -29,7 +29,7 @@ void free_page(void *p) {
 /* The brk() system call handler. */
 int mm_brk(uintptr_t brk) {
   if (current->max_brk == 0) {
-    current->max_brk = brk;
+    current->max_brk = ROUNDDOWN(brk, PGSIZE);
     return 0;
   }
   if (brk <= current->max_brk) return 0;
