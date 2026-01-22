@@ -32,7 +32,7 @@ void init_proc() {
   // context_uload(&pcb[0], "/bin/hello", argv1, envp1);
   char *argv[] = { "/bin/nterm", NULL };
   char *envp[] = { NULL };
-  context_uload(&pcb[1], "/bin/nterm", argv, envp);
+  context_uload(&pcb[1], "/bin/pal", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");
