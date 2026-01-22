@@ -41,7 +41,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   size_t f_off;
   void *page = NULL;
   uintptr_t vaddr = 0;
-  size_t p_off = 0;
+  size_t p_off = PGSIZE;
   for (int i = 0; i < elf_header.e_phnum; i++) {
     f_off = elf_header.e_phoff + i * elf_header.e_phentsize;
     ret = fs_lseek(fd, f_off, SEEK_SET);
