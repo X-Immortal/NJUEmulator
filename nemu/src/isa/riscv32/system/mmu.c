@@ -36,9 +36,8 @@ int isa_mmu_check(vaddr_t vaddr, int len, int type) {
 }
 
 paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
-  Assert(vaddr >= 0x40000000, "vaddr=0x%x is invalid in isa_mmu_translate", vaddr);
+  // Assert(vaddr >= 0x40000000, "vaddr=0x%x is invalid in isa_mmu_translate", vaddr);
   paddr_t pdir = (paddr_t) PDIR;
-  assert(pdir + VPN1(vaddr) * PTE_LEN != 0);
   paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr) * PTE_LEN, PTE_LEN)), 0);
   paddr_t ret = MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN)), PG_OFFSET(vaddr));
   return ret;
