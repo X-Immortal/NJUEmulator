@@ -115,6 +115,7 @@ static void execute(uint64_t n) {
       cpu.pc = isa_raise_intr(intr, cpu.pc);
     }
   }
+  Log("execute over\n");
 }
 
 static void statistic() {
