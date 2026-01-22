@@ -30,7 +30,8 @@ enum { MODE_U, MODE_S, MODE_M = 3 };
 #define MSTATUS_SXL  0
 #define MSTATUS_UXL  0
 
-#define MCAUSE_ECALL 11
+#define M_MODE_ENV_CALL 11
+#define M_TIMER_INTR 0x80000007
 #endif
 
 #endif

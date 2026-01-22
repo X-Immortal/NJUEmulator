@@ -42,6 +42,10 @@ static inline int check_csr_idx(int idx) {
   idx == 0x342 ? 3 : \
   idx == 0x180 ? 4 : -1
 #define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
+#define MIE ((mstatus >> 3) & 1)
+#define MPIE ((mstatus >> 7) & 1)
+#define SET_MIE(val) do { mstatus = (mstatus & (~(1 << 3))) | ((val) << 3); } while (0)
+#define SET_MPIE(val) do { mstatus = (mstatus & (~(1 << 7))) | ((val) << 7); } while (0)
 
 static inline const char* reg_name(int idx) {
   extern const char* regs[];

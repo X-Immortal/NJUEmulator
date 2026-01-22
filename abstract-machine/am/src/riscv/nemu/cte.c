@@ -13,13 +13,16 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
-      case MCAUSE_ECALL: 
+      case M_MODE_ENV_CALL: 
         if (c->GPR1 == (uintptr_t) -1) {
           ev.event = EVENT_YIELD;
         } else {
           ev.event = EVENT_SYSCALL;
         }
         c->mepc += 4;
+        break;
+      case M_TIMER_INTR:
+        ev.event = EVENT_IRQ_TIMER;
         break;
       default: ev.event = EVENT_ERROR; break;
     }
@@ -47,7 +50,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *context = (Context *) kstack.end - 1;
   context->mepc = (uintptr_t) entry;
-  context->mstatus = (uintptr_t) 0x1800; // set mstatus to pass difftest
+  context->mstatus = (uintptr_t) 0x1808; // set mstatus to pass difftest
   context->GPR2 = (uintptr_t) arg;
   context->pdir = NULL;
   return context;
