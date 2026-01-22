@@ -35,7 +35,6 @@ static void restart() {
   cpu.gpr[0] = 0;
 
   mstatus = 0x1808;
-  assert(0);
   satp = 0;
 }
 
