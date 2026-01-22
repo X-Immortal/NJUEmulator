@@ -44,19 +44,17 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
   size_t p_off = 0;
   for (int i = 0; i < elf_header.e_phnum; i++) {
     f_off = elf_header.e_phoff + i * elf_header.e_phentsize;
-    ret = fs_lseek(fd, f_off, SEEK_SET);
-    assert(ret == f_off);
-    ret = fs_read(fd, &program_header, elf_header.e_phentsize);
-    assert(ret == elf_header.e_phentsize);
+    assert(fs_lseek(fd, f_off, SEEK_SET) == f_off);
+    assert(fs_read(fd, &program_header, elf_header.e_phentsize) == elf_header.e_phentsize);
 
     if (program_header.p_type == PT_LOAD) {
       f_off = program_header.p_offset;
       p_off = program_header.p_vaddr - vaddr;
-      size_t j;
-      for (j = 0; j < program_header.p_memsz; ) {
+      size_t v_off;
+      for (v_off = 0; v_off < program_header.p_memsz; ) {
         if (p_off >= PGSIZE) {
           page = new_page(1);
-          if (j == 0) {
+          if (v_off == 0) {
             vaddr = ROUNDDOWN(program_header.p_vaddr, PGSIZE);
             p_off = program_header.p_vaddr - vaddr;
           } else {
@@ -67,17 +65,17 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         }
         size_t len;
         size_t left = PGSIZE - p_off;
-        if (j < program_header.p_filesz) {
-          len = program_header.p_filesz - j;
+        if (v_off < program_header.p_filesz) {
+          len = program_header.p_filesz - v_off;
           len = len < left ? len : left;
-          assert(fs_lseek(fd, f_off + j, SEEK_SET) == f_off + j);
+          assert(fs_lseek(fd, f_off + v_off, SEEK_SET) == f_off + v_off);
           assert(fs_read(fd, (void *) ((uintptr_t) page + p_off), len) == len);
         } else {
-          len = program_header.p_memsz - j;
+          len = program_header.p_memsz - v_off;
           len = len < left ? len : left;
           memset((void *) ((uintptr_t) page + p_off), 0, len);
         }
-        j += len;
+        v_off += len;
         p_off += len;
       }
     }
