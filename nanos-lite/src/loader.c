@@ -39,6 +39,9 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
 
   Elf_Phdr program_header;
   size_t f_off;
+  void *page = NULL;
+  uintptr_t vaddr = 0;
+  size_t p_off = 0;
   for (int i = 0; i < elf_header.e_phnum; i++) {
     f_off = elf_header.e_phoff + i * elf_header.e_phentsize;
     ret = fs_lseek(fd, f_off, SEEK_SET);
@@ -47,18 +50,32 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     assert(ret == elf_header.e_phentsize);
 
     if (program_header.p_type == PT_LOAD) {
-      size_t nr_page = ROUNDUP(program_header.p_memsz, PGSIZE) / PGSIZE;
-      void *page = new_page(nr_page);
-      for (size_t i = 0; i < nr_page; ++i) {
-        map(&pcb->as, 
-            (void *) (program_header.p_vaddr + i * PGSIZE), 
-            (void *) ((uintptr_t) page + i * PGSIZE), 
-            0);
+      f_off = program_header.p_offset;
+      p_off = program_header.p_vaddr - vaddr;
+      size_t j;
+      for (j = 0; j < program_header.p_memsz; ) {
+        if (p_off >= PGSIZE) {
+          page = new_page(1);
+          p_off = 0;
+          if (j == 0) {
+            vaddr = ROUNDDOWN(program_header.p_vaddr, PGSIZE);
+          } else {
+            vaddr += PGSIZE;
+          }
+          map(&pcb->as, (void *) vaddr, page, 0);
+        }
+        size_t len = program_header.p_filesz - j;
+        size_t left = PGSIZE - p_off;
+        len = len < left ? len : left;
+        if (j < program_header.p_filesz) {
+          assert(fs_lseek(fd, f_off + j, SEEK_SET) == program_header.p_offset);
+          assert(fs_read(fd, (void *) ((uintptr_t) page + p_off), len) == len);
+        } else {
+          memset((void *) ((uintptr_t) page + p_off), 0, len);
+        }
+        j += len;
+        p_off += len;
       }
-      assert(fs_lseek(fd, program_header.p_offset, SEEK_SET) == program_header.p_offset);
-      assert(fs_read(fd, page, program_header.p_filesz) == program_header.p_filesz);
-      memset((void *) ((uintptr_t) page + program_header.p_filesz), 0, 
-             program_header.p_memsz - program_header.p_filesz);
     }
   }
   assert(fs_close(fd) == 0);
