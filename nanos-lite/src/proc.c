@@ -26,10 +26,10 @@ void hello_fun(void *arg) {
 }
 
 void init_proc() {
-  context_kload(&pcb[0], hello_fun, (void *) 'a');
-  // char *argv1[] = { "/bin/hello", NULL };
-  // char *envp1[] = { NULL };
-  // context_uload(&pcb[0], "/bin/hello", argv1, envp1);
+  // context_kload(&pcb[0], hello_fun, (void *) 'a');
+  char *argv1[] = { "/bin/hello", NULL };
+  char *envp1[] = { NULL };
+  context_uload(&pcb[0], "/bin/hello", argv1, envp1);
   char *argv[] = { "/bin/nterm", NULL };
   char *envp[] = { NULL };
   context_uload(&pcb[1], "/bin/nterm", argv, envp);
