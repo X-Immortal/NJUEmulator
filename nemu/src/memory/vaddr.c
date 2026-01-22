@@ -25,6 +25,10 @@ word_t vaddr_ifetch(vaddr_t addr, int len) {
 
 word_t vaddr_read(vaddr_t addr, int len) {
   if (unlikely(isa_mmu_check(addr, len, MEM_TYPE_READ) == MMU_DIRECT)) {
+    if (addr == 0) {
+      printf("vaddr=0x%x\n", addr);
+      assert(0);
+    }
     return paddr_read(addr, len);
   }
   return paddr_read(isa_mmu_translate(addr, len, MEM_TYPE_READ), len);
