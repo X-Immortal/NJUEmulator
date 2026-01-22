@@ -68,7 +68,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
         size_t left = PGSIZE - p_off;
         len = len < left ? len : left;
         if (j < program_header.p_filesz) {
-          assert(fs_lseek(fd, f_off + j, SEEK_SET) == program_header.p_offset);
+          assert(fs_lseek(fd, f_off + j, SEEK_SET) == f_off + j);
           assert(fs_read(fd, (void *) ((uintptr_t) page + p_off), len) == len);
         } else {
           memset((void *) ((uintptr_t) page + p_off), 0, len);
