@@ -29,7 +29,7 @@ void init_proc() {
   // context_kload(&pcb[0], hello_fun, (void *) 'a');
   char *argv[] = { "/bin/pal", NULL };
   char *envp[] = { NULL };
-  context_uload(&pcb[1], "/bin/timer-test", argv, envp);
+  context_uload(&pcb[1], "/bin/file-test", argv, envp);
   switch_boot_pcb();
 
   Log("Initializing processes...");
