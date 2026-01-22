@@ -16,5 +16,6 @@
 #include <isa.h>
 
 void dev_raise_intr() {
+	printf("raise timer intr\n");
 	cpu.INTR = true;
 }
