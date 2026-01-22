@@ -56,13 +56,13 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
       for (j = 0; j < program_header.p_memsz; ) {
         if (p_off >= PGSIZE) {
           page = new_page(1);
-          p_off = 0;
           if (j == 0) {
             vaddr = ROUNDDOWN(program_header.p_vaddr, PGSIZE);
+            p_off = program_header.p_vaddr - vaddr;
           } else {
             vaddr += PGSIZE;
+            p_off = 0;
           }
-          p_off = program_header.p_vaddr - vaddr;
           map(&pcb->as, (void *) vaddr, page, 0);
         }
         size_t len;
