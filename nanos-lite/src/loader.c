@@ -64,13 +64,16 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
           }
           map(&pcb->as, (void *) vaddr, page, 0);
         }
-        size_t len = program_header.p_filesz - j;
+        size_t len;
         size_t left = PGSIZE - p_off;
-        len = len < left ? len : left;
         if (j < program_header.p_filesz) {
+          len = program_header.p_filesz - j;
+          len = len < left ? len : left;
           assert(fs_lseek(fd, f_off + j, SEEK_SET) == f_off + j);
           assert(fs_read(fd, (void *) ((uintptr_t) page + p_off), len) == len);
         } else {
+          len = program_header.p_memsz - j;
+          len = len < left ? len : left;
           memset((void *) ((uintptr_t) page + p_off), 0, len);
         }
         j += len;
@@ -79,7 +82,6 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     }
   }
   assert(fs_close(fd) == 0);
-  assert(0);
   return elf_header.e_entry;
 }
 
