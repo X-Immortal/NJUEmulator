@@ -39,5 +39,9 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int len, int type) {
   paddr_t pdir = (paddr_t) PDIR;
   paddr_t pgt = MERGE_ADDR(EXTRACT_PTE(paddr_read(pdir + VPN1(vaddr) * PTE_LEN, PTE_LEN)), 0);
   paddr_t ret = MERGE_ADDR(EXTRACT_PTE(paddr_read(pgt + VPN2(vaddr) * PTE_LEN, PTE_LEN)), PG_OFFSET(vaddr));
+  if (ret == 0) {
+    printf("vaddr=0x%x\n", vaddr);
+    assert(0);
+  }
   return ret;
 }
