@@ -62,6 +62,7 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
           } else {
             vaddr += PGSIZE;
           }
+          p_off = program_header.p_vaddr - vaddr;
           map(&pcb->as, (void *) vaddr, page, 0);
         }
         size_t len;
