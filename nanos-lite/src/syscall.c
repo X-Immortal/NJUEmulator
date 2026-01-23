@@ -55,7 +55,6 @@ void do_syscall(Context *c) {
       c->GPRx = mm_brk(a[1]);
       break;
     case SYS_exit:
-      halt(0);
       a[0] = SYS_execve;
       a[1] = (uintptr_t) DEFAULT_PROC;
       a[2] = (uintptr_t) exit_argv;
