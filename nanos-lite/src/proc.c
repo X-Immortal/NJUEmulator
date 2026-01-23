@@ -11,6 +11,12 @@ void switch_boot_pcb() {
   current = &pcb_boot;
 }
 
+void switch_fg_pcb(int n) {
+  if (n > 0 && n < MAX_NR_PROC) {
+    fg_pcb = &pcb[n];
+  }
+}
+
 void hello_fun(void *arg) {
   int j = 1;
   int i = 0;
