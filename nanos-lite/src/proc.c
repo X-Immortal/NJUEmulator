@@ -21,7 +21,7 @@ void hello_fun(void *arg) {
   int j = 1;
   int i = 0;
   while (1) {
-    if (i < 500) {
+    if (i < 250) {
       i++;
     } else {
       Log("Hello World from Nanos-lite with arg '%c' for the %dth time!", (uintptr_t)arg, j);
