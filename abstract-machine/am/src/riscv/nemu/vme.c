@@ -1,6 +1,7 @@
 #include <am.h>
 #include <nemu.h>
 #include <klib.h>
+#include <riscv/riscv.h>
 
 static AddrSpace kas = {};
 static void* (*pgalloc_usr)(int) = NULL;
@@ -89,5 +90,6 @@ Context *ucontext(AddrSpace *as, Area kstack, void *entry) {
   context->mepc = (uintptr_t) entry;
   context->mstatus = (uintptr_t) 0x1880; // set mstatus to pass difftest
   context->pdir = as->ptr;
+  context->np = USER;
   return context;
 }

@@ -24,7 +24,7 @@ static inline int check_reg_idx(int idx) {
 }
 
 static inline int check_csr_idx(int idx) {
-  assert(idx >= 0 && idx < 5);
+  assert(idx >= 0 && idx < 6);
   return idx;
 }
 
@@ -35,12 +35,14 @@ static inline int check_csr_idx(int idx) {
 #define mstatus (cpu.csr[2])
 #define mcause (cpu.csr[3])
 #define satp (cpu.csr[4])
+#define mscratch (cpu.csr[5])
 #define csr_idx_map(idx) \
   idx == 0x305 ? 0 : \
   idx == 0x341 ? 1 : \
   idx == 0x300 ? 2 : \
   idx == 0x342 ? 3 : \
-  idx == 0x180 ? 4 : -1
+  idx == 0x180 ? 4 : \
+  idx == 0x340 ? 5 : -1
 #define csr(idx) (cpu.csr[check_csr_idx(csr_idx_map(idx))])
 #define MIE ((mstatus >> 3) & 1)
 #define MPIE ((mstatus >> 7) & 1)

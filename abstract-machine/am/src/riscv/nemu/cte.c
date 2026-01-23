@@ -40,6 +40,7 @@ extern void __am_asm_trap(void);
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
   asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
+  asm volatile("csrw mscratch, x0");
 
   // register event handler
   user_handler = handler;
@@ -53,6 +54,8 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   context->mstatus = (uintptr_t) 0x1880; // set mstatus to pass difftest
   context->GPR2 = (uintptr_t) arg;
   context->pdir = NULL;
+  context->np = KERNEL;
+  context->SP = (uintptr_t) kstack.end;
   return context;
 }
 

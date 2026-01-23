@@ -24,7 +24,7 @@ const char *regs[] = {
 };
 
 const char *csrs[] = {
-  "mtvec", "mepc", "mstatus", "mcause", "satp"
+  "mtvec", "mepc", "mstatus", "mcause", "satp", "mscratch"
 };
 
 const size_t nr_regs = ARRLEN(regs);

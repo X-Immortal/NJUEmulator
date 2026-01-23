@@ -32,6 +32,8 @@ enum { MODE_U, MODE_S, MODE_M = 3 };
 
 #define M_MODE_ENV_CALL 11
 #define M_TIMER_INTR 0x80000007
+
+enum { USER, KERNEL, };
 #endif
 
 #endif

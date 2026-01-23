@@ -31,15 +31,27 @@ f(30) f(31)
 #define PUSH(n) STORE concat(x, n), (n * XLEN)(sp);
 #define POP(n)  LOAD  concat(x, n), (n * XLEN)(sp);
 
-#define CONTEXT_SIZE  ((NR_REGS + 4) * XLEN)
+#define CONTEXT_SIZE  ((NR_REGS + 5) * XLEN)
 #define OFFSET_SP     ( 2 * XLEN)
 #define OFFSET_CAUSE  ((NR_REGS + 0) * XLEN)
 #define OFFSET_STATUS ((NR_REGS + 1) * XLEN)
 #define OFFSET_EPC    ((NR_REGS + 2) * XLEN)
+#define OFFSET_NP     ((NR_REGS + 4) * XLEN)
 
+.bss
+.align 3
+.globl sp_val
+sp_val: .space 4
+
+.text
 .align 3
 .globl __am_asm_trap
 __am_asm_trap:
+  csrrw sp, mscratch, sp 
+  bnez sp, save_context
+  csrr sp, mscratch;
+  
+save_context:
   addi sp, sp, -CONTEXT_SIZE
 
   MAP(REGS, PUSH)
@@ -47,10 +59,18 @@ __am_asm_trap:
   csrr t0, mcause
   csrr t1, mstatus
   csrr t2, mepc
+  csrr t3, mscratch
+  addi t4, t3, -CONTEXT_SIZE
+  sub t4, t4, sp
+  seqz t4, t4
 
   STORE t0, OFFSET_CAUSE(sp)
   STORE t1, OFFSET_STATUS(sp)
   STORE t2, OFFSET_EPC(sp)
+  STORE t3, OFFSET_SP(sp)
+  STORE t4, OFFSET_NP(sp)
+
+  csrw mscratch, x0
 
   # set mstatus.MPRV to pass difftest
   li a0, (1 << 17)
@@ -64,10 +84,22 @@ __am_asm_trap:
 
   LOAD t1, OFFSET_STATUS(sp)
   LOAD t2, OFFSET_EPC(sp)
+  LOAD t3, OFFSET_SP(sp)
+  LOAD t4, OFFSET_NP(sp)
+
+  la t0, sp_val
+  STORE t3, 0(t0)
+
+  bnez t4, restore_context
+  addi t4, sp, CONTEXT_SIZE
+  csrw mscratch, t4
+
+restore_context:
   csrw mstatus, t1
   csrw mepc, t2
 
   MAP(REGS, POP)
 
-  addi sp, sp, CONTEXT_SIZE
+  la sp, sp_val
+  LOAD sp, 0(sp)
   mret
