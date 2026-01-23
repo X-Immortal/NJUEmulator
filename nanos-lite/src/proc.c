@@ -34,11 +34,11 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   context_kload(&pcb[0], hello_fun, (void *) 'a');
-  char *argv1[] = { "/bin/pal", NULL };
+  char *argv1[] = { "/bin/nterm", NULL };
   context_uload(&pcb[1], argv1[0], argv1, NULL);
-  char *argv2[] = { "/bin/bird", NULL };
+  char *argv2[] = { "/bin/nterm", NULL };
   context_uload(&pcb[2], argv2[0], argv2, NULL);
-  char *argv3[] = { "/bin/nslider", NULL };
+  char *argv3[] = { "/bin/nterm", NULL };
   context_uload(&pcb[3], argv3[0], argv3, NULL);
   switch_boot_pcb();
 
