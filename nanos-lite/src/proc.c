@@ -13,14 +13,14 @@ void switch_boot_pcb() {
 
 void hello_fun(void *arg) {
   int j = 1;
-  // int i = 0;
+  int i = 0;
   while (1) {
-    // if (i < 1000000) {
-    //   i++;
-    // } else {
+    if (i < 10000) {
+      i++;
+    } else {
       Log("Hello World from Nanos-lite with arg '%c' for the %dth time!", (uintptr_t)arg, j);
-    //   i = 0;
-    // }
+      i = 0;
+    }
     j ++;
     yield();
   }
