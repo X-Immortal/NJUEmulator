@@ -55,6 +55,9 @@ case $1 in
   navy-apps)
     init NJU-ProjectN/navy-apps ics2024 navy-apps true NAVY_HOME
     ;;
+  riscv-tests-am)
+    init NJU-ProjectN/riscv-tests-am master riscv-tests-am false
+    ;;
   *)
     echo "Invalid input..."
     exit

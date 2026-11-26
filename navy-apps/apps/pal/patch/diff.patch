@@ -1,0 +1,30 @@
+diff --git a/src/main.c b/src/main.c
+index 9addbc7..bcc1543 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -420,6 +420,14 @@ PAL_SplashScreen(
+    PAL_FadeOut(1);
+ }
+ 
++bool has_skip_option(int argc, char *argv[]) {
++   for (int i = 1; i < argc; ++i) {
++      if (strcmp(argv[i], "--skip") == 0) {
++         return true;
++      }
++   }
++   return false;
++}
+ 
+ 
+ int
+@@ -468,7 +476,9 @@ main(
+    //
+    // Show the trademark screen and splash screen
+    //
+-   PAL_TrademarkScreen();
++   if (!has_skip_option(argc, argv)) {
++      PAL_TrademarkScreen();
++   }
+    PAL_SplashScreen();
+ 
+    //
