@@ -49,9 +49,11 @@ case $1 in
   am-kernels)
     init NJU-ProjectN/am-kernels ics2021 am-kernels false
     if [ -d extra-tests ]; then
-      cp -f extra-tests/cpu-tests/*.c am-kernels/tests/cpu-tests/tests/
+      for f in extra-tests/cpu-tests/*.c; do
+        [ -e "$f" ] && ln -sf "../../../../$f" am-kernels/tests/cpu-tests/tests/
+      done
       mkdir -p am-kernels/benchmarks/klib-bench
-      cp -f extra-tests/klib-bench/Makefile extra-tests/klib-bench/klib-bench.c am-kernels/benchmarks/klib-bench/
+      ln -sf ../../../extra-tests/klib-bench/Makefile ../../../extra-tests/klib-bench/klib-bench.c am-kernels/benchmarks/klib-bench/
     fi
     ;;
   nanos-lite)
